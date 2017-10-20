@@ -60,7 +60,6 @@ public class LobbyFragment extends Fragment {
         {
             throw new ClassCastException();
         }
-
     }
 
 

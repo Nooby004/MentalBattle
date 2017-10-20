@@ -2,23 +2,16 @@ package com.example.mlallemant.mentalbattle.UI.Fragment;
 
 import android.app.Fragment;
 import android.content.Context;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -26,13 +19,9 @@ import com.example.mlallemant.mentalbattle.R;
 import com.example.mlallemant.mentalbattle.Utils.Calculation;
 import com.example.mlallemant.mentalbattle.Utils.DatabaseManager;
 import com.example.mlallemant.mentalbattle.Utils.Game;
-import com.example.mlallemant.mentalbattle.Utils.Player;
 import com.example.mlallemant.mentalbattle.Utils.Utils;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Created by m.lallemant on 19/10/2017.
@@ -40,6 +29,11 @@ import java.util.TimerTask;
 
 public class PlayFragment extends Fragment {
 
+    OnGameFinish mCallBack;
+
+    public interface OnGameFinish{
+        void displayWinScreen(String winnerName, String looserName, Integer winnerScore, Integer looserScore);
+    }
 
     private int COMPTEUR = 0;
     private Game game;
@@ -53,6 +47,8 @@ public class PlayFragment extends Fragment {
     private Integer scoreCurrentPlayer = 0;
     private Integer scoreOtherPlayer = 0;
     private List<Calculation> calculationList;
+    private String currentPlayerName;
+    private String otherPlayerName;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -60,8 +56,8 @@ public class PlayFragment extends Fragment {
 
         //get arguments
         Bundle args = getArguments();
-        String currentPlayerName = args.getString("currentPlayer");
-        String otherPlayerName = args.getString("otherPlayer");
+        currentPlayerName = args.getString("currentPlayer");
+        otherPlayerName = args.getString("otherPlayer");
         currentPlayerID = args.getString("currentPlayerID");
         otherPlayerID = args.getString("otherPlayerID");
         String gameID = args.getString("gameID");
@@ -139,6 +135,21 @@ public class PlayFragment extends Fragment {
         return v;
     }
 
+    @Override
+    public void onAttach(Context context)
+    {
+        super.onAttach(context);
+
+        if(context instanceof LobbyFragment.OnCountdownFinish)
+        {
+            mCallBack = (PlayFragment.OnGameFinish) context;
+        }
+        else
+        {
+            throw new ClassCastException();
+        }
+    }
+
     private void launchCountDown(final View v){
 
         final TextView tv_countdown = (TextView)  v.findViewById(R.id.play_tv_counter);
@@ -153,7 +164,27 @@ public class PlayFragment extends Fragment {
             public void onFinish(){
                 //GAME FINISHED
                 tv_countdown.setText("0");
-                pg_counter.setVisibility(View.INVISIBLE);
+                //pg_counter.setVisibility(View.INVISIBLE);
+
+                Boolean win = isCurrentPlayerWining();
+                String winnerName, looserName;
+                Integer winnerScore, looserScore;
+                if (win != null){
+                    if (win){
+                         winnerName = currentPlayerName;
+                         looserName = otherPlayerName;
+                         winnerScore = scoreCurrentPlayer;
+                         looserScore = scoreOtherPlayer;
+                    }else{
+                        winnerName = otherPlayerName;
+                        looserName = currentPlayerName;
+                        winnerScore = scoreOtherPlayer;
+                        looserScore = scoreCurrentPlayer;
+                    }
+
+                    mCallBack.displayWinScreen(winnerName, looserName, winnerScore, looserScore);
+                }
+
 
             }
         }.start();

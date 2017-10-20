@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.example.mlallemant.mentalbattle.R;
 import com.example.mlallemant.mentalbattle.UI.Fragment.LobbyFragment;
 import com.example.mlallemant.mentalbattle.UI.Fragment.PlayFragment;
+import com.example.mlallemant.mentalbattle.UI.Fragment.WinFragment;
 import com.example.mlallemant.mentalbattle.Utils.DatabaseManager;
 import com.example.mlallemant.mentalbattle.Utils.Game;
 import com.example.mlallemant.mentalbattle.Utils.Player;
@@ -21,7 +22,7 @@ import com.example.mlallemant.mentalbattle.Utils.Utils;
  * Created by m.lallemant on 16/10/2017.
  */
 
-public class GameActivity extends AppCompatActivity implements LobbyFragment.OnCountdownFinish {
+public class GameActivity extends AppCompatActivity implements LobbyFragment.OnCountdownFinish, PlayFragment.OnGameFinish {
 
 
     private Game game;
@@ -92,5 +93,21 @@ public class GameActivity extends AppCompatActivity implements LobbyFragment.OnC
         ft.replace(R.id.fl_game, playFragment);
         ft.commit();
     }
+
+    public void displayWinScreen(String winnerName, String looserName, Integer winnerScore, Integer looserScore) {
+        //create win fragment
+        WinFragment winFragment = new WinFragment();
+        Bundle args = new Bundle();
+        args.putString("winnerName", currentPlayer.getName());
+        args.putString("looserName", otherPlayer.getName());
+        args.putString("winnerScore", currentPlayer.getId());
+        args.putString("looserScore", otherPlayer.getId());
+
+
+
+    }
+
+
+
 
 }
