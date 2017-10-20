@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20sp">
+
+    <TextView
+        android:id="@+id/win_tv_winner_player"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pseudo1 - 12"
+        android:textSize="20sp"
+        android:paddingStart="4sp"
+        android:textColor="@color/orangeColor"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="362dp"
+        android:src="@drawable/ic_win"
+        android:scaleType="fitXY"/>
+
+    <TextView
+        android:id="@+id/win_tv_looser_player"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pseudo2 - 6"
+        android:textSize="20sp"
+        android:gravity="end"
+        android:paddingEnd="10sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center">
+        <Button
+            android:id="@+id/win_btn_next"
+            android:layout_width="70sp"
+            android:layout_height="70sp"
+            android:background="@drawable/circle"
+            android:text=">"
+            android:textSize="25sp"
+            android:textColor="@color/orangeColor"/>
+
+    </LinearLayout>
+</LinearLayout>

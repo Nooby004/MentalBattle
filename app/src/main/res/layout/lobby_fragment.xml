@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="40sp"
+    android:paddingStart="20sp"
+    android:paddingEnd="20sp"
+    android:paddingBottom="20sp">
+
+    <TextView
+        android:id="@+id/tv_player1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Player1"
+        android:textSize="50sp"
+        android:gravity="center"
+        android:layout_marginBottom="3sp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="(you)"
+        android:textSize="12sp"
+        android:gravity="center"
+        android:layout_marginBottom="12sp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="VS"
+        android:textSize="50sp"
+        android:gravity="center"
+        android:textColor="@color/orangeColor"
+        android:layout_marginBottom="15sp"/>
+
+    <TextView
+        android:id="@+id/tv_player2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Player2"
+        android:textSize="50sp"
+        android:gravity="center" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:paddingTop="30sp">
+
+        <TextView
+            android:id="@+id/tv_gameBegin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="The game begins in"
+            android:textSize="28sp"
+            android:gravity="center"/>
+
+        <TextView
+            android:id="@+id/tv_countdown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_gameBegin"
+            android:text="3"
+            android:textColor="@color/orangeColor"
+            android:textSize="50sp"
+            android:gravity="center"/>
+    </RelativeLayout>
+
+</LinearLayout>

@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "480080579992",
+    "firebase_url": "https://mentalbattle.firebaseio.com",
+    "project_id": "mentalbattle",
+    "storage_bucket": "mentalbattle.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:480080579992:android:5f319f1be236b18f",
+        "android_client_info": {
+          "package_name": "com.example.mlallemant.mentalbattle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "480080579992-tqp9kpup5op8s5eogr3ouba7r5vr5ifa.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mlallemant.mentalbattle",
+            "certificate_hash": "6ade6ac29888ec72d2725a7d4073a6ab4f11508e"
+          }
+        },
+        {
+          "client_id": "480080579992-h7s130qgpa3oj84tprunc8pb6doqqmr0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCukvLRkK6vtYCYAZnR9Q2pIk-UMLOO8z4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "480080579992-h7s130qgpa3oj84tprunc8pb6doqqmr0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

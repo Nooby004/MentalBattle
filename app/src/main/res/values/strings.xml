@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">MentalBattle</string>
+
+    <string name="app_name_space">Mental Battle</string>
+
+    <string name="login_chose">Choose a name :</string>
+    <string name="login_button">GO</string>
+    <string name="status_searching">Searching player &#8230;</string>
+</resources>
