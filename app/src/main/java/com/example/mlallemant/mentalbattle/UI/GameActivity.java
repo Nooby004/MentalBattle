@@ -98,12 +98,16 @@ public class GameActivity extends AppCompatActivity implements LobbyFragment.OnC
         //create win fragment
         WinFragment winFragment = new WinFragment();
         Bundle args = new Bundle();
-        args.putString("winnerName", currentPlayer.getName());
-        args.putString("looserName", otherPlayer.getName());
-        args.putString("winnerScore", currentPlayer.getId());
-        args.putString("looserScore", otherPlayer.getId());
+        args.putString("winnerName", winnerName);
+        args.putString("looserName", looserName);
+        args.putString("winnerScore", String.valueOf(winnerScore));
+        args.putString("looserScore", String.valueOf(looserScore));
 
-
+        winFragment.setArguments(args);
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.replace(R.id.fl_game, winFragment);
+        ft.commit();
 
     }
 

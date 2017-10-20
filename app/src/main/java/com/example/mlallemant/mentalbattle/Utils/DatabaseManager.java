@@ -200,7 +200,7 @@ public class DatabaseManager {
                     Game game = new Game(id, player1,player2, calculationList);
                     gameList.add(game);
 
-                    if (onScoreChangeListener!=null) {
+                    if (onScoreChangeListener!=null && player1!=null && player2!=null) {
                         onScoreChangeListener.updateScoreUI(player1.getScore(), player1.getId());
                         onScoreChangeListener.updateScoreUI(player2.getScore(), player2.getId());
                     }

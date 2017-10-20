@@ -79,7 +79,7 @@ public class PlayFragment extends Fragment {
         db = DatabaseManager.getInstance();
         game = db.getGameById(gameID);
 
-        launchCountDown(v);
+        launchCountDown(v, Utils.COUNTDOWN_PLAY);
         initListenerButton(v);
 
         db.setScoreChangeListener(new DatabaseManager.OnScoreChangeListener() {
@@ -88,8 +88,10 @@ public class PlayFragment extends Fragment {
                 if (score!= null && playerID !=null) {
                     if (playerID.equals(currentPlayerID)) {
                         tv_scoreCurrentPlayer.setText(String.valueOf(score));
+                        scoreCurrentPlayer = score;
                     } else {
                         tv_scoreOtherPlayer.setText(String.valueOf(score));
+                        scoreOtherPlayer=score;
                     }
                 }
             }
@@ -150,11 +152,11 @@ public class PlayFragment extends Fragment {
         }
     }
 
-    private void launchCountDown(final View v){
+    private void launchCountDown(final View v, int countdownPlay ){
 
         final TextView tv_countdown = (TextView)  v.findViewById(R.id.play_tv_counter);
         final ProgressBar pg_counter = (ProgressBar) v.findViewById(R.id.play_pg_counter);
-        new CountDownTimer(Utils.COUNTDOWN_PLAY, 1000){
+        new CountDownTimer(countdownPlay, 1000){
             public void onTick(long millisUntilFinished){
 
                 String remainingTime = ""+millisUntilFinished/1000;
@@ -181,8 +183,9 @@ public class PlayFragment extends Fragment {
                         winnerScore = scoreOtherPlayer;
                         looserScore = scoreCurrentPlayer;
                     }
-
                     mCallBack.displayWinScreen(winnerName, looserName, winnerScore, looserScore);
+                }else{
+                    launchCountDown(v, 20000);
                 }
 
 
