@@ -14,11 +14,26 @@
         android:paddingStart="4sp"
         android:textColor="@color/orangeColor"/>
 
-    <ImageView
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="362dp"
-        android:src="@drawable/ic_win"
-        android:scaleType="fitXY"/>
+        android:layout_height="362dp">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_win"
+            android:scaleType="fitXY"/>
+
+        <TextView
+            android:id="@+id/win_tv_win_lose"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:text="YOU WIN !"
+            android:paddingTop="15sp"
+            android:textSize="35sp" />
+
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/win_tv_looser_player"
@@ -40,7 +55,7 @@
             android:background="@drawable/circle"
             android:text=">"
             android:textSize="25sp"
-            android:textColor="@color/orangeColor"/>
+            android:textColor="@color/orangeColor" />
 
     </LinearLayout>
 </LinearLayout>

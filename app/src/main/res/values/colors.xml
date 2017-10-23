@@ -8,4 +8,5 @@
     <color name="foreground_material_dark">#bcbcbc</color>
     <color name="orangeColor">#FF8F59</color>
     <color name="greenColor">#60c375</color>
+    <color name="redColor">#FF0000</color>
 </resources>

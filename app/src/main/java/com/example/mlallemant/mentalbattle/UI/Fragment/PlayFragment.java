@@ -1,7 +1,9 @@
 package com.example.mlallemant.mentalbattle.UI.Fragment;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.Editable;
@@ -32,7 +34,7 @@ public class PlayFragment extends Fragment {
     OnGameFinish mCallBack;
 
     public interface OnGameFinish{
-        void displayWinScreen(String winnerName, String looserName, Integer winnerScore, Integer looserScore);
+        void displayWinScreen(String winnerName, String looserName, Integer winnerScore, Integer looserScore, String resultGame);
     }
 
     private int COMPTEUR = 0;
@@ -128,29 +130,35 @@ public class PlayFragment extends Fragment {
                     }else{
                         db.setScorePlayer2ByIdGame(scoreCurrentPlayer, game.getId());
                     }
-
                 }
-
             }
         });
-
         return v;
     }
 
     @Override
-    public void onAttach(Context context)
-    {
-        super.onAttach(context);
-
-        if(context instanceof LobbyFragment.OnCountdownFinish)
-        {
-            mCallBack = (PlayFragment.OnGameFinish) context;
-        }
-        else
-        {
-            throw new ClassCastException();
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) return;
+        if (activity instanceof OnGameFinish) {
+            mCallBack = (OnGameFinish) activity;
+        } else {
+            throw new RuntimeException(activity.toString()
+                    + " must implement OnListFragmentInteractionListener");
         }
     }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnGameFinish) {
+            mCallBack = (OnGameFinish) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnListFragmentInteractionListener");
+        }
+    }
+
 
     private void launchCountDown(final View v, int countdownPlay ){
 
@@ -169,7 +177,7 @@ public class PlayFragment extends Fragment {
                 //pg_counter.setVisibility(View.INVISIBLE);
 
                 Boolean win = isCurrentPlayerWining();
-                String winnerName, looserName;
+                String winnerName, looserName, resultGame;
                 Integer winnerScore, looserScore;
                 if (win != null){
                     if (win){
@@ -177,13 +185,15 @@ public class PlayFragment extends Fragment {
                          looserName = otherPlayerName;
                          winnerScore = scoreCurrentPlayer;
                          looserScore = scoreOtherPlayer;
+                         resultGame = "YOU WIN !";
                     }else{
                         winnerName = otherPlayerName;
                         looserName = currentPlayerName;
                         winnerScore = scoreOtherPlayer;
                         looserScore = scoreCurrentPlayer;
+                        resultGame = "YOU LOSE !";
                     }
-                    mCallBack.displayWinScreen(winnerName, looserName, winnerScore, looserScore);
+                    mCallBack.displayWinScreen(winnerName, looserName, winnerScore, looserScore, resultGame);
                 }else{
                     launchCountDown(v, 20000);
                 }

@@ -8,8 +8,8 @@ import java.util.Random;
 
 public class Calculation {
 
-    private static final int MAX_VALUE_ADDITION = 1500;
-    private static final int MAX_RANGE = 1000;
+    private static final int MAX_VALUE_ADDITION = 150;
+    private static final int MAX_RANGE = 100;
 
     private Integer result;
     private String calculText;

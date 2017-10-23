@@ -22,8 +22,9 @@ import com.example.mlallemant.mentalbattle.Utils.Utils;
  * Created by m.lallemant on 16/10/2017.
  */
 
-public class GameActivity extends AppCompatActivity implements LobbyFragment.OnCountdownFinish, PlayFragment.OnGameFinish {
+public class GameActivity extends AppCompatActivity implements LobbyFragment.OnCountdownFinish, PlayFragment.OnGameFinish, WinFragment.OnNextGame {
 
+    private Boolean gameIsFinished = false;
 
     private Game game;
     private DatabaseManager db;
@@ -41,17 +42,16 @@ public class GameActivity extends AppCompatActivity implements LobbyFragment.OnC
         db = DatabaseManager.getInstance();
         game = db.getGameById(id);
 
-        currentPlayer = db.getPlayerById(currentPlayerId);
-
-        if (game.getPlayer1().getId().equals(currentPlayer.getId())){
+        if (game.getPlayer1().getId().equals(currentPlayerId)){
+            currentPlayer = game.getPlayer1();
             otherPlayer = game.getPlayer2();
         }else{
+            currentPlayer = game.getPlayer2();
             otherPlayer = game.getPlayer1();
         }
 
-        db.setInGameByPlayer(Utils.INGAME, currentPlayer);
-        db.setIsSearchingGameByPlayer(!Utils.SEARCHINGGAME, currentPlayer);
-
+        db.deletePlayer(currentPlayer);
+        db.initListenerCurrentGame(game);
 
         //Create lobby fragment
         LobbyFragment lf = new LobbyFragment();
@@ -65,6 +65,14 @@ public class GameActivity extends AppCompatActivity implements LobbyFragment.OnC
         ft.add(R.id.fl_game, lf);
         ft.commit();
 
+        db.setOnRageQuitListener(new DatabaseManager.OnRageQuitListener() {
+            @Override
+            public void alertUserPlayerRageQuit() {
+                if (!gameIsFinished) {
+                    displayWinScreen(currentPlayer.getName(), otherPlayer.getName(), 999, 0, "YOU WIN BY RAGEQUIT !");
+                }
+            }
+        });
     }
 
 
@@ -72,8 +80,8 @@ public class GameActivity extends AppCompatActivity implements LobbyFragment.OnC
     public void onStop()
     {
         super.onStop();
-        db.deleteUserById(currentPlayer.getId());
         db.deleteGame(game);
+        finish();
     }
 
     public void launchGame(){
@@ -94,7 +102,9 @@ public class GameActivity extends AppCompatActivity implements LobbyFragment.OnC
         ft.commit();
     }
 
-    public void displayWinScreen(String winnerName, String looserName, Integer winnerScore, Integer looserScore) {
+    public void displayWinScreen(String winnerName, String looserName, Integer winnerScore, Integer looserScore, String resultGame) {
+
+        gameIsFinished = true;
         //create win fragment
         WinFragment winFragment = new WinFragment();
         Bundle args = new Bundle();
@@ -102,12 +112,21 @@ public class GameActivity extends AppCompatActivity implements LobbyFragment.OnC
         args.putString("looserName", looserName);
         args.putString("winnerScore", String.valueOf(winnerScore));
         args.putString("looserScore", String.valueOf(looserScore));
+        args.putString("resultGame", resultGame);
 
         winFragment.setArguments(args);
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         ft.replace(R.id.fl_game, winFragment);
         ft.commit();
+
+    }
+
+    public void launchNextGame(){
+        //Return on LoginActivity
+        Intent intent = new Intent(GameActivity.this, LoginActivity.class);
+        this.startActivity(intent);
+        finish();
 
     }
 

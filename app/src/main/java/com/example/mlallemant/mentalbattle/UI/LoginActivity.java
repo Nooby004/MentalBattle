@@ -41,7 +41,7 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private String mName = "";
     private DatabaseManager db;
-    private Player player1;
+    private Player currentPlayer;
     private Boolean loginSuccess = false;
 
     @Override
@@ -58,8 +58,7 @@ public class LoginActivity extends AppCompatActivity {
     {
         super.onStop();
         if (!loginSuccess){
-            db.setIsConnectedByPlayer(!Utils.CONNECTED, player1);
-            db.deleteUserById(mAuth.getUid());
+            db.deletePlayer(currentPlayer);
             mAuth.getCurrentUser().delete();
         }
 
@@ -88,10 +87,10 @@ public class LoginActivity extends AppCompatActivity {
                             Log.d(TAG, "signInAnonymously:success");
                             FirebaseUser user = mAuth.getCurrentUser();
 
-                            Player player = new Player(user.getUid(), name, !Utils.INGAME, Utils.CONNECTED, Utils.SEARCHINGGAME,0);
+                            Player player = new Player(user.getUid(), name,0);
                             DatabaseManager db = DatabaseManager.getInstance();
                             db.insertPlayer(player);
-                            player1 = player;
+                            currentPlayer = player;
 
                             /** FOR TEST */
                             //db.addPlayerForTest();
@@ -158,9 +157,9 @@ public class LoginActivity extends AppCompatActivity {
                     // if no game available, we create one
                     Log.d(TAG, "no game available");
 
-                    Player tmpPlayer = new Player("","",false,false,false,0);
+                    Player tmpPlayer = new Player("","",0);
                     String id = getRandomId();
-                    Game game = new Game(id, player1, tmpPlayer);
+                    Game game = new Game(id, currentPlayer, tmpPlayer);
                     db.insertGame(game);
 
                     Thread.sleep(50);
@@ -185,9 +184,9 @@ public class LoginActivity extends AppCompatActivity {
                     Log.d(TAG, "Game available");
 
                     if (availableGame.getPlayer1().getId().equals("")){
-                        db.insertPlayer1InGameById(player1, availableGame.getId());
+                        db.insertPlayer1InGameById(currentPlayer, availableGame.getId());
                     } else {
-                        db.insertPlayer2InGameById(player1, availableGame.getId());
+                        db.insertPlayer2InGameById(currentPlayer, availableGame.getId());
                     }
 
                     Thread.sleep(50);
@@ -215,7 +214,7 @@ public class LoginActivity extends AppCompatActivity {
                 //Launch game
                 Intent intent = new Intent(LoginActivity.this, GameActivity.class);
                 intent.putExtra("idGame", game.getId());
-                intent.putExtra("currentPlayerId", player1.getId());
+                intent.putExtra("currentPlayerId", currentPlayer.getId());
                 startActivity(intent);
                 loginSuccess = true;
                 finish();

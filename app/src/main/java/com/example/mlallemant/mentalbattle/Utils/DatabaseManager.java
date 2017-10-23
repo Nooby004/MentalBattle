@@ -23,10 +23,16 @@ import java.util.Random;
 public class DatabaseManager {
 
     private OnScoreChangeListener onScoreChangeListener;
+    private OnRageQuitListener onRageQuitListener;
 
     public interface OnScoreChangeListener{
         void updateScoreUI(Integer score, String playerID);
     }
+
+    public interface OnRageQuitListener{
+        void alertUserPlayerRageQuit();
+    }
+
 
     private final static String TAG = "DatabaseManager";
 
@@ -36,13 +42,17 @@ public class DatabaseManager {
     private List<Player> playerList;
     private List<Game> gameList;
 
+    private ValueEventListener gamesListener;
+    private ValueEventListener currentGameListener;
+
     private DatabaseManager(){
         database = FirebaseDatabase.getInstance();
         playerList = new ArrayList<>();
         gameList = new ArrayList<>();
-        initListenerPlayers();
+        //initListenerPlayers();
         initListenerGames();
 
+        this.onRageQuitListener = null;
         this.onScoreChangeListener = null;
     }
 
@@ -57,50 +67,21 @@ public class DatabaseManager {
         this.onScoreChangeListener = listener;
     }
 
+    public void setOnRageQuitListener(OnRageQuitListener listener){
+        this.onRageQuitListener = listener;
+    }
 
     /**
      * PLAYER
      */
-    private void initListenerPlayers(){
-        DatabaseReference reference = database.getReference("players");
-
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                playerList.clear();
-                for (DataSnapshot child : dataSnapshot.getChildren()) {
-                    String id = child.getKey();
-                    String name = child.child("name").getValue().toString();
-                    Boolean inGame = (Boolean) child.child("inGame").getValue();
-                    Boolean isConnected = (Boolean) child.child("isConnected").getValue();
-                    Boolean isSearchingGame = (Boolean) child.child("isSearchingGame").getValue();
-                    Long score_ = (Long) child.child("score").getValue();
-
-                    Integer score = score_ != null ? score_.intValue() : null;
-
-                    Player player = new Player(id,name,inGame,isConnected,isSearchingGame,score);
-                    playerList.add(player);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG, databaseError.getMessage());
-            }
-        });
-    }
 
 
     public void insertPlayer(Player player) {
         DatabaseReference reference = database.getReference("players");
 
         reference.child(player.getId()).child("name").setValue(player.getName());
-        reference.child(player.getId()).child("inGame").setValue(player.getInGame());
-        reference.child(player.getId()).child("isConnected").setValue(player.getConnected());
-        reference.child(player.getId()).child("isSearchingGame").setValue(player.getSearchingGame());
         reference.child(player.getId()).child("score").setValue(player.getScore());
     }
-
 
     public Player getPlayerById(String id){
         Player player;
@@ -115,79 +96,27 @@ public class DatabaseManager {
     }
 
 
-    public void setIsConnectedByPlayer(Boolean isConnected, Player player){
+    public void deletePlayer(Player player){
         DatabaseReference reference = database.getReference("players");
-        reference.child(player.getId()).child("isConnected").setValue(isConnected);
-    }
-
-    public void setInGameByPlayer(Boolean inGame, Player player){
-        DatabaseReference reference = database.getReference("players");
-        reference.child(player.getId()).child("inGame").setValue(inGame);
-    }
-
-    public void setIsSearchingGameByPlayer(Boolean isSearchingPlayer, Player player){
-        DatabaseReference reference = database.getReference("players");
-        reference.child(player.getId()).child("isSearchingGame").setValue(isSearchingPlayer);
-    }
-
-    private List<Player> getPlayerInGame(){
-        List<Player> playersInGame = new ArrayList<>();
-        for (int i = 0; i< playerList.size();i++){
-            if(playerList.get(i).getInGame() == Utils.INGAME && playerList.get(i).getConnected() == Utils.CONNECTED){
-                playersInGame.add(playerList.get(i));
-            }
-        }
-        return playersInGame;
-    }
-
-    private List<Player> getPlayerNotInGame(Player player1){
-        List<Player> playersNotInGame = new ArrayList<>();
-        for (int i = 0; i< playerList.size();i++){
-            if((!playerList.get(i).getInGame() == Utils.INGAME) && playerList.get(i).getConnected() == Utils.CONNECTED && playerList.get(i).getSearchingGame() == Utils.SEARCHINGGAME
-                    && !playerList.get(i).getId().equals(player1.getId())){
-                playersNotInGame.add(playerList.get(i));
-            }
-        }
-        return playersNotInGame;
-
-    }
-
-    public void deleteUserById(String id){
-        DatabaseReference reference = database.getReference("players");
-        reference.child(id).removeValue();
+        reference.child(player.getId()).removeValue();
+        playerList.remove(player);
     }
 
     public List<Player> getAllUser() {
         return playerList;
     }
 
-    public Player findPlayer(Player player1){
-        Player player2 = null;
-
-        //search players not In Game
-        List<Player> playersSearchingGame = getPlayerNotInGame(player1);
-
-        if (!playersSearchingGame.isEmpty()) {
-            Random r = new Random();
-            int ind = r.nextInt(playersSearchingGame.size());
-            player2 = playersSearchingGame.get(ind);
-        }
-
-        return player2;
-    }
-
-
     /**
      * GAME
      */
 
-    private void initListenerGames(){
+    public void initListenerGames(){
         DatabaseReference reference = database.getReference("games");
 
-        reference.addValueEventListener(new ValueEventListener() {
+        gamesListener = reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                gameList.clear();
+
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                     String id = child.getKey();
                     Player player1 = child.child("player1").getValue(Player.class);
@@ -196,9 +125,9 @@ public class DatabaseManager {
                     GenericTypeIndicator<List<Calculation>> genericType = new GenericTypeIndicator<List<Calculation>>(){};
                     List<Calculation> calculationList = child.child("calculationList").getValue(genericType);
 
-                    Log.e(TAG, "listenerGame");
+                    //Log.e(TAG, "listenerGame");
                     Game game = new Game(id, player1,player2, calculationList);
-                    gameList.add(game);
+                    addAndUpdateGame(game);
 
                     if (onScoreChangeListener!=null && player1!=null && player2!=null) {
                         onScoreChangeListener.updateScoreUI(player1.getScore(), player1.getId());
@@ -212,6 +141,63 @@ public class DatabaseManager {
                 Log.e(TAG, databaseError.getMessage());
             }
         });
+    }
+
+    public void initListenerCurrentGame(final Game game){
+
+        final DatabaseReference reference = database.getReference("games");
+        reference.removeEventListener(gamesListener);
+
+        currentGameListener = reference.child(game.getId()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    Player player1 = dataSnapshot.child("player1").getValue(Player.class);
+                    Player player2 = dataSnapshot.child("player2").getValue(Player.class);
+
+                    GenericTypeIndicator<List<Calculation>> genericType = new GenericTypeIndicator<List<Calculation>>() {
+                    };
+                    List<Calculation> calculationList = dataSnapshot.child("calculationList").getValue(genericType);
+
+                    Game currentGame = new Game(game.getId(), player1, player2, calculationList);
+
+                    addAndUpdateGame(currentGame);
+                    if (onScoreChangeListener != null && player1 != null && player2 != null) {
+                        onScoreChangeListener.updateScoreUI(player1.getScore(), player1.getId());
+                        onScoreChangeListener.updateScoreUI(player2.getScore(), player2.getId());
+                    }
+                }
+                else{
+                    Log.e(TAG, "GAME NOT EXIST");
+                    reference.child(game.getId()).removeEventListener(currentGameListener);
+                    initListenerGames();
+
+                    if(onRageQuitListener!=null){
+                        onRageQuitListener.alertUserPlayerRageQuit();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, databaseError.getMessage());
+            }
+        });
+    }
+
+    private void addAndUpdateGame(Game game){
+        Boolean isInList = false;
+
+        for (int i = 0; i<gameList.size(); i++){
+            if (gameList.get(i).getId().equals(game.getId())){
+                gameList.set(i, game);
+                isInList = true;
+            }
+        }
+
+        if (!isInList){
+            gameList.add(game);
+        }
     }
 
     public void insertGame(Game game) {
@@ -275,7 +261,6 @@ public class DatabaseManager {
     public void deleteGame(Game game){
         DatabaseReference reference = database.getReference("games");
         reference.child(game.getId()).removeValue();
+        gameList.remove(game);
     }
-
-
 }

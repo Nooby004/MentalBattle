@@ -3,6 +3,7 @@ package com.example.mlallemant.mentalbattle.UI.Fragment;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -47,21 +48,29 @@ public class LobbyFragment extends Fragment {
         return v;
     }
 
-    @Override
-    public void onAttach(Context context)
-    {
-        super.onAttach(context);
 
-        if(context instanceof OnCountdownFinish)
-        {
-            mCallBack = (OnCountdownFinish) context;
-        }
-        else
-        {
-            throw new ClassCastException();
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) return;
+        if (activity instanceof OnCountdownFinish) {
+            mCallBack = (OnCountdownFinish) activity;
+        } else {
+            throw new RuntimeException(activity.toString()
+                    + " must implement OnListFragmentInteractionListener");
         }
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnCountdownFinish) {
+            mCallBack = (OnCountdownFinish) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnListFragmentInteractionListener");
+        }
+    }
 
     private void launchCountDown(final View v){
 
