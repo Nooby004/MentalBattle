@@ -1,8 +1,5 @@
 package com.example.mlallemant.mentalbattle.UI;
 
-import android.annotation.TargetApi;
-import android.app.ActionBar;
-import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -42,7 +39,9 @@ public class LoginActivity extends AppCompatActivity {
     private String mName = "";
     private DatabaseManager db;
     private Player currentPlayer;
+    private Game currentGame;
     private Boolean loginSuccess = false;
+    private Boolean appGoesToBackground = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,22 +56,34 @@ public class LoginActivity extends AppCompatActivity {
     public void onStop()
     {
         super.onStop();
-        if (!loginSuccess){
+        if (!loginSuccess && !appGoesToBackground){   //si !loginSucess && comefrombackground
             db.deletePlayer(currentPlayer);
+            if (currentGame !=  null) db.deleteGame(currentGame);
+            mAuth.getCurrentUser().delete();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (!loginSuccess) {
+            db.deletePlayer(currentPlayer);
+            if (currentGame != null) db.deleteGame(currentGame);
             mAuth.getCurrentUser().delete();
         }
 
     }
 
-
     @Override
     public void onPause(){
         super.onPause();
+        appGoesToBackground = true;
     }
 
     @Override
     public void onResume(){
         super.onResume();
+        appGoesToBackground = false;
     }
 
 
@@ -162,6 +173,8 @@ public class LoginActivity extends AppCompatActivity {
                     Game game = new Game(id, currentPlayer, tmpPlayer);
                     db.insertGame(game);
 
+                    currentGame = game;
+
                     Thread.sleep(50);
 
                     // and we wait 20s max
@@ -207,23 +220,28 @@ public class LoginActivity extends AppCompatActivity {
             TextView tv_searchingStatus = (TextView) findViewById(R.id.tv_searchingStatus);
 
 
-            if ((!game.getPlayer1().getId().equals("")) && (!game.getPlayer2().getId().equals(""))) {
-                String text = "Player found !";
-                tv_searchingStatus.setText(text);
+            if (game != null) {
+                if ((!game.getPlayer1().getId().equals("")) && (!game.getPlayer2().getId().equals(""))) {
+                    String text = "Player found !";
+                    tv_searchingStatus.setText(text);
 
-                //Launch game
-                Intent intent = new Intent(LoginActivity.this, GameActivity.class);
-                intent.putExtra("idGame", game.getId());
-                intent.putExtra("currentPlayerId", currentPlayer.getId());
-                startActivity(intent);
-                loginSuccess = true;
-                finish();
-            }else{
+                    //Launch game
+                    Intent intent = new Intent(LoginActivity.this, GameActivity.class);
+                    intent.putExtra("idGame", game.getId());
+                    intent.putExtra("currentPlayerId", currentPlayer.getId());
+                    startActivity(intent);
+                    loginSuccess = true;
+                    finish();
+                } else {
+                    db.deleteGame(game);
+                    String text = "No player found, try again";
+                    tv_searchingStatus.setText(text);
+                    Button b_login = (Button) findViewById(R.id.b_login);
+                    b_login.setEnabled(true);
+                }
+            }else {
                 db.deleteGame(game);
-                String text = "No player found, try again";
-                tv_searchingStatus.setText(text);
-                Button b_login = (Button) findViewById(R.id.b_login);
-                b_login.setEnabled(true);
+                new searchPlayer().execute("");
             }
         }
     }

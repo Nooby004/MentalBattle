@@ -210,7 +210,7 @@ public class PlayFragment extends Fragment {
 
         if(currentScore > otherScore) isWining = true;
 
-        if (currentScore == otherScore ) isWining = null;
+        if (currentScore.equals(otherScore)) isWining = null;
 
         return isWining;
     }

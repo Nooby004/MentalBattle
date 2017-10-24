@@ -1,5 +1,6 @@
 package com.example.mlallemant.mentalbattle.Utils;
 
+import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -32,7 +33,6 @@ public class DatabaseManager {
     public interface OnRageQuitListener{
         void alertUserPlayerRageQuit();
     }
-
 
     private final static String TAG = "DatabaseManager";
 
@@ -75,7 +75,6 @@ public class DatabaseManager {
      * PLAYER
      */
 
-
     public void insertPlayer(Player player) {
         DatabaseReference reference = database.getReference("players");
 
@@ -106,6 +105,7 @@ public class DatabaseManager {
         return playerList;
     }
 
+
     /**
      * GAME
      */
@@ -118,18 +118,17 @@ public class DatabaseManager {
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
+
                     String id = child.getKey();
                     Player player1 = child.child("player1").getValue(Player.class);
                     Player player2 = child.child("player2").getValue(Player.class);
-
-                    GenericTypeIndicator<List<Calculation>> genericType = new GenericTypeIndicator<List<Calculation>>(){};
+                    GenericTypeIndicator<List<Calculation>> genericType = new GenericTypeIndicator<List<Calculation>>() {
+                    };
                     List<Calculation> calculationList = child.child("calculationList").getValue(genericType);
-
                     //Log.e(TAG, "listenerGame");
-                    Game game = new Game(id, player1,player2, calculationList);
+                    Game game = new Game(id, player1, player2, calculationList);
                     addAndUpdateGame(game);
-
-                    if (onScoreChangeListener!=null && player1!=null && player2!=null) {
+                    if (onScoreChangeListener != null && player1 != null && player2 != null) {
                         onScoreChangeListener.updateScoreUI(player1.getScore(), player1.getId());
                         onScoreChangeListener.updateScoreUI(player2.getScore(), player2.getId());
                     }
@@ -143,6 +142,18 @@ public class DatabaseManager {
         });
     }
 
+    private Boolean checkIntegrityGameStructure(DataSnapshot child)
+    {
+        Boolean integrity = true;
+
+        if (!child.child("player1").exists() && !child.child("player2").exists() && !child.child("calculationList").exists()){
+            integrity = false;
+            Log.e(TAG, "Game structure integrity wrong");
+        }
+
+        return integrity;
+    }
+
     public void initListenerCurrentGame(final Game game){
 
         final DatabaseReference reference = database.getReference("games");
@@ -152,27 +163,32 @@ public class DatabaseManager {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    Player player1 = dataSnapshot.child("player1").getValue(Player.class);
-                    Player player2 = dataSnapshot.child("player2").getValue(Player.class);
+                    if (dataSnapshot.hasChild("player1") && dataSnapshot.hasChild("player2") && dataSnapshot.hasChild("calculationList")) {
 
-                    GenericTypeIndicator<List<Calculation>> genericType = new GenericTypeIndicator<List<Calculation>>() {
-                    };
-                    List<Calculation> calculationList = dataSnapshot.child("calculationList").getValue(genericType);
+                        Player player1 = dataSnapshot.child("player1").getValue(Player.class);
+                        Player player2 = dataSnapshot.child("player2").getValue(Player.class);
 
-                    Game currentGame = new Game(game.getId(), player1, player2, calculationList);
+                        GenericTypeIndicator<List<Calculation>> genericType = new GenericTypeIndicator<List<Calculation>>() {
+                        };
+                        List<Calculation> calculationList = dataSnapshot.child("calculationList").getValue(genericType);
 
-                    addAndUpdateGame(currentGame);
-                    if (onScoreChangeListener != null && player1 != null && player2 != null) {
-                        onScoreChangeListener.updateScoreUI(player1.getScore(), player1.getId());
-                        onScoreChangeListener.updateScoreUI(player2.getScore(), player2.getId());
+                        Game currentGame = new Game(game.getId(), player1, player2, calculationList);
+
+                        addAndUpdateGame(currentGame);
+                        if (onScoreChangeListener != null && player1 != null && player2 != null) {
+                            onScoreChangeListener.updateScoreUI(player1.getScore(), player1.getId());
+                            onScoreChangeListener.updateScoreUI(player2.getScore(), player2.getId());
+                        }
+                    } else {
+                        Log.e(TAG, "Structure Database in error");
+                        //Display "Error with database, try again"
                     }
-                }
-                else{
+                }else{
                     Log.e(TAG, "GAME NOT EXIST");
                     reference.child(game.getId()).removeEventListener(currentGameListener);
                     initListenerGames();
 
-                    if(onRageQuitListener!=null){
+                    if (onRageQuitListener != null) {
                         onRageQuitListener.alertUserPlayerRageQuit();
                     }
                 }
@@ -254,7 +270,7 @@ public class DatabaseManager {
                 game = gameList.get(i);
             }
         }
-        Log.e(TAG, "gameList.size : "+gameList.size());
+        Log.e(TAG, "gameList.size : " + gameList.size());
         return game;
     }
 

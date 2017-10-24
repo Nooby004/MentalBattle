@@ -3,9 +3,11 @@ package com.example.mlallemant.mentalbattle.UI;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
@@ -29,6 +31,8 @@ public class GameActivity extends AppCompatActivity implements LobbyFragment.OnC
     private Game game;
     private DatabaseManager db;
     private Player currentPlayer, otherPlayer;
+
+    private Boolean appGoesToBackground = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,26 +84,53 @@ public class GameActivity extends AppCompatActivity implements LobbyFragment.OnC
     public void onStop()
     {
         super.onStop();
+
+        if (!appGoesToBackground) {
+            db.deleteGame(game);
+            finish();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        gameIsFinished = true;
         db.deleteGame(game);
         finish();
+    }
+
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+        appGoesToBackground = true;
+    }
+
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        appGoesToBackground = false;
+
     }
 
     public void launchGame(){
 
         //create play fragment
-        PlayFragment playFragment = new PlayFragment();
-        Bundle args = new Bundle();
-        args.putString("currentPlayer", currentPlayer.getName());
-        args.putString("otherPlayer", otherPlayer.getName());
-        args.putString("currentPlayerID", currentPlayer.getId());
-        args.putString("otherPlayerID", otherPlayer.getId());
-        args.putString("gameID",game.getId());
-        playFragment.setArguments(args);
+        if (!gameIsFinished) {
+            PlayFragment playFragment = new PlayFragment();
+            Bundle args = new Bundle();
+            args.putString("currentPlayer", currentPlayer.getName());
+            args.putString("otherPlayer", otherPlayer.getName());
+            args.putString("currentPlayerID", currentPlayer.getId());
+            args.putString("otherPlayerID", otherPlayer.getId());
+            args.putString("gameID", game.getId());
+            playFragment.setArguments(args);
 
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(R.id.fl_game, playFragment);
-        ft.commit();
+            FragmentManager fm = getFragmentManager();
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.replace(R.id.fl_game, playFragment);
+            ft.commit();
+        }
     }
 
     public void displayWinScreen(String winnerName, String looserName, Integer winnerScore, Integer looserScore, String resultGame) {
@@ -124,6 +155,7 @@ public class GameActivity extends AppCompatActivity implements LobbyFragment.OnC
 
     public void launchNextGame(){
         //Return on LoginActivity
+        db.deleteGame(game);
         Intent intent = new Intent(GameActivity.this, LoginActivity.class);
         this.startActivity(intent);
         finish();
