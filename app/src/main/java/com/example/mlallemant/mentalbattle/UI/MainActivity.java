@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.example.mlallemant.mentalbattle.R;
+import com.example.mlallemant.mentalbattle.UI.Login.*;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -19,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                Intent intent = new Intent(MainActivity.this, com.example.mlallemant.mentalbattle.UI.Login.LoginActivity.class);
                 startActivity(intent);
                 finish();
             }

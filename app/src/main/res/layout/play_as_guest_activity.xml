@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="30sp"
+        android:paddingTop="30sp"
+        android:text="@string/app_name_space"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_margin="30sp">
+
+
+        <EditText
+            android:id="@+id/guest_et_guest_name"
+            android:layout_marginTop="55sp"
+            android:layout_marginBottom="10sp"
+            android:layout_width="match_parent"
+            android:layout_height="35sp"
+            android:inputType="textPersonName"
+            android:maxLength="20"
+            android:paddingStart="10sp"
+            android:paddingEnd="10sp"
+            android:background="@color/whiteColor"
+            android:textColor="@color/orangeColor"
+            android:hint="Guest name"
+            android:textColorHint="@color/whiteGrayColor" />
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15sp">
+
+            <Button
+                android:id="@+id/guest_btn_play"
+                android:layout_width="match_parent"
+                android:layout_height="35sp"
+                android:background="@drawable/buttonshape_orange"
+                android:text="PLAY AS GUEST"/>
+
+            <ProgressBar
+                android:id="@+id/guest_pb_btn_play"
+                android:layout_width="wrap_content"
+                android:layout_height="35sp"
+                android:elevation="2dp"
+                android:layout_alignParentEnd="true" />
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/guest_tv_cancel"
+            android:layout_marginTop="20sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:text="CANCEL"
+            android:textColor="@color/whiteColor"/>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/guest_tv_log"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:gravity="center"
+                android:text="Searching player..."/>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+
+
+</LinearLayout>

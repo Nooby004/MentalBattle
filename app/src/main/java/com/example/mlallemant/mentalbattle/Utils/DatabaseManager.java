@@ -2,8 +2,10 @@ package com.example.mlallemant.mentalbattle.Utils;
 
 import android.nfc.Tag;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.util.Log;
 
+import com.example.mlallemant.mentalbattle.UI.LoginActivity;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -16,6 +18,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 /**
  * Created by m.lallemant on 13/10/2017.
@@ -42,6 +45,10 @@ public class DatabaseManager {
     private List<Player> playerList;
     private List<Game> gameList;
 
+    private List<Player> playerSearchingGameList;
+    private List<Player> playerInLobbyList;
+
+
     private ValueEventListener gamesListener;
     private ValueEventListener currentGameListener;
 
@@ -49,9 +56,11 @@ public class DatabaseManager {
         database = FirebaseDatabase.getInstance();
         playerList = new ArrayList<>();
         gameList = new ArrayList<>();
-        //initListenerPlayers();
-        initListenerGames();
+        playerSearchingGameList = new ArrayList<>();
+        playerInLobbyList = new ArrayList<>();
 
+
+        initListenerGames();
         this.onRageQuitListener = null;
         this.onScoreChangeListener = null;
     }
@@ -72,7 +81,7 @@ public class DatabaseManager {
     }
 
     /**
-     * PLAYER
+     * PLAYER (OLD)
      */
 
     public void insertPlayer(Player player) {
@@ -94,7 +103,6 @@ public class DatabaseManager {
         return null;
     }
 
-
     public void deletePlayer(Player player){
         DatabaseReference reference = database.getReference("players");
         reference.child(player.getId()).removeValue();
@@ -103,6 +111,39 @@ public class DatabaseManager {
 
     public List<Player> getAllUser() {
         return playerList;
+    }
+
+
+    /**
+     * PLAYER SEARCHING GAME
+     */
+
+    public void insertPlayerSearchingGame(Player player) {
+        DatabaseReference reference = database.getReference("players").child("searchingGame");
+        reference.child(player.getId()).child("name").setValue(player.getName());
+        reference.child(player.getId()).child("score").setValue(player.getScore());
+    }
+
+    public void deletePlayerSearchingPlayer(Player player){
+        DatabaseReference reference = database.getReference("players").child("searchingGame");
+        reference.child(player.getId()).removeValue();
+        //playerList.remove(player);
+    }
+
+    /**
+     * PLAYER IN LOBBY
+     */
+
+    public void insertPlayerInLobby(Player player) {
+        DatabaseReference reference = database.getReference("players").child("inLobby");
+        reference.child(player.getId()).child("name").setValue(player.getName());
+        reference.child(player.getId()).child("score").setValue(player.getScore());
+    }
+
+    public void deletePlayerInLobby(Player player){
+        DatabaseReference reference = database.getReference("players").child("inLobby");
+        reference.child(player.getId()).removeValue();
+        //playerList.remove(player);
     }
 
 
@@ -279,4 +320,7 @@ public class DatabaseManager {
         reference.child(game.getId()).removeValue();
         gameList.remove(game);
     }
+
+
+
 }

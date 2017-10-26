@@ -21,7 +21,7 @@ import com.example.mlallemant.mentalbattle.Utils.Utils;
  * Created by m.lallemant on 18/10/2017.
  */
 
-public class LobbyFragment extends Fragment {
+public class PlayerFindFragment extends Fragment {
 
     OnCountdownFinish mCallBack;
 

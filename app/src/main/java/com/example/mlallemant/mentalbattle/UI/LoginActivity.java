@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mlallemant.mentalbattle.R;
+import com.example.mlallemant.mentalbattle.UI.Game.GameActivity;
 import com.example.mlallemant.mentalbattle.Utils.DatabaseManager;
 import com.example.mlallemant.mentalbattle.Utils.Game;
 import com.example.mlallemant.mentalbattle.Utils.Player;

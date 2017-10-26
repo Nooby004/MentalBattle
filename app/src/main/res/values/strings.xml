@@ -6,4 +6,8 @@
     <string name="login_chose">Choose a name :</string>
     <string name="login_button">GO</string>
     <string name="status_searching">Searching player &#8230;</string>
+
+
+    <string name="facebook_app_id">1859643281016820</string>
+    <string name="fb_login_protocol_scheme">fb1859643281016820</string>
 </resources>

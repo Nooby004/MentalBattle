@@ -334,7 +334,7 @@ public class PlayFragment extends Fragment {
 
     private Boolean checkLengthText(String text){
         Boolean success = false;
-        if (text.length() <= Utils.MAX_LENGHT_RESULT) success = true;
+        if (text.length() <= Utils.MAX_LENGTH_RESULT) success = true;
         return success;
     }
 

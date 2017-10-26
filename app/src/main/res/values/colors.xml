@@ -9,4 +9,9 @@
     <color name="orangeColor">#FF8F59</color>
     <color name="greenColor">#60c375</color>
     <color name="redColor">#FF0000</color>
+    <color name="whiteGrayColor">#bcbcbc</color>
+    <color name="whiteColor">#FFFFFF</color>
+    <color name="blueFBColor">#3B5998</color>
+    <color name="redGoogleColor">#d34836</color>
+
 </resources>
