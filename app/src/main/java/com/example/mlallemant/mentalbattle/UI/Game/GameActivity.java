@@ -41,7 +41,7 @@ public class GameActivity extends AppCompatActivity implements PlayerFindFragmen
         currentPlayerId = getIntent().getExtras().getString("currentPlayerId");
 
         db = DatabaseManager.getInstance();
-        game = db.getGameById(id);
+        game = db.getCurrentGame();
 
         if (game.getPlayer1().getId().equals(currentPlayerId)){
             currentPlayer = game.getPlayer1();
@@ -50,9 +50,7 @@ public class GameActivity extends AppCompatActivity implements PlayerFindFragmen
             currentPlayer = game.getPlayer2();
             otherPlayer = game.getPlayer1();
         }
-
         db.deletePlayerSearchingPlayer(currentPlayer);
-        db.initListenerCurrentGame(game);
 
         //Create lobby fragment
         PlayerFindFragment lf = new PlayerFindFragment();
@@ -81,9 +79,17 @@ public class GameActivity extends AppCompatActivity implements PlayerFindFragmen
     public void onStop()
     {
         super.onStop();
-
         if (!appGoesToBackground) {
-            db.deleteGame(game);
+            db.deleteCurrentGame(game);
+            finish();
+        }
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        if (!appGoesToBackground) {
+            db.deleteCurrentGame(game);
             finish();
         }
     }
@@ -91,7 +97,7 @@ public class GameActivity extends AppCompatActivity implements PlayerFindFragmen
     @Override
     public void onBackPressed() {
         gameIsFinished = true;
-        db.deleteGame(game);
+        db.deleteCurrentGame(game);
         finish();
     }
 
@@ -152,7 +158,7 @@ public class GameActivity extends AppCompatActivity implements PlayerFindFragmen
 
     public void launchNextGame(){
         //Return on LoginActivity
-        db.deleteGame(game);
+        db.deleteCurrentGame(game);
 
         if(Utils.AUTHENTIFICATION_TYPE == Utils.AUTHENTIFICATION_GUEST){
             launchPlayAsGuestActivity();

@@ -21,7 +21,9 @@ import android.widget.Toast;
 
 import com.example.mlallemant.mentalbattle.R;
 import com.example.mlallemant.mentalbattle.UI.Lobby.PlayAsGuest;
+import com.example.mlallemant.mentalbattle.UI.Lobby.PlayAsRegistered;
 import com.example.mlallemant.mentalbattle.Utils.Player;
+import com.example.mlallemant.mentalbattle.Utils.SearchGameTask;
 import com.example.mlallemant.mentalbattle.Utils.Utils;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -101,7 +103,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null){
             makeToast("Welcome back " + currentUser.getDisplayName());
-            launchLobbyActivity(currentUser);
+            launchPlayAsRegisteredActivity(currentUser);
         }
     }
 
@@ -218,8 +220,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                 makeToast(user.getDisplayName() + " connected !");
                                 pb_login.setVisibility(View.GONE);
                                 Utils.AUTHENTIFICATION_TYPE = Utils.AUTHENTIFICATION_ACCOUNT;
-                                //Launch LOBBY ACTIVITY
-
+                                launchPlayAsRegisteredActivity(user);
 
                             } else {
                                 //Error when connecting
@@ -294,7 +295,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             makeToast("Welcome " + user.getDisplayName());
                             pb_loginFB.setVisibility(View.GONE);
                             Utils.AUTHENTIFICATION_TYPE = Utils.AUTHENTIFICATION_FB;
-                            launchLobbyActivity(user);
+                            launchPlayAsRegisteredActivity(user);
 
                         } else {
                             // If sign in fails, display a message to the user.
@@ -321,7 +322,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             isConnectedWithGoogle = true;
                             pb_loginGoogle.setVisibility(View.GONE);
                             Utils.AUTHENTIFICATION_TYPE = Utils.AUTHENTIFICATION_GOOGLE;
-                            launchLobbyActivity(user);
+                            launchPlayAsRegisteredActivity(user);
 
                         } else {
                             // If sign in fails, display a message to the user.
@@ -383,9 +384,10 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     }
 
-    private void launchLobbyActivity(FirebaseUser user){
-
-        //finish();
+    private void launchPlayAsRegisteredActivity(FirebaseUser user){
+        Intent intent = new Intent(LoginActivity.this, PlayAsRegistered.class);
+        startActivity(intent);
+        finish();
     }
 
     private void launchPlayAsGuestActivity(){
@@ -399,4 +401,4 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         startActivity(intent);
     }
 
-}
+    }

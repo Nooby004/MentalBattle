@@ -68,12 +68,12 @@ public class PlayAsGuest extends AppCompatActivity {
     @Override
     public void onStop(){
         super.onStop();
+
         if (!appGoesToBackground) {
-
             db.deletePlayerSearchingPlayer(currentPlayer);
-            db.deleteGame(currentGame);
+            if (currentGame != null) db.deleteAvailableGame(currentGame);
             searchGameTask.cancel(true);
-
+            searchGameTask = null;
         }
     }
 
@@ -107,13 +107,10 @@ public class PlayAsGuest extends AppCompatActivity {
         tv_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (searchGameTask != null) searchGameTask.cancel(true);
                 db.deletePlayerSearchingPlayer(currentPlayer);
-                db.deleteGame(currentGame);
-                pb_btn_play.setVisibility(View.GONE);
-                et_guest_name.setEnabled(true);
-                btn_play.setEnabled(true);
-                tv_log.setText("Search canceled");
+                if (currentGame != null) db.deleteAvailableGame(currentGame);
+                mAuth.signOut();
+                finish();
             }
         });
 
@@ -132,7 +129,6 @@ public class PlayAsGuest extends AppCompatActivity {
                     et_guest_name.setEnabled(false);
                     btn_play.setEnabled(false);
                     tv_log.setText("Searching game...");
-
                 } else {
                     makeToast("Bad username");
                 }
@@ -192,38 +188,44 @@ public class PlayAsGuest extends AppCompatActivity {
 
                 if(availableGame == null){
                     // if no game available, we create one
-                    Log.d(TAG, "no game available");
+                    Log.e(TAG, "no game available");
                     Player tmpPlayer = new Player("","",0);
                     String id = getRandomId();
                     Game game = new Game(id, currentPlayer, tmpPlayer);
-                    db.insertGame(game);
+                    db.insertAvailableGame(game);
                     currentGame = game;
 
-                    Thread.sleep(50);
-
                     while(System.currentTimeMillis() < end_time){
+                        Game tmpGame = db.getAvailableGame(game);
 
-                        Game tmpGame = db.getGameById(id);
-                        if (tmpGame != null) {
+                        if (tmpGame != null && tmpGame.getPlayer1() != null && tmpGame.getPlayer2() != null) {
                             if ((!tmpGame.getPlayer1().getId().equals("")) && (!tmpGame.getPlayer2().getId().equals(""))) {
                                 returnGame = tmpGame;
                                 break;
                             }
-                            Thread.sleep(50);
                         }
                         returnGame = tmpGame;
                     }
                 } else {
                     // else we insert player1 in game available
-                    Log.d(TAG, "Game available");
+                    Log.e(TAG, "Game available");
                     if (availableGame.getPlayer1().getId().equals("")){
-                        db.insertPlayer1InGameById(currentPlayer, availableGame.getId());
+                        db.insertPlayer1InAvailableGame(currentPlayer, availableGame);
+                        Log.e(TAG, "Game Player1 inserted");
                     } else {
-                        db.insertPlayer2InGameById(currentPlayer, availableGame.getId());
+                        db.insertPlayer2InAvailableGame(currentPlayer, availableGame);
+                        Log.e(TAG, "Game Player2 inserted");
                     }
 
-                    Thread.sleep(50);
-                    returnGame = db.getGameById(availableGame.getId());
+                    while(true){
+                        returnGame = db.getAvailableGame(availableGame);
+                        if (returnGame != null && returnGame.getPlayer1() != null && returnGame.getPlayer2() != null) {
+                            if ((!returnGame.getPlayer1().getId().equals("")) && (!returnGame.getPlayer2().getId().equals(""))) {
+                                break;
+                            }
+                        }
+                    }
+                    currentGame = returnGame;
                 }
 
             }catch (Exception e){
@@ -236,36 +238,38 @@ public class PlayAsGuest extends AppCompatActivity {
         @Override
         protected void onPostExecute(Game game) {
 
+            if (game != null) {
+                Log.e(TAG, game.getId());
+                Log.e(TAG, game.getPlayer1().getId());
+                Log.e(TAG, game.getPlayer2().getId());
+                if ((!game.getPlayer1().getId().equals("")) && (!game.getPlayer2().getId().equals(""))) {
+                    String text = "Player found !";
+                    tv_log.setText(text);
 
-            try{
-                if (game != null) {
-                    if ((!game.getPlayer1().getId().equals("")) && (!game.getPlayer2().getId().equals(""))) {
-                        String text = "Player found !";
-                        tv_log.setText(text);
+                    //We insert the currentGame in inProgress
+                    db.insertInProgressGame(game);
+                    //We get the current, so we can listen only this game now
+                    db.initListenerCurrentGame(game);
+                    //And also delete the availableGame
+                    db.deleteAvailableGame(game);
 
-                        //Launch game
-                        Intent intent = new Intent(PlayAsGuest.this, GameActivity.class);
-                        intent.putExtra("idGame", game.getId());
-                        intent.putExtra("currentPlayerId", currentPlayer.getId());
-                        startActivity(intent);
-                        finish();
+                    //Launch game
+                    Intent intent = new Intent(PlayAsGuest.this, GameActivity.class);
+                    intent.putExtra("idGame", game.getId());
+                    intent.putExtra("currentPlayerId", currentPlayer.getId());
+                    startActivity(intent);
+                    finish();
 
-
-                    } else {
-                        db.deleteGame(game);
-                        String text = "No player found, try again";
-                        tv_log.setText(text);
-                        et_guest_name.setEnabled(true);
-                        btn_play.setEnabled(true);
-                    }
-                    pb_btn_play.setVisibility(View.GONE);
                 } else {
-                    //db.deleteGame(game);
-                    searchGameTask = new SearchGameTask();
-                    searchGameTask.execute();
+                    db.deleteAvailableGame(game);
+                    db.deletePlayerSearchingPlayer(currentPlayer);
+                    String text = "No player found, try again";
+                    tv_log.setText(text);
+                    et_guest_name.setEnabled(true);
+                    btn_play.setEnabled(true);
                 }
-            }catch (Exception e){
-                db.deleteGame(game);
+                pb_btn_play.setVisibility(View.GONE);
+            } else {
                 searchGameTask = new SearchGameTask();
                 searchGameTask.execute();
             }

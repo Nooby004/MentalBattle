@@ -79,7 +79,7 @@ public class PlayFragment extends Fragment {
 
         //init parameters
         db = DatabaseManager.getInstance();
-        game = db.getGameById(gameID);
+        game = db.getCurrentGame();
 
         launchCountDown(v, Utils.COUNTDOWN_PLAY);
         initListenerButton(v);

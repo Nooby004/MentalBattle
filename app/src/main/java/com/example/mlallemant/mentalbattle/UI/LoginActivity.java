@@ -34,7 +34,7 @@ import java.util.UUID;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private final static String TAG = "LoginActivity";
+   /* private final static String TAG = "LoginActivity";
 
     private FirebaseAuth mAuth;
     private String mName = "";
@@ -104,8 +104,6 @@ public class LoginActivity extends AppCompatActivity {
                             db.insertPlayer(player);
                             currentPlayer = player;
 
-                            /** FOR TEST */
-                            //db.addPlayerForTest();
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInAnonymously:failure", task.getException());
@@ -250,5 +248,5 @@ public class LoginActivity extends AppCompatActivity {
 
     private String getRandomId(){
         return UUID.randomUUID().toString();
-    }
+    }   */
 }

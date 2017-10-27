@@ -6,15 +6,12 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.mlallemant.mentalbattle.R;
-import com.example.mlallemant.mentalbattle.UI.LoginActivity;
 import com.example.mlallemant.mentalbattle.Utils.Utils;
 
 /**
@@ -31,7 +28,7 @@ public class PlayerFindFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
-        View v = inflater.inflate(R.layout.lobby_fragment, container, false);
+        View v = inflater.inflate(R.layout.player_find_fragment, container, false);
 
         Bundle args = getArguments();
         String currentPlayerName = args.getString("currentPlayer");

@@ -50,9 +50,9 @@ public class WinFragment extends Fragment{
         tv_looser.setText(tlooser);
 
         if (resultGame.equals("YOU LOSE !")){
-            tv_resultGame.setTextColor(ContextCompat.getColor(getActivity(), R.color.redColor));
+            tv_resultGame.setTextColor(ContextCompat.getColor(getActivity(), R.color.whiteGrayColor));
         }else{
-            tv_resultGame.setTextColor(ContextCompat.getColor(getActivity(), R.color.greenColor));
+            tv_resultGame.setTextColor(ContextCompat.getColor(getActivity(), R.color.orangeColor));
         }
         tv_resultGame.setText(resultGame);
 

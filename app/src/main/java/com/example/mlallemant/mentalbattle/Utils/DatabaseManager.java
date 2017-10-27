@@ -42,11 +42,12 @@ public class DatabaseManager {
     private static DatabaseManager instance = null;
     
     private FirebaseDatabase database;
-    private List<Player> playerList;
-    private List<Game> gameList;
 
     private List<Player> playerSearchingGameList;
     private List<Player> playerInLobbyList;
+
+    private List<Game> availableGameList;
+    private Game currentGame;
 
 
     private ValueEventListener gamesListener;
@@ -54,13 +55,12 @@ public class DatabaseManager {
 
     private DatabaseManager(){
         database = FirebaseDatabase.getInstance();
-        playerList = new ArrayList<>();
-        gameList = new ArrayList<>();
         playerSearchingGameList = new ArrayList<>();
         playerInLobbyList = new ArrayList<>();
-
+        availableGameList = new ArrayList<>();
 
         initListenerGames();
+
         this.onRageQuitListener = null;
         this.onScoreChangeListener = null;
     }
@@ -80,39 +80,6 @@ public class DatabaseManager {
         this.onRageQuitListener = listener;
     }
 
-    /**
-     * PLAYER (OLD)
-     */
-
-    public void insertPlayer(Player player) {
-        DatabaseReference reference = database.getReference("players");
-
-        reference.child(player.getId()).child("name").setValue(player.getName());
-        reference.child(player.getId()).child("score").setValue(player.getScore());
-    }
-
-    public Player getPlayerById(String id){
-        Player player;
-
-        for (int i=0; i<playerList.size();i++){
-            if (playerList.get(i).getId().equals(id)){
-                player = playerList.get(i);
-                return player;
-            }
-        }
-        return null;
-    }
-
-    public void deletePlayer(Player player){
-        DatabaseReference reference = database.getReference("players");
-        reference.child(player.getId()).removeValue();
-        playerList.remove(player);
-    }
-
-    public List<Player> getAllUser() {
-        return playerList;
-    }
-
 
     /**
      * PLAYER SEARCHING GAME
@@ -127,7 +94,7 @@ public class DatabaseManager {
     public void deletePlayerSearchingPlayer(Player player){
         DatabaseReference reference = database.getReference("players").child("searchingGame");
         reference.child(player.getId()).removeValue();
-        //playerList.remove(player);
+        playerSearchingGameList.remove(player);
     }
 
     /**
@@ -143,16 +110,15 @@ public class DatabaseManager {
     public void deletePlayerInLobby(Player player){
         DatabaseReference reference = database.getReference("players").child("inLobby");
         reference.child(player.getId()).removeValue();
-        //playerList.remove(player);
+        playerInLobbyList.remove(player);
     }
-
 
     /**
      * GAME
      */
 
     public void initListenerGames(){
-        DatabaseReference reference = database.getReference("games");
+        DatabaseReference reference = database.getReference("games").child("availableGame");
 
         gamesListener = reference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -168,11 +134,7 @@ public class DatabaseManager {
                     List<Calculation> calculationList = child.child("calculationList").getValue(genericType);
                     //Log.e(TAG, "listenerGame");
                     Game game = new Game(id, player1, player2, calculationList);
-                    addAndUpdateGame(game);
-                    if (onScoreChangeListener != null && player1 != null && player2 != null) {
-                        onScoreChangeListener.updateScoreUI(player1.getScore(), player1.getId());
-                        onScoreChangeListener.updateScoreUI(player2.getScore(), player2.getId());
-                    }
+                    addAndUpdateAvailableGame(game);
                 }
             }
 
@@ -183,21 +145,9 @@ public class DatabaseManager {
         });
     }
 
-    private Boolean checkIntegrityGameStructure(DataSnapshot child)
-    {
-        Boolean integrity = true;
-
-        if (!child.child("player1").exists() && !child.child("player2").exists() && !child.child("calculationList").exists()){
-            integrity = false;
-            Log.e(TAG, "Game structure integrity wrong");
-        }
-
-        return integrity;
-    }
-
     public void initListenerCurrentGame(final Game game){
 
-        final DatabaseReference reference = database.getReference("games");
+        final DatabaseReference reference = database.getReference("games").child("inProgressGame");
         reference.removeEventListener(gamesListener);
 
         currentGameListener = reference.child(game.getId()).addValueEventListener(new ValueEventListener() {
@@ -215,7 +165,7 @@ public class DatabaseManager {
 
                         Game currentGame = new Game(game.getId(), player1, player2, calculationList);
 
-                        addAndUpdateGame(currentGame);
+                        addAndUpdateCurrentGame(currentGame);
                         if (onScoreChangeListener != null && player1 != null && player2 != null) {
                             onScoreChangeListener.updateScoreUI(player1.getScore(), player1.getId());
                             onScoreChangeListener.updateScoreUI(player2.getScore(), player2.getId());
@@ -242,23 +192,31 @@ public class DatabaseManager {
         });
     }
 
-    private void addAndUpdateGame(Game game){
+    private void addAndUpdateAvailableGame(Game game){
         Boolean isInList = false;
 
-        for (int i = 0; i<gameList.size(); i++){
-            if (gameList.get(i).getId().equals(game.getId())){
-                gameList.set(i, game);
+        for (int i = 0; i<availableGameList.size(); i++){
+            if (availableGameList.get(i).getId().equals(game.getId())){
+                availableGameList.set(i, game);
                 isInList = true;
             }
         }
-
         if (!isInList){
-            gameList.add(game);
+            availableGameList.add(game);
         }
     }
 
-    public void insertGame(Game game) {
-        DatabaseReference reference = database.getReference("games");
+    private void addAndUpdateCurrentGame(Game game){
+        currentGame = game;
+    }
+
+    public Game getCurrentGame(){
+        return currentGame;
+    }
+
+
+    public void insertAvailableGame(Game game) {
+        DatabaseReference reference = database.getReference("games").child("availableGame");
 
         reference.child(game.getId()).child("player1").setValue(game.getPlayer1());
         reference.child(game.getId()).child("player2").setValue(game.getPlayer2());
@@ -267,60 +225,80 @@ public class DatabaseManager {
         }
     }
 
-    public List<Game> getAllGame() {
-        return gameList;
+    public void insertInProgressGame(Game game) {
+        DatabaseReference reference = database.getReference("games").child("inProgressGame");
+
+        reference.child(game.getId()).child("player1").setValue(game.getPlayer1());
+        reference.child(game.getId()).child("player2").setValue(game.getPlayer2());
+        for (int i=0; i<game.getCalculationList().size(); i++) {
+            reference.child(game.getId()).child("calculationList").child(String.valueOf(i)).setValue(game.getCalculationList().get(i));
+        }
+        currentGame = game;
     }
 
-    public Game getGameById(String id){
+
+    public Game getAvailableGame(Game availableGame){
         Game game;
 
-        for (int i=0; i<gameList.size();i++){
-            if (gameList.get(i).getId().equals(id)) {
-                game = gameList.get(i);
-                return game;
+        for (int i=0; i<availableGameList.size();i++){
+            if (availableGameList.get(i).getId().equals(availableGame.getId())) {
+                game = availableGameList.get(i);
+                if (game.getPlayer1() != null && game.getPlayer2() != null && game.getCalculationList() != null){
+                    return game;
+                }
             }
         }
         return null;
     }
 
     public void setScorePlayer1ByIdGame(Integer score, String id){
-        DatabaseReference reference = database.getReference("games");
+        DatabaseReference reference = database.getReference("games").child("inProgressGame");
         reference.child(id).child("player1").child("score").setValue(score);
     }
 
     public void setScorePlayer2ByIdGame(Integer score, String id){
-        DatabaseReference reference = database.getReference("games");
+        DatabaseReference reference = database.getReference("games").child("inProgressGame");
         reference.child(id).child("player2").child("score").setValue(score);
     }
 
-    public void insertPlayer1InGameById(Player player1, String id){
-        DatabaseReference reference = database.getReference("games");
-        reference.child(id).child("player1").setValue(player1);
+
+
+    public void insertPlayer1InAvailableGame(Player player1, Game game){
+        DatabaseReference reference = database.getReference("games").child("availableGame");
+        reference.child(game.getId()).child("player1").setValue(player1);
     }
 
-    public void insertPlayer2InGameById(Player player2, String id){
-        DatabaseReference reference = database.getReference("games");
-        reference.child(id).child("player2").setValue(player2);
+    public void insertPlayer2InAvailableGame(Player player2, Game game){
+        DatabaseReference reference = database.getReference("games").child("availableGame");
+        reference.child(game.getId()).child("player2").setValue(player2);
     }
+
+
 
     public Game findAvailableGame(){
         Game game = null;
 
-        for (int i = 0; i< gameList.size(); i++){
-            if (gameList.get(i).getPlayer1().getId().equals("") || gameList.get(i).getPlayer2().getId().equals("")){
-                game = gameList.get(i);
+        for (int i = 0; i< availableGameList.size(); i++){
+            if (availableGameList.get(i).getPlayer1().getId().equals("") || availableGameList.get(i).getPlayer2().getId().equals("")){
+                game = availableGameList.get(i);
             }
         }
-        Log.e(TAG, "gameList.size : " + gameList.size());
+        Log.e(TAG, "availableGameList.size : " + availableGameList.size());
         return game;
     }
 
-    public void deleteGame(Game game){
-        DatabaseReference reference = database.getReference("games");
+
+    public void deleteAvailableGame(Game game){
+        DatabaseReference reference = database.getReference("games").child("availableGame");
         reference.child(game.getId()).removeValue();
-        gameList.remove(game);
+        availableGameList.remove(game);
     }
 
+    public void deleteCurrentGame(Game game){
+        DatabaseReference reference = database.getReference("games").child("inProgressGame");
+        reference.child(game.getId()).removeValue();
+        currentGame = null;
+    }
 
 
 }

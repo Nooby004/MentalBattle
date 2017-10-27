@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="30sp"
+        android:layout_marginTop="25sp"
+        android:textColor="@color/greenColor"
+        android:gravity="center"
+        android:text="Welcome Pseudo !"/>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_margin="30sp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15sp">
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="35sp"
+                android:background="@drawable/buttonshape_orange"
+                android:text="PLAY"/>
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="35sp"
+                android:elevation="2dp"
+                android:layout_alignParentEnd="true" />
+
+        </RelativeLayout>
+
+        <TextView
+            android:layout_marginTop="20sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:text="LOG OFF"
+            android:textColor="@color/whiteColor"/>
+
+
+        <View
+            android:layout_marginTop="20sp"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20sp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:text="Friends"
+                android:textSize="20sp"
+                android:textColor="@color/orangeColor"/>
+
+            <ImageView
+                android:layout_width="32sp"
+                android:layout_height="40sp"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/ic_add"/>
+
+        </RelativeLayout>
+        
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </ListView>
+
+    </LinearLayout>
+</LinearLayout>
