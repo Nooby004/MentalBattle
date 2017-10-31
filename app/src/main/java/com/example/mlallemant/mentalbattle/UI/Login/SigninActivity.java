@@ -164,6 +164,7 @@ public class SigninActivity extends AppCompatActivity {
                             makeToast("Welcome " + username + " !");
                             isValidCreation = true;
                             pg_signin.setVisibility(View.GONE);
+                            mAuth.signOut();
                             finish();
                         }
                     });

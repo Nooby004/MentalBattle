@@ -8,6 +8,7 @@
 
 
     <TextView
+        android:id="@+id/register_tv_welcome"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="30sp"
@@ -29,12 +30,14 @@
             android:layout_marginTop="15sp">
 
             <Button
+                android:id="@+id/register_btn_play"
                 android:layout_width="match_parent"
                 android:layout_height="35sp"
                 android:background="@drawable/buttonshape_orange"
                 android:text="PLAY"/>
 
             <ProgressBar
+                android:id="@+id/register_pb_btn_play"
                 android:layout_width="wrap_content"
                 android:layout_height="35sp"
                 android:elevation="2dp"
@@ -43,6 +46,7 @@
         </RelativeLayout>
 
         <TextView
+            android:id="@+id/register_tv_logoff"
             android:layout_marginTop="20sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -72,6 +76,7 @@
                 android:textColor="@color/orangeColor"/>
 
             <ImageView
+                android:id="@+id/register_iv_add_friend"
                 android:layout_width="32sp"
                 android:layout_height="40sp"
                 android:layout_alignParentEnd="true"
@@ -80,8 +85,10 @@
         </RelativeLayout>
         
         <ListView
+            android:id="@+id/register_lv_friends"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="@color/grayColor">
 
         </ListView>
 

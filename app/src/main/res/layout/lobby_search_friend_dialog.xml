@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_marginTop="15sp"
+    android:layout_marginBottom="15sp">
+
+    <EditText
+        android:id="@+id/lobby_et_username"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20sp"
+        android:textColor="@color/orangeColor"
+        android:layout_marginEnd="20sp"
+        android:inputType="textPersonName"
+        android:imeOptions="actionSearch"
+        android:hint="Username"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10sp"
+        android:layout_marginEnd="20sp"
+        android:layout_marginStart="20sp">
+
+        <TextView
+            android:id="@+id/lobby_tv_result"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4sp"
+            android:textSize="16sp"
+            android:textColor="@color/orangeColor"
+            android:text="Bibiche"/>
+
+        <ProgressBar
+            android:id="@+id/lobby_pg_search"
+            android:layout_width="wrap_content"
+            android:layout_height="35sp"
+            android:elevation="2dp"
+            android:layout_alignParentEnd="true" />
+
+    </RelativeLayout>
+</LinearLayout>

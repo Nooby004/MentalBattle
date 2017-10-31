@@ -11,7 +11,7 @@ import com.example.mlallemant.mentalbattle.UI.Fragment.PlayerFindFragment;
 import com.example.mlallemant.mentalbattle.UI.Fragment.PlayFragment;
 import com.example.mlallemant.mentalbattle.UI.Fragment.WinFragment;
 import com.example.mlallemant.mentalbattle.UI.Lobby.PlayAsGuest;
-import com.example.mlallemant.mentalbattle.UI.LoginActivity;
+import com.example.mlallemant.mentalbattle.UI.Lobby.PlayAsRegistered;
 import com.example.mlallemant.mentalbattle.Utils.DatabaseManager;
 import com.example.mlallemant.mentalbattle.Utils.Game;
 import com.example.mlallemant.mentalbattle.Utils.Player;
@@ -98,7 +98,9 @@ public class GameActivity extends AppCompatActivity implements PlayerFindFragmen
     public void onBackPressed() {
         gameIsFinished = true;
         db.deleteCurrentGame(game);
+        db.notifyFriendsYouAreDisconnected(currentPlayer);
         finish();
+        super.onBackPressed();
     }
 
     @Override
@@ -176,7 +178,9 @@ public class GameActivity extends AppCompatActivity implements PlayerFindFragmen
     }
 
     private void launchPlayAsRegisterActivity(){
-
+        Intent intent = new Intent(GameActivity.this, PlayAsRegistered.class);
+        this.startActivity(intent);
+        finish();
     }
 
 

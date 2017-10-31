@@ -92,8 +92,12 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         initLoginGoogle();
 
         mAuth = FirebaseAuth.getInstance();
-        signOut();
+    }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        signOut();
     }
 
 
@@ -102,7 +106,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null){
-            makeToast("Welcome back " + currentUser.getDisplayName());
             launchPlayAsRegisteredActivity(currentUser);
         }
     }
@@ -124,8 +127,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 makeToast("Sign in with Google failed");
             }
         }
-
     }
+
+
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {

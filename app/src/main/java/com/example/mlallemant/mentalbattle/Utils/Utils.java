@@ -22,4 +22,14 @@ public class Utils {
 
 
     public static int AUTHENTIFICATION_TYPE = 0;
+
+    public static String ACK_REQUEST_SENT = "req_sent";
+    public static String ACK_REQUEST_RECEIVED = "req_received";
+    public static String ACK_OK = "req_ok";
+
+    public static String PLAY_REQUEST_SENT = "req_sent";
+    public static String PLAY_REQUEST_RECEIVED = "req_received";
+    public static String PLAY_OK = "req_ok";
+    public static String PLAY_KO = "req_ko";
+
 }

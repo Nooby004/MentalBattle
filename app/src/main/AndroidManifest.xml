@@ -24,12 +24,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".UI.LoginActivity"
-            android:launchMode="singleTop"
-            android:theme="@style/myTheme"
-            android:screenOrientation="portrait"
-            android:configChanges="orientation|keyboardHidden">
-        </activity>
         <activity android:name=".UI.Game.GameActivity"
             android:launchMode="singleTop"
             android:theme="@style/myTheme"

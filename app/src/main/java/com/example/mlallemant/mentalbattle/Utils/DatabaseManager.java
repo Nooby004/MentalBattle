@@ -1,24 +1,18 @@
 package com.example.mlallemant.mentalbattle.Utils;
 
-import android.nfc.Tag;
-import android.os.AsyncTask;
-import android.os.Handler;
 import android.util.Log;
 
-import com.example.mlallemant.mentalbattle.UI.LoginActivity;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
+import com.example.mlallemant.mentalbattle.UI.Friends.DataModel;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.UUID;
 
 /**
  * Created by m.lallemant on 13/10/2017.
@@ -28,6 +22,8 @@ public class DatabaseManager {
 
     private OnScoreChangeListener onScoreChangeListener;
     private OnRageQuitListener onRageQuitListener;
+    private OnFriendFoundListener onFriendFoundListener;
+    private OnFriendChangeListener onFriendChangeListener;
 
     public interface OnScoreChangeListener{
         void updateScoreUI(Integer score, String playerID);
@@ -35,6 +31,14 @@ public class DatabaseManager {
 
     public interface OnRageQuitListener{
         void alertUserPlayerRageQuit();
+    }
+
+    public interface OnFriendFoundListener{
+        void updateFriendFoundUI(Player player);
+    }
+
+    public interface OnFriendChangeListener{
+        void updateFriendListUI(List<DataModel> friendList);
     }
 
     private final static String TAG = "DatabaseManager";
@@ -45,6 +49,7 @@ public class DatabaseManager {
 
     private List<Player> playerSearchingGameList;
     private List<Player> playerInLobbyList;
+    private List<DataModel> friendList;
 
     private List<Game> availableGameList;
     private Game currentGame;
@@ -58,11 +63,14 @@ public class DatabaseManager {
         playerSearchingGameList = new ArrayList<>();
         playerInLobbyList = new ArrayList<>();
         availableGameList = new ArrayList<>();
+        friendList = new ArrayList<>();
 
         initListenerGames();
 
         this.onRageQuitListener = null;
         this.onScoreChangeListener = null;
+        this.onFriendFoundListener = null;
+        this.onFriendChangeListener = null;
     }
 
     public static synchronized DatabaseManager getInstance(){
@@ -80,6 +88,14 @@ public class DatabaseManager {
         this.onRageQuitListener = listener;
     }
 
+    public void setOnFriendFoundListener(OnFriendFoundListener listener){
+        this.onFriendFoundListener = listener;
+    }
+
+    public void setOnFriendChangeListener(OnFriendChangeListener listener) {
+        this.onFriendChangeListener = listener;
+    }
+
 
     /**
      * PLAYER SEARCHING GAME
@@ -92,9 +108,11 @@ public class DatabaseManager {
     }
 
     public void deletePlayerSearchingPlayer(Player player){
-        DatabaseReference reference = database.getReference("players").child("searchingGame");
-        reference.child(player.getId()).removeValue();
-        playerSearchingGameList.remove(player);
+        if (player != null) {
+            DatabaseReference reference = database.getReference("players").child("searchingGame");
+            reference.child(player.getId()).removeValue();
+            playerSearchingGameList.remove(player);
+        }
     }
 
     /**
@@ -105,13 +123,162 @@ public class DatabaseManager {
         DatabaseReference reference = database.getReference("players").child("inLobby");
         reference.child(player.getId()).child("name").setValue(player.getName());
         reference.child(player.getId()).child("score").setValue(player.getScore());
+        notifyFriendsYouAreConnected(player);
     }
+
 
     public void deletePlayerInLobby(Player player){
         DatabaseReference reference = database.getReference("players").child("inLobby");
         reference.child(player.getId()).removeValue();
-        playerInLobbyList.remove(player);
+        notifyFriendsYouAreDisconnected(player);
     }
+
+
+    /**
+     * REGISTERED USER
+     */
+
+    public void insertRegisteredPlayer(Player player) {
+        DatabaseReference reference = database.getReference("players").child("registered");
+        reference.child(player.getId()).child("name").setValue(player.getName());
+    }
+
+    public void insertFriend(Player currentPlayer, Player friend){
+        DatabaseReference reference = database.getReference("players").child("registered");
+        reference.child(currentPlayer.getId()).child("friends").child(friend.getId()).child("name").setValue(friend.getName());
+        reference.child(currentPlayer.getId()).child("friends").child(friend.getId()).child("ack").setValue(Utils.ACK_REQUEST_SENT);
+        reference.child(currentPlayer.getId()).child("friends").child(friend.getId()).child("connected").setValue(false);
+        reference.child(currentPlayer.getId()).child("friends").child(friend.getId()).child("playReq").setValue(Utils.PLAY_KO);
+
+
+        reference.child(friend.getId()).child("friends").child(currentPlayer.getId()).child("name").setValue(currentPlayer.getName());
+        reference.child(friend.getId()).child("friends").child(currentPlayer.getId()).child("ack").setValue(Utils.ACK_REQUEST_RECEIVED);
+        reference.child(friend.getId()).child("friends").child(currentPlayer.getId()).child("connected").setValue(true);
+        reference.child(friend.getId()).child("friends").child(currentPlayer.getId()).child("playReq").setValue(Utils.PLAY_KO);
+
+    }
+
+    public void deleteFriend(Player currentPlayer, Player friend){
+        DatabaseReference reference = database.getReference("players").child("registered");
+        reference.child(currentPlayer.getId()).child("friends").child(friend.getId()).removeValue();
+        reference.child(friend.getId()).child("friends").child(currentPlayer.getId()).removeValue();
+    }
+
+    public void initListenerFriend(final Player currentPlayer){
+        DatabaseReference reference = database.getReference("players").child("registered").child(currentPlayer.getId()).child("friends");
+
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                friendList.clear();
+                if (dataSnapshot.exists()){
+
+                    for (DataSnapshot result : dataSnapshot.getChildren()){
+                        String id = result.getKey();
+                        String name = (String) result.child("name").getValue();
+                        Boolean isConnected = (Boolean) result.child("connected").getValue();
+                        String friendAcq = (String) result.child("ack").getValue();
+                        String playReq = (String) result.child("playReq").getValue();
+
+                        friendList.add(new DataModel(new Player(id, name, 0), isConnected, friendAcq, playReq));
+                    }
+
+                    //SEND LIST BY INTERFACE TO UI
+                    onFriendChangeListener.updateFriendListUI(friendList);
+                    notifyFriendsYouAreConnected(currentPlayer);
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+
+    private void notifyFriendsYouAreConnected(Player currentPlayer){
+        //NOTIFY YOUR FRIEND YOU ARE CONNECTED
+        if (!friendList.isEmpty()){
+            for (int i = 0; i<friendList.size(); i++){
+                DatabaseReference ref = database.getReference("players").child("registered").child(friendList.get(i).getPlayer().getId()).child("friends").child(currentPlayer.getId());
+                ref.child("connected").setValue(true);
+            }
+        }
+    }
+
+    public void ackFriend(Player currentPlayer, Player friend){
+        DatabaseReference reference = database.getReference("players").child("registered").child(currentPlayer.getId()).child("friends").child(friend.getId());
+        reference.child("ack").setValue(Utils.ACK_OK);
+
+        reference = database.getReference("players").child("registered").child(friend.getId()).child("friends").child(currentPlayer.getId());
+        reference.child("ack").setValue(Utils.ACK_OK);
+    }
+
+    public void askToPlayWith(Player currentPlayer, Player friend){
+        DatabaseReference reference = database.getReference("players").child("registered").child(currentPlayer.getId()).child("friends").child(friend.getId());
+        reference.child("playReq").setValue(Utils.PLAY_REQUEST_SENT);
+
+        reference = database.getReference("players").child("registered").child(friend.getId()).child("friends").child(currentPlayer.getId());
+        reference.child("playReq").setValue(Utils.PLAY_REQUEST_RECEIVED);
+    }
+
+    public void acceptToPlayWith(Player currentPlayer, Player friend){
+        DatabaseReference reference = database.getReference("players").child("registered").child(currentPlayer.getId()).child("friends").child(friend.getId());
+        reference.child("playReq").setValue(Utils.PLAY_OK);
+
+        reference = database.getReference("players").child("registered").child(friend.getId()).child("friends").child(currentPlayer.getId());
+        reference.child("playReq").setValue(Utils.PLAY_OK);
+    }
+
+    public void declineToPlayWith(Player currentPlayer, Player friend){
+        DatabaseReference reference = database.getReference("players").child("registered").child(currentPlayer.getId()).child("friends").child(friend.getId());
+        reference.child("playReq").setValue(Utils.PLAY_KO);
+
+        reference = database.getReference("players").child("registered").child(friend.getId()).child("friends").child(currentPlayer.getId());
+        reference.child("playReq").setValue(Utils.PLAY_KO);
+    }
+
+    public void notifyFriendsYouAreDisconnected(Player currentPlayer){
+        //NOTIFY YOUR FRIEND YOU ARE CONNECTED
+        if (!friendList.isEmpty()){
+            for (int i = 0; i<friendList.size(); i++){
+                DatabaseReference ref = database.getReference("players").child("registered").child(friendList.get(i).getPlayer().getId()).child("friends").child(currentPlayer.getId());
+                ref.child("connected").setValue(false);
+            }
+        }
+    }
+
+    public void findFriend(String username){
+        DatabaseReference reference = database.getReference("players").child("registered");
+        Query query = reference.orderByChild("name").equalTo(username);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // dataSnapshot is the "issue" node with all children with id 0
+                    for (DataSnapshot result : dataSnapshot.getChildren()) {
+                        if (onFriendFoundListener != null) {
+
+                            String id = result.getKey();
+                            String username =  (String) result.child("name").getValue();
+                            Player player = new Player(id, username,0);
+
+                            onFriendFoundListener.updateFriendFoundUI(player);
+                        }
+                        Log.e(TAG,result.getKey() + ":" + result.child("name").getValue());
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
 
     /**
      * GAME
@@ -206,6 +373,32 @@ public class DatabaseManager {
         }
     }
 
+    public void getAvailableGameById(final String idGame){
+        DatabaseReference reference = database.getReference("games").child("availableGame").child(idGame);
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    Player player1 = dataSnapshot.child("player1").getValue(Player.class);
+                    Player player2 = dataSnapshot.child("player2").getValue(Player.class);
+
+                    GenericTypeIndicator<List<Calculation>> genericType = new GenericTypeIndicator<List<Calculation>>() {
+                    };
+                    List<Calculation> calculationList = dataSnapshot.child("calculationList").getValue(genericType);
+
+                    Game game = new Game(idGame, player1, player2, calculationList);
+                    currentGame = game;
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+
     private void addAndUpdateCurrentGame(Game game){
         currentGame = game;
     }
@@ -250,6 +443,7 @@ public class DatabaseManager {
         }
         return null;
     }
+
 
     public void setScorePlayer1ByIdGame(Integer score, String id){
         DatabaseReference reference = database.getReference("games").child("inProgressGame");
