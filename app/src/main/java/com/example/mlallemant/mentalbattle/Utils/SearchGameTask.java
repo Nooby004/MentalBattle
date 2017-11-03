@@ -64,6 +64,11 @@ public class SearchGameTask extends AsyncTask <String, Void, Game> {
                 currentGame = game;
 
                 while(System.currentTimeMillis() < end_time){
+                    if (isCancelled()){
+                        db.deleteAvailableGame(currentGame);
+                        break;
+                    }
+
                     Game tmpGame = db.getAvailableGame(game);
 
                     if (tmpGame != null && tmpGame.getPlayer1() != null && tmpGame.getPlayer2() != null) {

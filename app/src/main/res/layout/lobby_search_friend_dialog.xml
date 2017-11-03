@@ -7,16 +7,32 @@
     android:layout_marginTop="15sp"
     android:layout_marginBottom="15sp">
 
-    <EditText
-        android:id="@+id/lobby_et_username"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="20sp"
-        android:textColor="@color/orangeColor"
-        android:layout_marginEnd="20sp"
-        android:inputType="textPersonName"
-        android:imeOptions="actionSearch"
-        android:hint="Username"/>
+        android:layout_marginTop="20sp"
+        android:layout_marginEnd="20sp">
+
+        <EditText
+            android:id="@+id/lobby_et_username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/whiteColor"
+            android:inputType="textPersonName"
+            android:layout_weight="1"
+            android:layout_marginEnd="10sp"
+            android:hint="Username"/>
+
+        <ImageView
+            android:id="@+id/lobby_iv_search"
+            android:layout_width="80sp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="10sp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_search"/>
+    </LinearLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -31,7 +47,7 @@
             android:layout_height="wrap_content"
             android:padding="4sp"
             android:textSize="16sp"
-            android:textColor="@color/orangeColor"
+            android:textColor="@color/whiteColor"
             android:text="Bibiche"/>
 
         <ProgressBar

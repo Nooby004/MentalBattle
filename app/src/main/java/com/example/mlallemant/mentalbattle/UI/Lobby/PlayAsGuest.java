@@ -2,6 +2,7 @@ package com.example.mlallemant.mentalbattle.UI.Lobby;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +23,7 @@ import com.example.mlallemant.mentalbattle.Utils.Game;
 import com.example.mlallemant.mentalbattle.Utils.Player;
 import com.example.mlallemant.mentalbattle.Utils.SearchGameTask;
 import com.example.mlallemant.mentalbattle.Utils.Utils;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -49,6 +51,7 @@ public class PlayAsGuest extends AppCompatActivity {
     private Game currentGame;
     public SearchGameTask searchGameTask;
     private DatabaseManager db;
+    private boolean isSearchingGame = false;
 
     private Boolean appGoesToBackground = false;
 
@@ -57,11 +60,14 @@ public class PlayAsGuest extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.play_as_guest_activity);
+
         initUI();
         initListener();
 
         mAuth = FirebaseAuth.getInstance();
+
         db = DatabaseManager.getInstance();
+        db.initFriendList();
     }
 
     @Override
@@ -119,26 +125,39 @@ public class PlayAsGuest extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 hideKeyboard();
-                String username = et_guest_name.getText().toString();
-                if (username.length() > 0 && username.length() < 15){
-
-                    pb_btn_play.setVisibility(View.VISIBLE);
-                    signInAnonymously(username);
-                    Utils.AUTHENTIFICATION_TYPE = Utils.AUTHENTIFICATION_GUEST;
-
-                    et_guest_name.setEnabled(false);
-                    btn_play.setEnabled(false);
-                    tv_log.setText("Searching game...");
-                } else {
-                    makeToast("Bad username");
-                }
+                updateUIOnClick();
             }
         });
-
     }
+
+    private void updateUIOnClick() {
+        if (isSearchingGame){ //Cancel search
+            isSearchingGame = false;
+            searchGameTask.cancel(true);
+            pb_btn_play.setVisibility(View.GONE);
+            db.deletePlayerSearchingPlayer(currentPlayer);
+            tv_log.setText("Search cancelled...");
+            btn_play.setText("PLAY AS GUEST");
+
+        } else { //Search player
+            isSearchingGame = true;
+            String username = et_guest_name.getText().toString();
+            if (username.length() > 0 && username.length() < 15){
+                pb_btn_play.setVisibility(View.VISIBLE);
+                et_guest_name.setEnabled(false);
+                btn_play.setText("CANCEL");
+                tv_log.setText("Searching game...");
+                signInAnonymously(username);
+            } else {
+                makeToast("Bad username");
+            }
+        }
+    }
+
 
     private void signInAnonymously(final String username){
 
+        Utils.AUTHENTIFICATION_TYPE = Utils.AUTHENTIFICATION_GUEST;
         mAuth.signInAnonymously()
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -161,6 +180,7 @@ public class PlayAsGuest extends AppCompatActivity {
 
 
     private void launchSearchingGameTask(){
+        currentGame = null;
         searchGameTask = new SearchGameTask(new SearchGameTask.AsyncResponse() {
             @Override
             public void onFinishTask(Game game) {
@@ -231,6 +251,11 @@ public class PlayAsGuest extends AppCompatActivity {
         Intent intent = new Intent(PlayAsGuest.this, LoginActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    private void signOut() {
+        mAuth.signOut();
+        LoginManager.getInstance().logOut();
     }
 
 }

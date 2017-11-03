@@ -52,6 +52,8 @@ public class PlayFragment extends Fragment {
     private String currentPlayerName;
     private String otherPlayerName;
 
+    private CountDownTimer countDownTimer;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.play_fragment, container, false);
@@ -164,7 +166,7 @@ public class PlayFragment extends Fragment {
 
         final TextView tv_countdown = (TextView)  v.findViewById(R.id.play_tv_counter);
         final ProgressBar pg_counter = (ProgressBar) v.findViewById(R.id.play_pg_counter);
-        new CountDownTimer(countdownPlay, 1000){
+        countDownTimer = new  CountDownTimer(countdownPlay, 1000){
             public void onTick(long millisUntilFinished){
 
                 String remainingTime = ""+millisUntilFinished/1000;
@@ -175,6 +177,7 @@ public class PlayFragment extends Fragment {
                 //GAME FINISHED
                 tv_countdown.setText("0");
                 //pg_counter.setVisibility(View.INVISIBLE);
+                countDownTimer.cancel();
 
                 Boolean win = isCurrentPlayerWining();
                 String winnerName, looserName, resultGame;
@@ -341,35 +344,5 @@ public class PlayFragment extends Fragment {
     private String removeLastChar(String str) {
         return str.substring(0, str.length() - 1);
     }
-
-
-    /*private class MyAsyncTask extends AsyncTask<String, Void, Game> {
-
-        @Override
-        protected Game doInBackground(String... params) {
-            return db.getGameById(game.getId());
-        }
-
-        @Override
-        protected void onPostExecute(Game result) {
-            if (result!=null){
-                if (result.getPlayer1().getId().equals(currentPlayerID)){
-                    scoreCurrentPlayer = result.getPlayer1().getScore();
-                    tv_scoreCurrentPlayer.setText(String.valueOf(scoreCurrentPlayer));
-
-                    scoreOtherPlayer = result.getPlayer2().getScore();
-                    tv_scoreOtherPlayer.setText(String.valueOf(scoreOtherPlayer));
-
-                }else{
-                    scoreCurrentPlayer = result.getPlayer2().getScore();
-                    tv_scoreCurrentPlayer.setText(String.valueOf(scoreCurrentPlayer));
-
-                    scoreOtherPlayer = result.getPlayer1().getScore();
-                    tv_scoreOtherPlayer.setText(String.valueOf(scoreOtherPlayer));
-                }
-            }
-
-        }
-    }*/
 }
 

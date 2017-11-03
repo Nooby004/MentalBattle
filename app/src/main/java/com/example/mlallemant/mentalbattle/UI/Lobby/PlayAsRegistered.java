@@ -1,13 +1,14 @@
 package com.example.mlallemant.mentalbattle.UI.Lobby;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -48,20 +49,22 @@ public class PlayAsRegistered extends AppCompatActivity {
     private ListView lv_friends;
     private ImageView iv_add_friend;
 
-    private boolean isLongClick = false;
-
     public SearchGameTask searchGameTask;
     private Player currentPlayer;
     private Game currentGame;
     private FirebaseAuth mAuth;
     private DatabaseManager db;
 
+    private AlertDialog ad_friend_wants_to_play;
+
     private Player playerFound;
     private boolean isFirstReqToPlay = false;
+    private boolean isSearchingGame = false;
 
     //Friends
     ArrayList<DataModel> dataModels;
     private static CustomAdapter adapter;
+
 
 
     @Override
@@ -74,9 +77,12 @@ public class PlayAsRegistered extends AppCompatActivity {
         if (user != null) {
             if (user.getDisplayName() != null && !user.getDisplayName().equals("")) {
                 db = DatabaseManager.getInstance();
+                db.initFriendList();
                 String splitName = user.getDisplayName().split(" ")[0];
                 currentPlayer = new Player(user.getUid(), splitName, 0);
-                db.insertRegisteredPlayer(currentPlayer);
+
+                Player registeredPlayer = new Player(user.getUid(), user.getDisplayName(),0);
+                db.insertRegisteredPlayer(registeredPlayer);
                 db.initListenerFriend(currentPlayer);
                 db.insertPlayerInLobby(new Player(user.getUid(), user.getDisplayName(), 0));
                 initUI();
@@ -89,14 +95,15 @@ public class PlayAsRegistered extends AppCompatActivity {
             signOut();
             launchLoginActivity();
         }
-
     }
 
     @Override
     public void onStop(){
         super.onStop();
-        db.notifyFriendsYouAreDisconnected(currentPlayer);
-        db.deletePlayerInLobby(currentPlayer);
+        if(currentPlayer != null) {
+            db.notifyFriendsYouAreDisconnected(currentPlayer);
+            db.deletePlayerInLobby(currentPlayer);
+        }
     }
 
     @Override
@@ -126,50 +133,58 @@ public class PlayAsRegistered extends AppCompatActivity {
     }
 
     private void initListener(){
+
+        //BUTTON PLAY
         btn_play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pb_btn_play.setVisibility(View.VISIBLE);
-                launchSearchingGameTask();
+                updateUIOnClick();
             }
         });
 
+        //LOG OFF
         tv_logoff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                db.notifyFriendsYouAreDisconnected(currentPlayer);
                 signOut();
                 launchLoginActivity();
             }
         });
+
+
+        /**
+         * ADD FRIEND
+         */
 
         iv_add_friend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 playerFound = null;
 
-                AlertDialog.Builder alert = new AlertDialog.Builder(PlayAsRegistered.this);
+                final AlertDialog.Builder alert = new AlertDialog.Builder(PlayAsRegistered.this, R.style.myDialogTheme );
                 alert.setTitle("Search Friend");
                 View alertLayout = getLayoutInflater().inflate(R.layout.lobby_search_friend_dialog, null);
                 final EditText et_username = (EditText) alertLayout.findViewById(R.id.lobby_et_username);
                 final TextView tv_result = (TextView) alertLayout.findViewById(R.id.lobby_tv_result);
                 final ProgressBar pg_search = (ProgressBar) alertLayout.findViewById(R.id.lobby_pg_search);
+                final ImageView iv_search = (ImageView) alertLayout.findViewById(R.id.lobby_iv_search);
                 tv_result.setText("");
                 pg_search.setVisibility(View.GONE);
 
-                et_username.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                iv_search.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                        if (i == EditorInfo.IME_ACTION_SEARCH) {
-                            tv_result.setText("");
-                            String username = et_username.getText().toString();
-                            db.findFriend(username);
-                            pg_search.setVisibility(View.VISIBLE);
-                        }
-                        return false;
+                    public void onClick(View view) {
+                        hideKeyboard(et_username);
+                        tv_result.setText("");
+                        String username = et_username.getText().toString();
+                        db.findFriend(username);
+                        pg_search.setVisibility(View.VISIBLE);
                     }
                 });
 
-                //LISTENER SEARCH
+
+                //SEARCH RESULT CALLBACK
                 db.setOnFriendFoundListener(new DatabaseManager.OnFriendFoundListener() {
                     @Override
                     public void updateFriendFoundUI(Player player) {
@@ -186,11 +201,11 @@ public class PlayAsRegistered extends AppCompatActivity {
                 alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        hideKeyboard(et_username);
                         dialog.cancel();
                     }
                 });
                 alert.setPositiveButton("Add", new DialogInterface.OnClickListener() {
-
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (playerFound != null) {
@@ -201,8 +216,10 @@ public class PlayAsRegistered extends AppCompatActivity {
                         }
                     }
                 });
-                AlertDialog dialog = alert.create();
-                dialog.show();
+                AlertDialog alertDialog = alert.create();
+                alertDialog.show();
+                alertDialog.getButton(alertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(PlayAsRegistered.this, R.color.whiteColor));
+                alertDialog.getButton(alertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(PlayAsRegistered.this, R.color.whiteColor));
             }
         });
 
@@ -223,41 +240,42 @@ public class PlayAsRegistered extends AppCompatActivity {
                     if (friendList.get(i) != null){
                         if (friendList.get(i).getPlayReq() != null){
 
-
-                            if (friendList.get(i).getPlayReq().equals(Utils.PLAY_REQUEST_RECEIVED) && !isFirstReqToPlay ){
+                            if (friendList.get(i).getPlayReq().equals(Utils.PLAY_REQUEST_RECEIVED) && !isFirstReqToPlay ) {
                                 isFirstReqToPlay = true;
-                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(PlayAsRegistered.this);
-                                alertDialogBuilder.setTitle("Play request");
+
+                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(PlayAsRegistered.this, R.style.myDialogTheme);
                                 alertDialogBuilder
-                                        .setMessage("Do you want to play with " + friendList.get(pos).getPlayer().getName())
+                                        .setMessage(friendList.get(pos).getPlayer().getName() + " wants to play with you !" )
                                         .setCancelable(false)
-                                        .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog,int id) {
+                                        .setPositiveButton("PLAY", new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
                                                 String idGame = friendList.get(pos).getPlayer().getId() + currentPlayer.getId();
                                                 db.getAvailableGameById(idGame);
-
                                                 db.acceptToPlayWith(currentPlayer, friendList.get(pos).getPlayer());
                                                 isFirstReqToPlay = false;
                                             }
                                         })
-                                        .setNegativeButton("No",new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog,int id) {
+                                        .setNegativeButton("DECLINE", new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
                                                 db.declineToPlayWith(currentPlayer, friendList.get(pos).getPlayer());
-                                                isFirstReqToPlay = false;
-                                                db.deleteAvailableGame(currentGame);
+                                                String idGame = friendList.get(pos).getPlayer().getId() + currentPlayer.getId();
+                                                db.getAvailableGameById(idGame);
+                                                if (currentGame != null) db.deleteAvailableGame(currentGame);
                                                 currentGame = null;
+                                                isFirstReqToPlay = false;
                                                 dialog.cancel();
                                             }
                                         });
-                                AlertDialog alertDialog = alertDialogBuilder.create();
-                                alertDialog.show();
+                                ad_friend_wants_to_play = alertDialogBuilder.create();
+                                ad_friend_wants_to_play.show();
+                                ad_friend_wants_to_play.getButton(ad_friend_wants_to_play.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(PlayAsRegistered.this, R.color.whiteColor));
+                                ad_friend_wants_to_play.getButton(ad_friend_wants_to_play.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(PlayAsRegistered.this, R.color.whiteColor));
+
+
                             } else if (friendList.get(i).getPlayReq().equals(Utils.PLAY_OK)){
                                 currentGame = db.getCurrentGame();
-                                //We insert the currentGame in inProgress
                                 db.insertInProgressGame(currentGame);
-                                //We get the current, so we can listen only this game now
                                 db.initListenerCurrentGame(currentGame);
-                                //And also delete the availableGame
                                 db.deleteAvailableGame(currentGame);
 
                                 //Launch game
@@ -269,10 +287,14 @@ public class PlayAsRegistered extends AppCompatActivity {
 
                                 db.declineToPlayWith(currentPlayer, friendList.get(pos).getPlayer());
                                 isFirstReqToPlay = false;
+
+                            } else if (friendList.get(i).getPlayReq().equals(Utils.PLAY_KO)) {
+                                if (ad_friend_wants_to_play != null){
+                                    if (ad_friend_wants_to_play.isShowing()){
+                                        ad_friend_wants_to_play.cancel();
+                                    }
+                                }
                             }
-
-
-
                         }
                     }
 
@@ -288,9 +310,8 @@ public class PlayAsRegistered extends AppCompatActivity {
                 final DataModel friend = adapter.getItem(i);
 
                 if (friend.getFriendAcq().equals(Utils.ACK_REQUEST_RECEIVED)) {
-
                     // if not ack, open dialog in order to accept him
-                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(PlayAsRegistered.this);
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(PlayAsRegistered.this,R.style.myDialogTheme);
                     alertDialogBuilder.setTitle("Accept friend");
                     alertDialogBuilder
                             .setMessage("Do you want to accept this friend ?")
@@ -307,18 +328,44 @@ public class PlayAsRegistered extends AppCompatActivity {
                             });
                     AlertDialog alertDialog = alertDialogBuilder.create();
                     alertDialog.show();
+                    alertDialog.getButton(alertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(PlayAsRegistered.this, R.color.whiteColor));
+                    alertDialog.getButton(alertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(PlayAsRegistered.this, R.color.whiteColor));
+
                 } else if (friend.getFriendAcq().equals(Utils.ACK_REQUEST_SENT)) {
                     makeToast("Friend request sent");
+
                 } else {
                     //REQUEST FRIEND TO PLAY
                     if (friend.getConnected()) {
                         db.askToPlayWith(currentPlayer, friend.getPlayer());
-                        String idGame = currentPlayer.getId()+friend.getPlayer().getId();
+                        final String idGame = currentPlayer.getId()+friend.getPlayer().getId();
                         Game game = new Game(idGame, currentPlayer, friend.getPlayer());
                         currentGame = game;
                         db.insertAvailableGame(currentGame);
                         db.getAvailableGameById(idGame);
-                        makeToast("Request to play sent");
+
+                        final AlertDialog.Builder alert = new AlertDialog.Builder(PlayAsRegistered.this, R.style.myDialogTheme );
+                        View alertLayout = getLayoutInflater().inflate(R.layout.lobby_request_play_dialog, null);
+                        final TextView tv_loading_text = (TextView) alertLayout.findViewById(R.id.lobby_et_loading_text);
+                        String text = "Waiting " + friend.getPlayer().getName() + " ...";
+                        tv_loading_text.setText(text);
+                        alert.setCancelable(false)
+                              .setView(alertLayout)
+                                .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        db.declineToPlayWith(currentPlayer,friend.getPlayer());
+                                        db.getAvailableGameById(idGame);
+                                        db.deleteAvailableGame(currentGame);
+                                        currentGame = null;
+                                        dialogInterface.cancel();
+                                    }
+                                });
+                        AlertDialog alertDialog = alert.create();
+                        alertDialog.show();
+                        alertDialog.getButton(alertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(PlayAsRegistered.this, R.color.whiteColor));
+
+
                     }else {
                         makeToast("Your friend is not connected");
                     }
@@ -331,7 +378,7 @@ public class PlayAsRegistered extends AppCompatActivity {
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
                 final DataModel friend = adapter.getItem(i);
                 final int position = i;
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(PlayAsRegistered.this);
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(PlayAsRegistered.this,R.style.myDialogTheme);
                 alertDialogBuilder.setTitle("Delete friend");
                 alertDialogBuilder
                         .setMessage("Are you sure you want to delete this friend ?")
@@ -355,6 +402,22 @@ public class PlayAsRegistered extends AppCompatActivity {
 
     }
 
+    private void updateUIOnClick() {
+        if (isSearchingGame){ //Cancel search
+            isSearchingGame = false;
+            searchGameTask.cancel(true);
+            pb_btn_play.setVisibility(View.GONE);
+            db.deletePlayerSearchingPlayer(currentPlayer);
+            btn_play.setText("PLAY");
+
+        } else { //Search player
+            isSearchingGame = true;
+            pb_btn_play.setVisibility(View.VISIBLE);
+            btn_play.setText("CANCEL");
+            launchSearchingGameTask();
+        }
+    }
+
     private void launchLoginActivity(){
         Intent intent = new Intent(PlayAsRegistered.this, LoginActivity.class);
         startActivity(intent);
@@ -362,10 +425,12 @@ public class PlayAsRegistered extends AppCompatActivity {
     }
 
     private void launchSearchingGameTask(){
+        currentGame = null;
         searchGameTask = new SearchGameTask(new SearchGameTask.AsyncResponse() {
             @Override
             public void onFinishTask(Game game) {
-                updateUI(game);}
+                updateUI(game);
+            }
         });
         searchGameTask.setParams(currentPlayer, currentGame);
         searchGameTask.execute("");
@@ -377,8 +442,6 @@ public class PlayAsRegistered extends AppCompatActivity {
 
         if (game != null) {
             if ((!game.getPlayer1().getId().equals("")) && (!game.getPlayer2().getId().equals(""))) {
-                String text = "Player found !";
-                //tv_log.setText(text);
 
                 //We insert the currentGame in inProgress
                 db.insertInProgressGame(game);
@@ -393,12 +456,9 @@ public class PlayAsRegistered extends AppCompatActivity {
                 intent.putExtra("currentPlayerId", currentPlayer.getId());
                 startActivity(intent);
                 finish();
-
             } else {
                 db.deleteAvailableGame(game);
                 db.deletePlayerSearchingPlayer(currentPlayer);
-                String text = "No player found, try again";
-                //tv_log.setText(text);
                 btn_play.setEnabled(true);
             }
             pb_btn_play.setVisibility(View.GONE);
@@ -408,9 +468,12 @@ public class PlayAsRegistered extends AppCompatActivity {
     }
 
     private void signOut(){
+        if (currentPlayer != null) db.notifyFriendsYouAreDisconnected(currentPlayer);
+        if (db != null) db.initFriendList();
         mAuth.signOut();
         LoginManager.getInstance().logOut();
     }
+
     private void makeToast(String text){
         Toast.makeText(getApplicationContext(), text,
                 Toast.LENGTH_LONG).show();
@@ -419,4 +482,10 @@ public class PlayAsRegistered extends AppCompatActivity {
     private static String getRandomId(){
         return UUID.randomUUID().toString();
     }
+
+    private void hideKeyboard(EditText et){
+        InputMethodManager im = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        im.hideSoftInputFromWindow(et.getWindowToken(), 0);
+    }
+
 }
