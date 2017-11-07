@@ -20,9 +20,33 @@
         android:gravity="center"
         android:layout_margin="30sp">
 
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/signin_profile_user"
+            android:layout_width="140sp"
+            android:layout_height="140sp"
+            android:src="@drawable/user_image"
+            app:civ_border_width="4dp"
+            app:civ_border_color="@color/whiteColor"
+            />
+
+         <ImageView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:src="@drawable/ic_camera"
+             android:paddingBottom="10sp"
+             android:layout_alignBottom="@id/signin_profile_user"
+             android:layout_centerHorizontal="true"/>
+
+        </RelativeLayout>
+
         <EditText
             android:id="@+id/signin_et_email"
-            android:layout_marginTop="35sp"
+            android:layout_marginTop="25sp"
             android:inputType="textEmailAddress"
             android:layout_marginBottom="10sp"
             android:layout_width="match_parent"

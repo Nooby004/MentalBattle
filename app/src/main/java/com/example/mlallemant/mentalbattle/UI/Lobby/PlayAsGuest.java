@@ -165,7 +165,7 @@ public class PlayAsGuest extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "signInAnonymously:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            Player player = new Player(user.getUid(), username, 0);
+                            Player player = new Player(user.getUid(), username, 0,0,0,0);
                             db.insertPlayerSearchingGame(player);
                             currentPlayer = player;
 

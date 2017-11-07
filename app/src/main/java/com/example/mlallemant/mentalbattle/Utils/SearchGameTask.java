@@ -57,7 +57,7 @@ public class SearchGameTask extends AsyncTask <String, Void, Game> {
             if(availableGame == null){
                 // if no game available, we create one
                 Log.e(TAG, "no game available");
-                Player tmpPlayer = new Player("","",0);
+                Player tmpPlayer = new Player("","",0,0,0,0);
                 String id = getRandomId();
                 Game game = new Game(id, currentPlayer, tmpPlayer);
                 db.insertAvailableGame(game);

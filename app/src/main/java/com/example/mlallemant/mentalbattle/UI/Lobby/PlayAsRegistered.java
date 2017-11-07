@@ -3,10 +3,15 @@ package com.example.mlallemant.mentalbattle.UI.Lobby;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -29,12 +34,19 @@ import com.example.mlallemant.mentalbattle.Utils.Player;
 import com.example.mlallemant.mentalbattle.Utils.SearchGameTask;
 import com.example.mlallemant.mentalbattle.Utils.Utils;
 import com.facebook.login.LoginManager;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by m.lallemant on 27/10/2017.
@@ -42,10 +54,21 @@ import java.util.UUID;
 
 public class PlayAsRegistered extends AppCompatActivity {
 
-    private TextView tv_welcome;
+    private final static String TAG = "PlayAsRegistered";
+
+    private CircleImageView iv_profile_user;
+    private TextView tv_nb_win_loses;
+    private TextView tv_username;
+    private ImageView iv_logout;
+    private TextView tv_current_rank;
+    private TextView tv_current_level;
+    private TextView tv_current_xp;
+    private ProgressBar pb_progress_xp;
+    private TextView tv_next_rank;
+
+
     private Button btn_play;
     private ProgressBar pb_btn_play;
-    private TextView tv_logoff;
     private ListView lv_friends;
     private ImageView iv_add_friend;
 
@@ -54,8 +77,10 @@ public class PlayAsRegistered extends AppCompatActivity {
     private Game currentGame;
     private FirebaseAuth mAuth;
     private DatabaseManager db;
+    private FirebaseStorage storage;
 
     private AlertDialog ad_friend_wants_to_play;
+    private AlertDialog ad_request_friend_to_play;
 
     private Player playerFound;
     private boolean isFirstReqToPlay = false;
@@ -77,16 +102,26 @@ public class PlayAsRegistered extends AppCompatActivity {
         if (user != null) {
             if (user.getDisplayName() != null && !user.getDisplayName().equals("")) {
                 db = DatabaseManager.getInstance();
-                db.initFriendList();
-                String splitName = user.getDisplayName().split(" ")[0];
-                currentPlayer = new Player(user.getUid(), splitName, 0);
+                storage = FirebaseStorage.getInstance();
 
-                Player registeredPlayer = new Player(user.getUid(), user.getDisplayName(),0);
-                db.insertRegisteredPlayer(registeredPlayer);
-                db.initListenerFriend(currentPlayer);
-                db.insertPlayerInLobby(new Player(user.getUid(), user.getDisplayName(), 0));
-                initUI();
-                initListener();
+
+                //get data for the current user --> launch listener once to request base
+                db.getCurrentUserDataById(user.getUid());
+                db.setOnDataUserUpdateListener(new DatabaseManager.OnDataUserUpdateListener() {
+                    @Override
+                    public void updateDataUserUI(Player player_) {
+                        currentPlayer = player_;
+                        String splitName = currentPlayer.getName().split(" ")[0];
+                        Player player = new Player(currentPlayer.getId(), splitName, 0, currentPlayer.getNb_win(), currentPlayer.getNb_lose(), currentPlayer.getXp());
+                        loadProfilePicture(player);
+
+                        db.insertPlayerInLobby(player);
+                        db.initFriendList();
+
+                        initUI();
+                        initListener();
+                    }
+                });
             } else {
                 signOut();
                 launchLoginActivity();
@@ -97,32 +132,76 @@ public class PlayAsRegistered extends AppCompatActivity {
         }
     }
 
+
+
+
     @Override
     public void onStop(){
         super.onStop();
         if(currentPlayer != null) {
-            db.notifyFriendsYouAreDisconnected(currentPlayer);
             db.deletePlayerInLobby(currentPlayer);
+        } else{
+            signOut();
         }
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        db.insertPlayerInLobby(currentPlayer);
+        if (currentPlayer != null) {
+            db.insertPlayerInLobby(currentPlayer);
+        }
     }
 
     private void initUI(){
-        tv_welcome = (TextView) findViewById(R.id.register_tv_welcome);
+        iv_profile_user = (CircleImageView) findViewById(R.id.register_iv_profile);
+        tv_nb_win_loses = (TextView) findViewById(R.id.register_tv_nb_win_loses);
+        tv_username = (TextView) findViewById(R.id.register_tv_username);
+        iv_logout = (ImageView) findViewById(R.id.register_iv_logout);
+        tv_current_rank = (TextView) findViewById(R.id.register_tv_current_rank);
+        tv_current_level = (TextView) findViewById(R.id.register_tv_current_level);
+        tv_current_xp = (TextView) findViewById(R.id.register_tv_current_xp);
+        pb_progress_xp = (ProgressBar) findViewById(R.id.register_pb_progress_xp);
+        tv_next_rank = (TextView) findViewById(R.id.register_tv_next_rank);
+
+
         btn_play = (Button) findViewById(R.id.register_btn_play);
         pb_btn_play = (ProgressBar) findViewById(R.id.register_pb_btn_play);
-        tv_logoff = (TextView) findViewById(R.id.register_tv_logoff);
         pb_btn_play.setVisibility(View.GONE);
         lv_friends = (ListView) findViewById(R.id.register_lv_friends);
         iv_add_friend = (ImageView) findViewById(R.id.register_iv_add_friend);
 
-        String text = "Welcome " + currentPlayer.getName();
-        tv_welcome.setText(text);
+
+        //SET NAME CURRENT PLAYER
+        String text = currentPlayer.getName();
+        tv_username.setText(text);
+
+        //Win / Lose
+        text = "<font color=#60c375>" + currentPlayer.getNb_win() +" W </font><font color=#FFFFFF>/</font><font color=#FF0000> " + currentPlayer.getNb_lose() +" L";
+        tv_nb_win_loses.setText(Html.fromHtml(text));
+
+        //LEVEL
+        int level = getLevelByXp(currentPlayer.getXp());
+        text = "LEVEL " + level;
+        tv_current_level.setText(text);
+
+        //CURRENT RANK
+        text = getRankByLevel(level);
+        tv_current_rank.setText(text);
+
+        //NEXT RANK
+        text = getNextRankByLevel(level);
+        tv_next_rank.setText(text);
+
+        //CURRENT XP + RANGE
+        int[] range = getRangeLevelByLevel(level);
+        text = currentPlayer.getXp() + "/" + range[1] + " XP";
+        tv_current_xp.setText(text);
+
+        pb_progress_xp.setMax(range[1]-range[0]);
+        int progress = ( currentPlayer.getXp() * (range[1] - range[0]) ) / range[1];
+        pb_progress_xp.setProgress(progress);
+
 
         //Friends
         dataModels = new ArrayList<>();
@@ -133,7 +212,6 @@ public class PlayAsRegistered extends AppCompatActivity {
     }
 
     private void initListener(){
-
         //BUTTON PLAY
         btn_play.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -143,7 +221,7 @@ public class PlayAsRegistered extends AppCompatActivity {
         });
 
         //LOG OFF
-        tv_logoff.setOnClickListener(new View.OnClickListener() {
+        iv_logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 db.notifyFriendsYouAreDisconnected(currentPlayer);
@@ -234,68 +312,66 @@ public class PlayAsRegistered extends AppCompatActivity {
                 adapter.clear();
                 adapter.addAll(friendList);
 
-                for (int i = 0; i<friendList.size(); i++) {
-                    final int pos = i;
+                for (int i = 0; i< friendList.size(); i++){
+                    final DataModel friend = friendList.get(i);
 
-                    if (friendList.get(i) != null){
-                        if (friendList.get(i).getPlayReq() != null){
-
-                            if (friendList.get(i).getPlayReq().equals(Utils.PLAY_REQUEST_RECEIVED) && !isFirstReqToPlay ) {
-                                isFirstReqToPlay = true;
-
-                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(PlayAsRegistered.this, R.style.myDialogTheme);
-                                alertDialogBuilder
-                                        .setMessage(friendList.get(pos).getPlayer().getName() + " wants to play with you !" )
-                                        .setCancelable(false)
-                                        .setPositiveButton("PLAY", new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int id) {
-                                                String idGame = friendList.get(pos).getPlayer().getId() + currentPlayer.getId();
-                                                db.getAvailableGameById(idGame);
-                                                db.acceptToPlayWith(currentPlayer, friendList.get(pos).getPlayer());
-                                                isFirstReqToPlay = false;
-                                            }
-                                        })
-                                        .setNegativeButton("DECLINE", new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int id) {
-                                                db.declineToPlayWith(currentPlayer, friendList.get(pos).getPlayer());
-                                                String idGame = friendList.get(pos).getPlayer().getId() + currentPlayer.getId();
-                                                db.getAvailableGameById(idGame);
-                                                if (currentGame != null) db.deleteAvailableGame(currentGame);
-                                                currentGame = null;
-                                                isFirstReqToPlay = false;
-                                                dialog.cancel();
-                                            }
-                                        });
-                                ad_friend_wants_to_play = alertDialogBuilder.create();
-                                ad_friend_wants_to_play.show();
-                                ad_friend_wants_to_play.getButton(ad_friend_wants_to_play.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(PlayAsRegistered.this, R.color.whiteColor));
-                                ad_friend_wants_to_play.getButton(ad_friend_wants_to_play.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(PlayAsRegistered.this, R.color.whiteColor));
-
-
-                            } else if (friendList.get(i).getPlayReq().equals(Utils.PLAY_OK)){
-                                currentGame = db.getCurrentGame();
-                                db.insertInProgressGame(currentGame);
-                                db.initListenerCurrentGame(currentGame);
-                                db.deleteAvailableGame(currentGame);
-
-                                //Launch game
-                                Intent intent = new Intent(PlayAsRegistered.this, GameActivity.class);
-                                intent.putExtra("idGame", currentGame.getId());
-                                intent.putExtra("currentPlayerId", currentPlayer.getId());
-                                startActivity(intent);
-                                finish();
-
-                                db.declineToPlayWith(currentPlayer, friendList.get(pos).getPlayer());
-                                isFirstReqToPlay = false;
-
-                            } else if (friendList.get(i).getPlayReq().equals(Utils.PLAY_KO)) {
-                                if (ad_friend_wants_to_play != null){
-                                    if (ad_friend_wants_to_play.isShowing()){
-                                        ad_friend_wants_to_play.cancel();
+                    if (friend.getPlayReq().equals(Utils.PLAY_REQUEST_RECEIVED) && !isFirstReqToPlay){
+                        isFirstReqToPlay = true;
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(PlayAsRegistered.this, R.style.myDialogTheme);
+                        alertDialogBuilder
+                                .setMessage(friend.getPlayer().getName() + " wants to play with you !" )
+                                .setCancelable(false)
+                                .setPositiveButton("PLAY", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        String idGame = friend.getPlayer().getId() + currentPlayer.getId();
+                                        db.getAvailableGameById(idGame);
+                                        db.acceptToPlayWith(currentPlayer, friend.getPlayer());
+                                        isFirstReqToPlay = false;
                                     }
-                                }
+                                })
+                                .setNegativeButton("DECLINE", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        db.declineToPlayWith(currentPlayer, friend.getPlayer());
+                                        String idGame = friend.getPlayer().getId() + currentPlayer.getId();
+                                        db.getAvailableGameById(idGame);
+                                        if (currentGame != null) db.deleteAvailableGame(currentGame);
+                                        currentGame = null;
+                                        dialog.cancel();
+                                        isFirstReqToPlay = false;
+                                    }
+                                });
+                        ad_friend_wants_to_play = alertDialogBuilder.create();
+                        ad_friend_wants_to_play.show();
+                        ad_friend_wants_to_play.getButton(ad_friend_wants_to_play.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(PlayAsRegistered.this, R.color.whiteColor));
+                        ad_friend_wants_to_play.getButton(ad_friend_wants_to_play.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(PlayAsRegistered.this, R.color.whiteColor));
+                    } else if (friend.getPlayReq().equals(Utils.PLAY_OK)) {
+                        currentGame = db.getCurrentGame();
+
+
+                        db.insertInProgressGame(currentGame);
+                        db.initListenerCurrentGame(currentGame);
+                        db.deleteAvailableGame(currentGame);
+
+                        //Launch game
+                        Intent intent = new Intent(PlayAsRegistered.this, GameActivity.class);
+                        intent.putExtra("idGame", currentGame.getId());
+                        intent.putExtra("currentPlayerId", currentPlayer.getId());
+                        startActivity(intent);
+                        finish();
+                        db.declineToPlayWith(currentPlayer, friend.getPlayer());
+                    } else if (friend.getPlayReq().equals(Utils.PLAY_CANCEL)) {
+                        if (ad_friend_wants_to_play != null){
+                            if (ad_friend_wants_to_play.isShowing()){
+                                ad_friend_wants_to_play.cancel();
                             }
                         }
+                        if (ad_request_friend_to_play != null){
+                            if (ad_request_friend_to_play.isShowing()){
+                                ad_request_friend_to_play.cancel();
+                            }
+                        }
+                        isFirstReqToPlay = false;
+                        db.resetToPlayWith(currentPlayer, friend.getPlayer());
                     }
 
                 }
@@ -326,10 +402,10 @@ public class PlayAsRegistered extends AppCompatActivity {
                                     db.deleteFriend(currentPlayer, friend.getPlayer());
                                 }
                             });
-                    AlertDialog alertDialog = alertDialogBuilder.create();
-                    alertDialog.show();
-                    alertDialog.getButton(alertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(PlayAsRegistered.this, R.color.whiteColor));
-                    alertDialog.getButton(alertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(PlayAsRegistered.this, R.color.whiteColor));
+                    AlertDialog dialog = alertDialogBuilder.create();
+                    dialog.show();
+                    dialog.getButton(dialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(PlayAsRegistered.this, R.color.whiteColor));
+                    dialog.getButton(dialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(PlayAsRegistered.this, R.color.whiteColor));
 
                 } else if (friend.getFriendAcq().equals(Utils.ACK_REQUEST_SENT)) {
                     makeToast("Friend request sent");
@@ -361,9 +437,9 @@ public class PlayAsRegistered extends AppCompatActivity {
                                         dialogInterface.cancel();
                                     }
                                 });
-                        AlertDialog alertDialog = alert.create();
-                        alertDialog.show();
-                        alertDialog.getButton(alertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(PlayAsRegistered.this, R.color.whiteColor));
+                        ad_request_friend_to_play = alert.create();
+                        ad_request_friend_to_play.show();
+                        ad_request_friend_to_play.getButton(ad_request_friend_to_play.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(PlayAsRegistered.this, R.color.whiteColor));
 
 
                     }else {
@@ -401,6 +477,23 @@ public class PlayAsRegistered extends AppCompatActivity {
         });
 
     }
+
+
+   private void loadProfilePicture(Player player){
+       StorageReference storageRef = storage.getReference();
+       String text = "profilePictures/" + player.getId()  + ".png";
+       StorageReference imagesRef = storageRef.child(text);
+
+       final long ONE_MEGABYTE = 1024 * 1024;
+       imagesRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+           @Override
+           public void onSuccess(byte[] bytes) {
+               Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+               iv_profile_user.setImageBitmap(bm);
+           }
+       });
+   }
+
 
     private void updateUIOnClick() {
         if (isSearchingGame){ //Cancel search
@@ -486,6 +579,47 @@ public class PlayAsRegistered extends AppCompatActivity {
     private void hideKeyboard(EditText et){
         InputMethodManager im = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         im.hideSoftInputFromWindow(et.getWindowToken(), 0);
+    }
+
+
+
+    private String getRankByLevel(int level){
+
+        String rank = "Unknown";
+        if (level > 0 && level <= 5) rank = "Brainless";
+        if (level > 5 && level <= 10) rank = "Little Head";
+        if (level > 10 && level <= 20) rank = "Genius";
+        if (level > 20 && level <= 35) rank = "Brain Master";
+        if (level > 35 && level <= 60) rank = "Super Calculator";
+        if (level > 60 && level <= 100) rank = "God";
+        if (level > 100) rank = "Chuck Norris";
+        return rank;
+    }
+
+    private String getNextRankByLevel(int level) {
+        String nextRank = "Do you have a life ?";
+        if (level > 0 && level <= 5) nextRank = "Next rank : Little Head";
+        if (level > 5 && level <= 10) nextRank = "Next rank : Genius";
+        if (level > 10 && level <= 20) nextRank = "Next rank : Brain Master";
+        if (level > 20 && level <= 35) nextRank = "Next rank : Super calculator";
+        if (level > 35 && level <= 60) nextRank = "Next rank : God";
+        if (level > 60 && level <= 100) nextRank = "Next rank : Chuck Norris";
+        return nextRank;
+    }
+
+    private int getLevelByXp(int XP){
+        int level;
+        level = (int) Math.round ((Math.sqrt(100 * (2 * XP + 25) + 50) / 100));
+        return level;
+    }
+
+    private int[] getRangeLevelByLevel(int level){
+        int[] range = new int[2];
+
+        range[0] = ((level * level + level)/2) *100 - (level * 100);
+        range[1] = (((level+1) * (level+1) + (level+1))/2) *100 - ((level+1) * 100);
+
+        return range;
     }
 
 }

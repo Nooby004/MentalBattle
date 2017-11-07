@@ -5,29 +5,141 @@
     android:layout_height="match_parent">
 
 
-
-
-    <TextView
-        android:id="@+id/register_tv_welcome"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="30sp"
-        android:layout_marginTop="25sp"
-        android:textColor="@color/greenColor"
-        android:gravity="center"
-        android:text="Welcome Pseudo !"/>
+        android:layout_marginEnd="20sp"
+        android:layout_marginStart="20sp"
+        android:layout_marginTop="20sp">
+
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/register_iv_profile"
+                android:layout_width="80sp"
+                android:layout_height="80sp"
+                android:src="@drawable/user_image"
+                app:civ_border_color="@color/whiteColor"
+                app:civ_border_width="2dp" />
+
+            <TextView
+                android:id="@+id/register_tv_nb_win_loses"
+                android:layout_marginTop="18sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/register_iv_profile"
+                android:layout_centerInParent="true"
+                android:textColor="@color/orangeColor" />
+
+        </RelativeLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="30sp"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+
+                <TextView
+                    android:id="@+id/register_tv_username"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="..."
+                    android:textColor="@color/orangeColor"
+                    android:textSize="30sp" />
+
+                <ImageView
+                    android:id="@+id/register_iv_logout"
+                    android:layout_width="30sp"
+                    android:layout_height="30sp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/ic_logout" />
+
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="5sp">
+
+
+                <TextView
+                    android:id="@+id/register_tv_current_rank"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:textColor="@color/greenColor"
+                    android:textSize="20sp" />
+
+            </LinearLayout>
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15sp">
+
+                <TextView
+                    android:id="@+id/register_tv_current_xp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/register_tv_current_level"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:textSize="12sp" />
+            </RelativeLayout>
+
+
+            <ProgressBar
+                android:id="@+id/register_pb_progress_xp"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:progressDrawable="@drawable/customprogessbar" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/register_tv_next_rank"
+        android:layout_marginEnd="20sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:textSize="12sp"
+        android:textStyle="italic" />
+
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_margin="30sp">
+        android:layout_margin="20sp">
+
+
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15sp">
+            android:layout_height="wrap_content">
 
             <Button
                 android:id="@+id/register_btn_play"
@@ -45,27 +157,13 @@
 
         </RelativeLayout>
 
-        <TextView
-            android:id="@+id/register_tv_logoff"
-            android:layout_marginTop="20sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:text="LOG OFF"
-            android:textColor="@color/whiteColor"/>
 
-
-        <View
-            android:layout_marginTop="20sp"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"/>
 
 
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20sp">
+            android:layout_marginTop="10sp">
 
             <TextView
                 android:layout_width="wrap_content"

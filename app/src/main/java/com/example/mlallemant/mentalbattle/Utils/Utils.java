@@ -31,5 +31,7 @@ public class Utils {
     public static String PLAY_REQUEST_RECEIVED = "req_received";
     public static String PLAY_OK = "req_ok";
     public static String PLAY_KO = "req_ko";
+    public static String PLAY_CANCEL = "req_cancel";
+
 
 }
