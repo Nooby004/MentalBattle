@@ -10,7 +10,7 @@ public class Utils {
 
     public final static int COUNTDOWN_LOBBY = 5000;
 
-    public final static int COUNTDOWN_PLAY = 90000;
+    public final static int COUNTDOWN_PLAY = 60000;
 
     public final static int MAX_LENGTH_RESULT = 6;
 

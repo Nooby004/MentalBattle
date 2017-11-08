@@ -1,5 +1,7 @@
 package com.example.mlallemant.mentalbattle.UI.Friends;
 
+import android.graphics.Bitmap;
+
 import com.example.mlallemant.mentalbattle.Utils.Player;
 
 /**
@@ -12,12 +14,17 @@ public class DataModel {
     Boolean isConnected;
     String friendAcq;
     String playReq;
+    String xp;
+    Bitmap profilePicture;
 
-    public DataModel(Player player, Boolean isConnected, String friendAcq, String playReq){
+
+    public DataModel(Player player, Boolean isConnected, String friendAcq, String playReq, String xp, Bitmap profilePicture){
         this.player = player;
         this.isConnected = isConnected;
         this.friendAcq = friendAcq;
         this.playReq = playReq;
+        this.xp = xp;
+        this.profilePicture = profilePicture;
     }
 
     public DataModel(){
@@ -38,5 +45,13 @@ public class DataModel {
 
     public String getPlayReq() {
         return playReq;
+    }
+
+    public String getXp() {
+        return xp;
+    }
+
+    public Bitmap getProfilePicture() {
+        return profilePicture;
     }
 }

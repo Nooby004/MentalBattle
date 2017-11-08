@@ -95,7 +95,7 @@ public class PlayAsRegistered extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.play_lobby_activity);
+        setContentView(R.layout.loading_activity);
 
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser user = mAuth.getCurrentUser();
@@ -117,6 +117,9 @@ public class PlayAsRegistered extends AppCompatActivity {
 
                         db.insertPlayerInLobby(player);
                         db.initFriendList();
+
+                        setContentView(R.layout.play_lobby_activity);
+                        loadProfilePicture(player);
 
                         initUI();
                         initListener();
@@ -580,7 +583,6 @@ public class PlayAsRegistered extends AppCompatActivity {
         InputMethodManager im = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         im.hideSoftInputFromWindow(et.getWindowToken(), 0);
     }
-
 
 
     private String getRankByLevel(int level){

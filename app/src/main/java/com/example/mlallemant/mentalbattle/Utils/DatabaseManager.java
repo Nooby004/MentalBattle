@@ -184,10 +184,19 @@ public class DatabaseManager {
 
             }
         });
-
-
     }
 
+
+    public void setCurrentPlayerXp(Player currentPlayer, int xp){
+        DatabaseReference reference = database.getReference("players").child("registered").child(currentPlayer.getId());
+        reference.child("xp").setValue(xp);
+    }
+
+    public void setNbWinLoseByPlayer(Player currentPlayer, int nbWin, int nbLose){
+        DatabaseReference reference = database.getReference("players").child("registered").child(currentPlayer.getId());
+        reference.child("nbLose").setValue(nbLose);
+        reference.child("nbWin").setValue(nbWin);
+    }
 
     /**
      * FRIEND
@@ -199,11 +208,18 @@ public class DatabaseManager {
         reference.child(currentPlayer.getId()).child("friends").child(friend.getId()).child("ack").setValue(Utils.ACK_REQUEST_SENT);
         reference.child(currentPlayer.getId()).child("friends").child(friend.getId()).child("connected").setValue(false);
         reference.child(currentPlayer.getId()).child("friends").child(friend.getId()).child("playReq").setValue(Utils.PLAY_KO);
+        reference.child(currentPlayer.getId()).child("friends").child(friend.getId()).child("xp").setValue(friend.getXp().toString());
+        reference.child(currentPlayer.getId()).child("friends").child(friend.getId()).child("nbWin").setValue(friend.getNb_win().toString());
+        reference.child(currentPlayer.getId()).child("friends").child(friend.getId()).child("nbLose").setValue(friend.getNb_lose().toString());
 
         reference.child(friend.getId()).child("friends").child(currentPlayer.getId()).child("name").setValue(currentPlayer.getName());
         reference.child(friend.getId()).child("friends").child(currentPlayer.getId()).child("ack").setValue(Utils.ACK_REQUEST_RECEIVED);
         reference.child(friend.getId()).child("friends").child(currentPlayer.getId()).child("connected").setValue(true);
         reference.child(friend.getId()).child("friends").child(currentPlayer.getId()).child("playReq").setValue(Utils.PLAY_KO);
+        reference.child(friend.getId()).child("friends").child(currentPlayer.getId()).child("xp").setValue(currentPlayer.getXp().toString());
+        reference.child(friend.getId()).child("friends").child(currentPlayer.getId()).child("nbWin").setValue(currentPlayer.getNb_win().toString());
+        reference.child(friend.getId()).child("friends").child(currentPlayer.getId()).child("nbLose").setValue(currentPlayer.getNb_lose().toString());
+
     }
 
 
@@ -232,11 +248,15 @@ public class DatabaseManager {
                         Boolean isConnected = (Boolean) result.child("connected").getValue();
                         String friendAcq = (String) result.child("ack").getValue();
                         String playReq = (String) result.child("playReq").getValue();
+                        String xp = (String) result.child("xp").getValue();
+                        String nbWin = (String) result.child("nbWin").getValue();
+                        String nbLose = (String) result.child("nbLose").getValue();
 
-                        DataModel dataModel = new DataModel(new Player(id, name, 0,0 ,0 ,0), isConnected, friendAcq, playReq);
+                        DataModel dataModel = new DataModel(new Player(id, name, 0,Integer.parseInt(nbWin) ,Integer.parseInt(nbLose) ,Integer.parseInt(xp)), isConnected, friendAcq, playReq, xp, null);
                         if (checkFriendIsOkToAdd(dataModel)){
                             friendList.add(dataModel);
                             notifyFriendYouAreConnected(currentPlayer, dataModel.getPlayer());
+                            notifyFriendYourProgress(currentPlayer, dataModel.getPlayer());
                         }
                     }
 
@@ -267,6 +287,14 @@ public class DatabaseManager {
     private void notifyFriendYouAreConnected(Player currentPlayer, Player friend) {
         DatabaseReference ref = database.getReference("players").child("registered").child(friend.getId()).child("friends").child(currentPlayer.getId());
         ref.child("connected").setValue(true);
+    }
+
+    private void notifyFriendYourProgress(Player currentPlayer, Player friend) {
+        DatabaseReference ref = database.getReference("players").child("registered").child(friend.getId()).child("friends").child(currentPlayer.getId());
+        ref.child("xp").setValue(currentPlayer.getXp().toString());
+        ref.child("nbWin").setValue(currentPlayer.getNb_win().toString());
+        ref.child("nbLose").setValue(currentPlayer.getNb_lose().toString());
+
     }
 
     private void notifyFriendsYouAreConnected(Player currentPlayer){

@@ -17,6 +17,8 @@ import com.example.mlallemant.mentalbattle.Utils.Game;
 import com.example.mlallemant.mentalbattle.Utils.Player;
 import com.example.mlallemant.mentalbattle.Utils.Utils;
 
+import java.util.Random;
+
 /**
  * Created by m.lallemant on 16/10/2017.
  */
@@ -150,12 +152,13 @@ public class GameActivity extends AppCompatActivity implements PlayerFindFragmen
         args.putString("looserScore", String.valueOf(looserScore));
         args.putString("resultGame", resultGame);
 
+        calculXpGain(winnerName, winnerScore, looserScore);
+
         winFragment.setArguments(args);
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         ft.replace(R.id.fl_game, winFragment);
         ft.commit();
-
     }
 
     public void launchNextGame(){
@@ -183,6 +186,48 @@ public class GameActivity extends AppCompatActivity implements PlayerFindFragmen
         finish();
     }
 
+    private void calculXpGain(String winnerName, Integer winnerScore, Integer looserScore){
+        int gainXP = 0;
+
+        boolean currentPlayerWin = false;
+
+        if (winnerName.equals(currentPlayer.getName())) {
+            currentPlayerWin = true;
+        }
+
+        Random r = new Random();
+        int rand = r.nextInt(4 - 1) + 1;
+
+        int base;
+        if (currentPlayerWin){
+            db.setNbWinLoseByPlayer(currentPlayer, (currentPlayer.getNb_win()+1), (currentPlayer.getNb_lose()));
+            base = (winnerScore * 5) + (rand * getLevelByXp(currentPlayer.getXp()));
+            gainXP = (int) Math.round(base + 0.3 * base);
+        } else {
+            db.setNbWinLoseByPlayer(currentPlayer, (currentPlayer.getNb_win()), (currentPlayer.getNb_lose()+1));
+            base = (looserScore * 5) + (rand * getLevelByXp(currentPlayer.getXp()));
+            gainXP = (int) Math.round(base - 0.2 * base);
+        }
+
+        if (winnerScore == 999){
+            gainXP = 0;
+            db.setNbWinLoseByPlayer(otherPlayer, otherPlayer.getNb_win(), (otherPlayer.getNb_lose()+1));
+        }
+
+
+        int xpToSet = currentPlayer.getXp() + gainXP;
+
+        db.setCurrentPlayerXp(currentPlayer, xpToSet);
+        //SET SCORE CURRENT PLAYER
+    }
+
+
+
+    private int getLevelByXp(int XP){
+        int level;
+        level = (int) Math.round ((Math.sqrt(100 * (2 * XP + 25) + 50) / 100));
+        return level;
+    }
 
 
 
