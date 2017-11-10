@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.example.mlallemant.mentalbattle.R;
 import com.example.mlallemant.mentalbattle.UI.Lobby.PlayAsGuest;
 import com.example.mlallemant.mentalbattle.UI.Lobby.PlayAsRegistered;
+import com.example.mlallemant.mentalbattle.UI.Menu.MenuActivity;
 import com.example.mlallemant.mentalbattle.Utils.Player;
 import com.example.mlallemant.mentalbattle.Utils.SearchGameTask;
 import com.example.mlallemant.mentalbattle.Utils.Utils;
@@ -389,7 +390,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     }
 
     private void launchPlayAsRegisteredActivity(FirebaseUser user){
-        Intent intent = new Intent(LoginActivity.this, PlayAsRegistered.class);
+        Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
         startActivity(intent);
         finish();
     }

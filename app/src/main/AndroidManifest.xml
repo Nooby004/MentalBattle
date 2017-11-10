@@ -52,6 +52,12 @@
             android:windowSoftInputMode="stateHidden|adjustResize"
             android:screenOrientation="portrait">
         </activity>
+        <activity android:name=".UI.Menu.MenuActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/myTheme"
+            android:windowSoftInputMode="stateHidden|adjustResize"
+            android:screenOrientation="portrait">
+        </activity>
 
     </application>
 

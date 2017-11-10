@@ -28,6 +28,12 @@ allprojects {
     }
 }
 
+allprojects {
+    repositories {
+        maven { url  "http://dl.bintray.com/erz05/maven"  }
+    }
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }

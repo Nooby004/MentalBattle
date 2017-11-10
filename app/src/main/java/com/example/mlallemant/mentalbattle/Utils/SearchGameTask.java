@@ -43,6 +43,7 @@ public class SearchGameTask extends AsyncTask <String, Void, Game> {
         return currentPlayer;
     }
 
+
     @Override
     protected Game doInBackground(String... urls) {
         Game returnGame = null;

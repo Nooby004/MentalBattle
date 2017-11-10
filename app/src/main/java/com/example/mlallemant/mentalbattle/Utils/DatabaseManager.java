@@ -261,7 +261,10 @@ public class DatabaseManager {
                     }
 
                     //SEND LIST BY INTERFACE TO UI
-                    onFriendChangeListener.updateFriendListUI(friendList);
+                    if (onFriendChangeListener != null) {
+                        onFriendChangeListener.updateFriendListUI(friendList);
+                    }
+
                 }
             }
 
@@ -270,6 +273,10 @@ public class DatabaseManager {
 
             }
         });
+    }
+
+    public List<DataModel> getFriendList(){
+        return friendList;
     }
 
     private boolean checkFriendIsOkToAdd(DataModel dataModel){

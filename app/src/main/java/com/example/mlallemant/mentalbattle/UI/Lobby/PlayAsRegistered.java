@@ -104,7 +104,6 @@ public class PlayAsRegistered extends AppCompatActivity {
                 db = DatabaseManager.getInstance();
                 storage = FirebaseStorage.getInstance();
 
-
                 //get data for the current user --> launch listener once to request base
                 db.getCurrentUserDataById(user.getUid());
                 db.setOnDataUserUpdateListener(new DatabaseManager.OnDataUserUpdateListener() {
@@ -412,7 +411,6 @@ public class PlayAsRegistered extends AppCompatActivity {
 
                 } else if (friend.getFriendAcq().equals(Utils.ACK_REQUEST_SENT)) {
                     makeToast("Friend request sent");
-
                 } else {
                     //REQUEST FRIEND TO PLAY
                     if (friend.getConnected()) {

@@ -12,6 +12,7 @@ import com.example.mlallemant.mentalbattle.UI.Fragment.PlayFragment;
 import com.example.mlallemant.mentalbattle.UI.Fragment.WinFragment;
 import com.example.mlallemant.mentalbattle.UI.Lobby.PlayAsGuest;
 import com.example.mlallemant.mentalbattle.UI.Lobby.PlayAsRegistered;
+import com.example.mlallemant.mentalbattle.UI.Menu.MenuActivity;
 import com.example.mlallemant.mentalbattle.Utils.DatabaseManager;
 import com.example.mlallemant.mentalbattle.Utils.Game;
 import com.example.mlallemant.mentalbattle.Utils.Player;
@@ -164,14 +165,12 @@ public class GameActivity extends AppCompatActivity implements PlayerFindFragmen
     public void launchNextGame(){
         //Return on LoginActivity
         db.deleteCurrentGame(game);
-
-        if(Utils.AUTHENTIFICATION_TYPE == Utils.AUTHENTIFICATION_GUEST){
+        launchMenuActivity();
+        /*if(Utils.AUTHENTIFICATION_TYPE == Utils.AUTHENTIFICATION_GUEST){
             launchPlayAsGuestActivity();
         } else {
             launchPlayAsRegisterActivity();
-        }
-
-
+        }*/
     }
 
     private void launchPlayAsGuestActivity(){
@@ -184,6 +183,13 @@ public class GameActivity extends AppCompatActivity implements PlayerFindFragmen
         Intent intent = new Intent(GameActivity.this, PlayAsRegistered.class);
         this.startActivity(intent);
         finish();
+    }
+
+    private void launchMenuActivity() {
+        Intent intent = new Intent(GameActivity.this, MenuActivity.class);
+        this.startActivity(intent);
+        finish();
+
     }
 
     private void calculXpGain(String winnerName, Integer winnerScore, Integer looserScore){

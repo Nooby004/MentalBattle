@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="3">
+
+
+        <ImageView
+            android:id="@+id/select_friends_iv_back"
+            android:layout_width="0dp"
+            android:layout_height="30sp"
+            android:layout_weight="1"
+            android:src="@drawable/ic_select_back"
+            android:scaleType="fitStart"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Friends"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:textColor="@color/whiteColor"/>
+
+        <ImageView
+            android:id="@+id/select_friends_iv_add"
+            android:layout_width="0dp"
+            android:layout_height="30sp"
+            android:layout_weight="1"
+            android:src="@drawable/ic_select_add_friends"
+            android:scaleType="fitEnd"/>
+
+    </LinearLayout>
+
+    <ListView
+
+        android:layout_marginTop="20sp"
+        android:id="@+id/select_friends_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="2sp"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="3sp"
+        android:background="@drawable/shape_orange"
+        android:drawSelectorOnTop="true">
+
+</ListView>
+
+</LinearLayout>
