@@ -7,11 +7,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.example.mlallemant.mentalbattle.R;
-import com.example.mlallemant.mentalbattle.UI.Fragment.PlayerFindFragment;
-import com.example.mlallemant.mentalbattle.UI.Fragment.PlayFragment;
-import com.example.mlallemant.mentalbattle.UI.Fragment.WinFragment;
-import com.example.mlallemant.mentalbattle.UI.Lobby.PlayAsGuest;
-import com.example.mlallemant.mentalbattle.UI.Lobby.PlayAsRegistered;
+import com.example.mlallemant.mentalbattle.UI.Game.Fragment.PlayerFindFragment;
+import com.example.mlallemant.mentalbattle.UI.Game.Fragment.PlayFragment;
+import com.example.mlallemant.mentalbattle.UI.Game.Fragment.WinFragment;
 import com.example.mlallemant.mentalbattle.UI.Menu.MenuActivity;
 import com.example.mlallemant.mentalbattle.Utils.DatabaseManager;
 import com.example.mlallemant.mentalbattle.Utils.Game;
@@ -153,7 +151,9 @@ public class GameActivity extends AppCompatActivity implements PlayerFindFragmen
         args.putString("looserScore", String.valueOf(looserScore));
         args.putString("resultGame", resultGame);
 
-        calculXpGain(winnerName, winnerScore, looserScore);
+        if (Utils.AUTHENTIFICATION_TYPE != Utils.AUTHENTIFICATION_GUEST) {
+            calculXpGain(winnerName, winnerScore, looserScore);
+        }
 
         winFragment.setArguments(args);
         FragmentManager fm = getFragmentManager();
@@ -165,31 +165,15 @@ public class GameActivity extends AppCompatActivity implements PlayerFindFragmen
     public void launchNextGame(){
         //Return on LoginActivity
         db.deleteCurrentGame(game);
-        launchMenuActivity();
-        /*if(Utils.AUTHENTIFICATION_TYPE == Utils.AUTHENTIFICATION_GUEST){
-            launchPlayAsGuestActivity();
-        } else {
-            launchPlayAsRegisterActivity();
-        }*/
+        launchMenuActivity(currentPlayer);
     }
 
-    private void launchPlayAsGuestActivity(){
-        Intent intent = new Intent(GameActivity.this, PlayAsGuest.class);
-        this.startActivity(intent);
-        finish();
-    }
 
-    private void launchPlayAsRegisterActivity(){
-        Intent intent = new Intent(GameActivity.this, PlayAsRegistered.class);
-        this.startActivity(intent);
-        finish();
-    }
-
-    private void launchMenuActivity() {
+    private void launchMenuActivity(Player currentPlayer) {
         Intent intent = new Intent(GameActivity.this, MenuActivity.class);
+        intent.putExtra("currentPlayer", currentPlayer);
         this.startActivity(intent);
         finish();
-
     }
 
     private void calculXpGain(String winnerName, Integer winnerScore, Integer looserScore){

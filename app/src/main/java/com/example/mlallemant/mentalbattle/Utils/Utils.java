@@ -14,14 +14,13 @@ public class Utils {
 
     public final static int MAX_LENGTH_RESULT = 6;
 
-
     public final static int AUTHENTIFICATION_GUEST = 100;
     public final static int AUTHENTIFICATION_ACCOUNT = 101;
     public final static int AUTHENTIFICATION_FB = 102;
     public final static int AUTHENTIFICATION_GOOGLE = 102;
 
 
-    public static int AUTHENTIFICATION_TYPE = 0;
+    public static int AUTHENTIFICATION_TYPE = AUTHENTIFICATION_GUEST;
 
     public static String ACK_REQUEST_SENT = "req_sent";
     public static String ACK_REQUEST_RECEIVED = "req_received";
@@ -33,5 +32,14 @@ public class Utils {
     public static String PLAY_KO = "req_ko";
     public static String PLAY_CANCEL = "req_cancel";
 
+    public static String SESSION_RDY_KO = "ready_ko";
+    public static String SESSION_RDY_NO = "ready_no";
+    public static String SESSION_RDY_YES = "ready_yes";
+
+    public static String SESSION_NEW_YES = "new_yes";
+    public static String SESSION_NEW_NO = "new_no";
+    public static String SESSION_CREATOR = "creator";
+    public static String SESSION_LEFT = "left";
+    public static String SESSION_LAUNCH_PARTY = "launch_party";
 
 }

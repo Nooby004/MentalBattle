@@ -2,22 +2,20 @@ package com.example.mlallemant.mentalbattle.UI.Menu;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.mlallemant.mentalbattle.R;
-import com.example.mlallemant.mentalbattle.UI.Friends.DataModel;
+import com.example.mlallemant.mentalbattle.UI.Friends.FriendModel;
 import com.example.mlallemant.mentalbattle.UI.Game.GameActivity;
 import com.example.mlallemant.mentalbattle.UI.Login.LoginActivity;
 import com.example.mlallemant.mentalbattle.UI.Menu.Fragment.SelectorFragment;
@@ -44,6 +42,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MenuActivity extends AppCompatActivity {
 
     private final static String TAG = "MenuActivity";
+    private FriendListToFragment friendListToFragment;
+    private OnBackPressedListener onBackPressedListener;
 
     //UI
     private CircleImageView iv_profile_user;
@@ -66,55 +66,113 @@ public class MenuActivity extends AppCompatActivity {
     private boolean isFirstReqToPlay = false;
     private Game currentGame;
     private CustomDialog cdRequestReceived;
+
+    public interface OnBackPressedListener{
+        void doBack();
+    }
+
+    public interface FriendListToFragment {
+        void sendData(List<FriendModel> friendList);
+    }
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.menu_activity);
-
+        setContentView(R.layout.loading_activity);
 
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser user = mAuth.getCurrentUser();
-        if (user != null) {
-            if (user.getDisplayName() != null && !user.getDisplayName().equals("")) {
-                db = DatabaseManager.getInstance();
-                storage = FirebaseStorage.getInstance();
 
-                //get data for the current user --> launch listener once to request base
-                db.getCurrentUserDataById(user.getUid());
-                db.setOnDataUserUpdateListener(new DatabaseManager.OnDataUserUpdateListener() {
-                    @Override
-                    public void updateDataUserUI(Player player_) {
-                        currentPlayer = player_;
-                        launchSelectorFragment();
+        if (Utils.AUTHENTIFICATION_TYPE != Utils.AUTHENTIFICATION_GUEST) {
+            if (user != null) {
+                if (user.getDisplayName() != null && !user.getDisplayName().equals("")) {
+                    db = DatabaseManager.getInstance();
+                    storage = FirebaseStorage.getInstance();
 
-                        db.initFriendList();
+                    //get data for the current user --> launch listener once to request base
+                    db.getCurrentUserDataById(user.getUid());
+                    db.setOnDataUserUpdateListener(new DatabaseManager.OnDataUserUpdateListener() {
+                        @Override
+                        public void updateDataUserUI(Player player_) {
+                            setContentView(R.layout.menu_activity);
 
-                        String splitName = currentPlayer.getName().split(" ")[0];
-                        Player player = new Player(currentPlayer.getId(), splitName, 0, currentPlayer.getNb_win(), currentPlayer.getNb_lose(), currentPlayer.getXp());
-                        loadProfilePicture(player);
+                            currentPlayer = player_;
+                            launchSelectorFragment();
 
-                        db.insertPlayerInLobby(player);
-                        loadProfilePicture(player);
+                            db.initFriendList();
 
-                        initUI();
-                        initListener();
-                    }
-                });
+                            String splitName = currentPlayer.getName().split(" ")[0];
+                            Player player = new Player(currentPlayer.getId(), splitName, 0, currentPlayer.getNb_win(), currentPlayer.getNb_lose(), currentPlayer.getXp());
+                            loadProfilePicture(player);
+
+                            db.insertPlayerInLobby(player);
+                            loadProfilePicture(player);
+
+                            initUI();
+                            initListener();
+                        }
+                    });
+
+                } else {
+                    signOut();
+                    launchLoginActivity();
+                }
             } else {
                 signOut();
                 launchLoginActivity();
             }
-        }else {
-            signOut();
-            launchLoginActivity();
+        } else {
+            setContentView(R.layout.menu_activity);
+            db = DatabaseManager.getInstance();
+            currentPlayer = getIntent().getParcelableExtra("currentPlayer");
+            if (currentPlayer != null) {
+                launchSelectorFragment();
+                db.insertPlayerInLobby(currentPlayer);
+                initUI();
+                initListener();
+            } else {
+                signOut();
+                launchLoginActivity();
+            }
         }
+    }
+
+    public void setFriendListToFragment(FriendListToFragment listener){
+        this.friendListToFragment = listener;
+    }
+
+    public void setOnBackPressedListener(OnBackPressedListener listener) {
+        this.onBackPressedListener = listener;
     }
 
     @Override
     public void onStop(){
         super.onStop();
-        if (currentPlayer != null) db.deletePlayerInLobby(currentPlayer);
+        if (currentPlayer != null){
+            db.deletePlayerInLobby(currentPlayer);
+        }
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        if (onBackPressedListener != null){
+            onBackPressedListener.doBack();
+        }
+        else {
+            super.onBackPressed();
+            if (Utils.AUTHENTIFICATION_TYPE == Utils.AUTHENTIFICATION_GUEST) {
+                signOut();
+            }
+        }
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        if (currentPlayer != null) {
+            db.insertPlayerInLobby(currentPlayer);
+        }
     }
     
     
@@ -129,35 +187,51 @@ public class MenuActivity extends AppCompatActivity {
         pb_progress_xp = (ProgressBar) findViewById(R.id.menu_pb_progress_xp);
         tv_next_rank = (TextView) findViewById(R.id.menu_tv_next_rank);
 
-        //SET NAME CURRENT PLAYER
-        String text = currentPlayer.getName();
-        tv_username.setText(text);
+        if (Utils.AUTHENTIFICATION_TYPE != Utils.AUTHENTIFICATION_GUEST) {
 
-        //Win / Lose
-        text = "<font color=#60c375>" + currentPlayer.getNb_win() +" W </font><font color=#FFFFFF>/</font><font color=#FF0000> " + currentPlayer.getNb_lose() +" L";
-        tv_nb_win_loses.setText(Html.fromHtml(text));
+            //SET NAME CURRENT PLAYER
+            String text = currentPlayer.getName();
+            String splitName = currentPlayer.getName().split(" ")[0];
+            tv_username.setText(splitName);
 
-        //LEVEL
-        int level = getLevelByXp(currentPlayer.getXp());
-        text = "LEVEL " + level;
-        tv_current_level.setText(text);
+            //Win / Lose
+            text = "<font color=#60c375>" + currentPlayer.getNb_win() + " W </font><font color=#FFFFFF>/</font><font color=#FF0000> " + currentPlayer.getNb_lose() + " L";
+            tv_nb_win_loses.setText(Html.fromHtml(text));
 
-        //CURRENT RANK
-        text = getRankByLevel(level);
-        tv_current_rank.setText(text);
+            //LEVEL
+            int level = getLevelByXp(currentPlayer.getXp());
+            text = "LEVEL " + level;
+            tv_current_level.setText(text);
 
-        //NEXT RANK
-        text = getNextRankByLevel(level);
-        tv_next_rank.setText(text);
+            //CURRENT RANK
+            text = getRankByLevel(level);
+            tv_current_rank.setText(text);
 
-        //CURRENT XP + RANGE
-        int[] range = getRangeLevelByLevel(level);
-        text = currentPlayer.getXp() + "/" + range[1] + " XP";
-        tv_current_xp.setText(text);
+            //NEXT RANK
+            text = getNextRankByLevel(level);
+            tv_next_rank.setText(text);
 
-        pb_progress_xp.setMax(range[1]-range[0]);
-        int progress = ( currentPlayer.getXp() * (range[1] - range[0]) ) / range[1];
-        pb_progress_xp.setProgress(progress);
+            //CURRENT XP + RANGE
+            int[] range = getRangeLevelByLevel(level);
+            text = currentPlayer.getXp() + "/" + range[1] + " XP";
+            tv_current_xp.setText(text);
+
+            pb_progress_xp.setMax(range[1] - range[0]);
+            int progress = (currentPlayer.getXp() * (range[1] - range[0])) / range[1];
+            pb_progress_xp.setProgress(progress);
+        } else {
+            //SET NAME CURRENT PLAYER
+            String text = currentPlayer.getName();
+            tv_username.setText(text);
+            tv_current_rank.setText("GUEST");
+            tv_next_rank.setText("Register for more contents !");
+
+            tv_nb_win_loses.setVisibility(View.INVISIBLE);
+            tv_current_level.setVisibility(View.INVISIBLE);
+            pb_progress_xp.setVisibility(View.INVISIBLE);
+            tv_current_xp.setVisibility(View.INVISIBLE);
+        }
+
     }
 
     private void initListener(){
@@ -171,19 +245,23 @@ public class MenuActivity extends AppCompatActivity {
             }
         });
 
-        db.setOnFriendChangeListener(new DatabaseManager.OnFriendChangeListener() {
-            @Override
-            public void updateFriendListUI(List<DataModel> friendList) {
-                handleNotification(friendList);
-            }
-        });
+        if (Utils.AUTHENTIFICATION_TYPE != Utils.AUTHENTIFICATION_GUEST) {
+            db.setOnFriendChangeListener(new DatabaseManager.OnFriendChangeListener() {
+                @Override
+                public void updateFriendListUI(List<FriendModel> friendList) {
+                    handleNotification(friendList);
+                    if (friendListToFragment != null) friendListToFragment.sendData(friendList);
+                }
+            });
+        }
     }
 
-    private void handleNotification(List<DataModel> friendList){
+    private void handleNotification(List<FriendModel> friendList){
 
         for (int i = 0; i< friendList.size(); i++){
-            final DataModel friend = friendList.get(i);
+            final FriendModel friend = friendList.get(i);
 
+            Log.e(TAG, friend.getPlayReq());
             if (friend.getPlayReq().equals(Utils.PLAY_REQUEST_RECEIVED) && !isFirstReqToPlay){
                 isFirstReqToPlay = true;
                 cdRequestReceived = new CustomDialog(MenuActivity.this,

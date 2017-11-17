@@ -29,6 +29,22 @@
             android:gravity="center"
             android:textColor="@color/whiteColor"/>
 
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1">
+
+            <ProgressBar
+                android:id="@+id/select_play_pg_play"
+                android:layout_width="30sp"
+                android:layout_height="30sp"
+                android:visibility="invisible"
+                android:layout_alignParentEnd="true"
+                />
+        </RelativeLayout>
+
+
     </LinearLayout>
 
 
@@ -39,32 +55,24 @@
         android:layout_weight="2"
         android:gravity="bottom">
 
-
         <ImageView
             android:id="@+id/select_play_iv_play"
-            android:layout_width="150sp"
-            android:layout_height="150sp"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
             android:layout_centerInParent="true"
             android:src="@drawable/ic_select_play"/>
 
-        <ProgressBar
-            android:id="@+id/select_play_pg_play"
-            android:layout_width="180sp"
-            android:layout_height="180sp"
-            android:layout_centerInParent="true"
-            android:layout_gravity="center"
-            android:visibility="invisible"
-            />
-
     </RelativeLayout>
+
 
     <TextView
         android:id="@+id/select_play_tv_info"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="1.2"
         android:text="Searching game ..."
-        android:gravity="center"
+        android:gravity="bottom"
+        android:paddingBottom="20sp"
         android:layout_gravity="center"/>
 
 

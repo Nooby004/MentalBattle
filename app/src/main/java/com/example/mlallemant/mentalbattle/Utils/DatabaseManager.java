@@ -2,7 +2,7 @@ package com.example.mlallemant.mentalbattle.Utils;
 
 import android.util.Log;
 
-import com.example.mlallemant.mentalbattle.UI.Friends.DataModel;
+import com.example.mlallemant.mentalbattle.UI.Friends.FriendModel;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -12,7 +12,9 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by m.lallemant on 13/10/2017.
@@ -25,6 +27,8 @@ public class DatabaseManager {
     private OnFriendFoundListener onFriendFoundListener;
     private OnFriendChangeListener onFriendChangeListener;
     private OnDataUserUpdateListener onDataUserUpdateListener;
+    private OnSessionExistListener onSessionExistListener;
+    private OnSessionUpdateListener onSessionUpdateListener;
 
     public interface OnScoreChangeListener{
         void updateScoreUI(Integer score, String playerID);
@@ -35,15 +39,23 @@ public class DatabaseManager {
     }
 
     public interface OnFriendFoundListener{
-        void updateFriendFoundUI(Player player);
+        void updateFriendFoundUI(List<Player> players);
     }
 
     public interface OnFriendChangeListener{
-        void updateFriendListUI(List<DataModel> friendList);
+        void updateFriendListUI(List<FriendModel> friendList);
     }
 
     public interface OnDataUserUpdateListener{
         void updateDataUserUI(Player player);
+    }
+
+    public interface OnSessionExistListener{
+        void notifyUser(boolean isExist);
+    }
+
+    public interface OnSessionUpdateListener{
+        void updateSessionUI(Session session);
     }
 
     private final static String TAG = "DatabaseManager";
@@ -54,7 +66,7 @@ public class DatabaseManager {
 
     private List<Player> playerSearchingGameList;
     private List<Player> playerInLobbyList;
-    private List<DataModel> friendList;
+    private List<FriendModel> friendList;
 
     private List<Game> availableGameList;
     private Game currentGame;
@@ -63,6 +75,7 @@ public class DatabaseManager {
     private ValueEventListener gamesListener;
     private ValueEventListener currentGameListener;
     private ValueEventListener friendListener;
+    private ValueEventListener sessionListener;
 
     private DatabaseManager(){
         database = FirebaseDatabase.getInstance();
@@ -78,6 +91,8 @@ public class DatabaseManager {
         this.onFriendFoundListener = null;
         this.onFriendChangeListener = null;
         this.onDataUserUpdateListener = null;
+        this.onSessionExistListener = null;
+        this.onSessionUpdateListener = null;
     }
 
     public static synchronized DatabaseManager getInstance(){
@@ -107,6 +122,13 @@ public class DatabaseManager {
         this.onDataUserUpdateListener = listener;
     }
 
+    public void setOnSessionExistListener(OnSessionExistListener listener){
+        this.onSessionExistListener = listener;
+    }
+
+    public void setOnSessionUpdateListener(OnSessionUpdateListener listener) {
+        this.onSessionUpdateListener = listener;
+    }
 
     /**
      * PLAYER SEARCHING GAME
@@ -154,9 +176,9 @@ public class DatabaseManager {
     public void insertRegisteredPlayer(Player player) {
         DatabaseReference reference = database.getReference("players").child("registered");
         reference.child(player.getId()).child("name").setValue(player.getName());
-        reference.child(player.getId()).child("nbLose").setValue(player.getNb_lose());
-        reference.child(player.getId()).child("nbWin").setValue(player.getNb_win());
-        reference.child(player.getId()).child("xp").setValue(player.getXp());
+        reference.child(player.getId()).child("nbLose").setValue(player.getNb_lose().toString());
+        reference.child(player.getId()).child("nbWin").setValue(player.getNb_win().toString());
+        reference.child(player.getId()).child("xp").setValue(player.getXp().toString());
     }
 
 
@@ -169,13 +191,15 @@ public class DatabaseManager {
                 if (dataSnapshot.exists()) {
                     String id = dataSnapshot.getKey();
                     String name = (String) dataSnapshot.child("name").getValue();
-                    Integer nb_win = (int) (long) dataSnapshot.child("nbWin").getValue();
-                    Integer nb_lose = (int) (long) dataSnapshot.child("nbLose").getValue();
-                    Integer xp = (int) (long) dataSnapshot.child("xp").getValue();
+                    String nb_win = (String)  dataSnapshot.child("nbWin").getValue();
+                    String nb_lose = (String)  dataSnapshot.child("nbLose").getValue();
+                    String xp = (String)  dataSnapshot.child("xp").getValue();
 
-                    Player currentPlayer = new Player(id, name, 0, nb_win, nb_lose, xp);
+                    Player currentPlayer = new Player(id, name, 0, Integer.parseInt(nb_win), Integer.parseInt(nb_lose),Integer.parseInt(xp));
 
                     onDataUserUpdateListener.updateDataUserUI(currentPlayer);
+                } else {
+                    onDataUserUpdateListener.updateDataUserUI(null);
                 }
             }
 
@@ -189,13 +213,13 @@ public class DatabaseManager {
 
     public void setCurrentPlayerXp(Player currentPlayer, int xp){
         DatabaseReference reference = database.getReference("players").child("registered").child(currentPlayer.getId());
-        reference.child("xp").setValue(xp);
+        reference.child("xp").setValue(String.valueOf(xp));
     }
 
     public void setNbWinLoseByPlayer(Player currentPlayer, int nbWin, int nbLose){
         DatabaseReference reference = database.getReference("players").child("registered").child(currentPlayer.getId());
-        reference.child("nbLose").setValue(nbLose);
-        reference.child("nbWin").setValue(nbWin);
+        reference.child("nbLose").setValue(String.valueOf(nbLose));
+        reference.child("nbWin").setValue(String.valueOf(nbWin));
     }
 
     /**
@@ -252,11 +276,13 @@ public class DatabaseManager {
                         String nbWin = (String) result.child("nbWin").getValue();
                         String nbLose = (String) result.child("nbLose").getValue();
 
-                        DataModel dataModel = new DataModel(new Player(id, name, 0,Integer.parseInt(nbWin) ,Integer.parseInt(nbLose) ,Integer.parseInt(xp)), isConnected, friendAcq, playReq, xp, null);
-                        if (checkFriendIsOkToAdd(dataModel)){
-                            friendList.add(dataModel);
-                            notifyFriendYouAreConnected(currentPlayer, dataModel.getPlayer());
-                            notifyFriendYourProgress(currentPlayer, dataModel.getPlayer());
+                        if (id != null && name != null && isConnected != null && friendAcq != null && playReq != null && xp != null && nbWin != null && nbLose != null) {
+                            FriendModel friendModel = new FriendModel(new Player(id, name, 0,Integer.parseInt(nbWin) ,Integer.parseInt(nbLose) ,Integer.parseInt(xp)), isConnected, friendAcq, playReq, xp, null);
+                            if (checkFriendIsOkToAdd(friendModel)){
+                                friendList.add(friendModel);
+                                notifyFriendYouAreConnected(currentPlayer, friendModel.getPlayer());
+                                notifyFriendYourProgress(currentPlayer, friendModel.getPlayer());
+                            }
                         }
                     }
 
@@ -275,15 +301,15 @@ public class DatabaseManager {
         });
     }
 
-    public List<DataModel> getFriendList(){
+    public List<FriendModel> getFriendList(){
         return friendList;
     }
 
-    private boolean checkFriendIsOkToAdd(DataModel dataModel){
+    private boolean checkFriendIsOkToAdd(FriendModel friendModel){
         boolean isOk = false;
 
-        if (dataModel.getConnected() != null && dataModel.getPlayReq() != null && dataModel.getFriendAcq() != null && dataModel.getPlayer().getName() != null){
-            if (!dataModel.getPlayReq().equals("") && !dataModel.getFriendAcq().equals("") && !dataModel.getPlayer().getName().equals("")){
+        if (friendModel.getConnected() != null && friendModel.getPlayReq() != null && friendModel.getFriendAcq() != null && friendModel.getPlayer().getName() != null){
+            if (!friendModel.getPlayReq().equals("") && !friendModel.getFriendAcq().equals("") && !friendModel.getPlayer().getName().equals("")){
                 isOk = true;
             }
         }
@@ -373,29 +399,36 @@ public class DatabaseManager {
 
     public void findFriend(String username){
         DatabaseReference reference = database.getReference("players").child("registered");
-        Query query = reference.orderByChild("name").equalTo(username);
+        Query query = reference.orderByChild("name").startAt(username)
+                .endAt(username+"\uf8ff");
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     // dataSnapshot is the "issue" node with all children with id 0
+
+                    List<Player> players = new ArrayList<>();
                     for (DataSnapshot result : dataSnapshot.getChildren()) {
                         if (onFriendFoundListener != null) {
 
                             String id = result.getKey();
-                            String username =  (String) result.child("name").getValue();
-                            Integer nb_win = (int) (long) result.child("nbWin").getValue();
-                            Integer nb_lose = (int) (long) result.child("nbLose").getValue();
-                            Integer xp = (int) (long) result.child("xp").getValue();
+                            String username = (String) result.child("name").getValue();
+                            String nb_win = (String) result.child("nbWin").getValue();
+                            String nb_lose = (String) result.child("nbLose").getValue();
+                            String xp = (String) result.child("xp").getValue();
 
-                            Player player = new Player(id, username,0, nb_win, nb_lose, xp);
-                            if (checkFriendFoundIsOk(player)){
-                                onFriendFoundListener.updateFriendFoundUI(player);
+                            Player player = new Player(id, username, 0, Integer.parseInt(nb_win), Integer.parseInt(nb_lose),Integer.parseInt(xp));
+                            if (checkFriendFoundIsOk(player)) {
+                                players.add(player);
                             }
-
                         }
-                        Log.e(TAG,result.getKey() + ":" + result.child("name").getValue());
                     }
+
+                    if (onFriendFoundListener != null){
+                        onFriendFoundListener.updateFriendFoundUI(players);
+                    }
+
+
                 }
             }
 
@@ -641,5 +674,98 @@ public class DatabaseManager {
         currentGame = null;
     }
 
+
+    /**
+     * SESSION
+     */
+
+    public void insertSession(Session session) {
+        DatabaseReference reference = database.getReference("sessions");
+        reference.child(session.getIdSession()).child("name").setValue(session.getName());
+        reference.child(session.getIdSession()).child("password").setValue(session.getPassword());
+    }
+
+    public void insertPlayerInSession(Session session, Player player) {
+        DatabaseReference reference = database.getReference("sessions").child(session.getIdSession()).child("players");
+        reference.child(player.getId()).setValue(player);
+        deletePlayerInLobby(player);
+    }
+
+    public void removePlayerInSession(Session session, Player player) {
+        DatabaseReference reference = database.getReference("sessions").child(session.getIdSession()).child("players");
+        reference.child(player.getId()).removeValue();
+    }
+
+    public void deleteSession(Session session) {
+        DatabaseReference reference = database.getReference("sessions");
+        reference.child(session.getIdSession()).removeValue();
+    }
+
+    public void updatePlayerReady(Session session, Player player, String rdy){
+        DatabaseReference reference = database.getReference("sessions").child(session.getIdSession()).child("players");
+        reference.child(player.getId()).child("ready").setValue(rdy);
+    }
+
+    public void updatePlayerNew(Session session, Player player, String new_){
+        DatabaseReference reference = database.getReference("sessions").child(session.getIdSession()).child("players");
+        reference.child(player.getId()).child("new_").setValue(new_);
+    }
+
+    public void initCheckSessionExist(final Session session) {
+        DatabaseReference reference = database.getReference("sessions");
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.child(session.getIdSession()).exists()) {
+                    onSessionExistListener.notifyUser(true);
+                } else {
+                    onSessionExistListener.notifyUser(false);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public void initListenerCurrentSession(Session session){
+        DatabaseReference reference = database.getReference("sessions").child(session.getIdSession());
+        sessionListener = reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()){
+                    String name = (String) dataSnapshot.child("name").getValue();
+                    String password = (String) dataSnapshot.child("password").getValue();
+                    Session session_ = new Session(name, password);
+                    for (DataSnapshot playersSnapshot : dataSnapshot.child("players").getChildren()) {
+                        Player player = playersSnapshot.getValue(Player.class);
+                        if (player.getId() != null && player.getNew_() != null && player.getReady() != null && player.getName() != null){
+                            session_.addPlayerToSession(player);
+                        }
+                    }
+                    if (onSessionUpdateListener != null) {
+                        onSessionUpdateListener.updateSessionUI(session_);
+                    }
+                } else {
+                    onSessionUpdateListener.updateSessionUI(null);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public void removeListenerCurrentSession(Session session){
+        if (sessionListener != null) {
+            DatabaseReference reference = database.getReference("sessions").child(session.getIdSession());
+            reference.removeEventListener(sessionListener);
+        }
+    }
 
 }

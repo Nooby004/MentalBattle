@@ -1,23 +1,11 @@
 package com.example.mlallemant.mentalbattle.UI.Menu.Fragment;
 
-import android.animation.ArgbEvaluator;
-import android.animation.ValueAnimator;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Paint;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.VectorDrawable;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
-import android.support.v7.app.AppCompatDelegate;
-import android.util.Config;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,8 +15,10 @@ import android.widget.TextView;
 
 import com.erz.joysticklibrary.JoyStick;
 import com.example.mlallemant.mentalbattle.R;
-
-import org.w3c.dom.Text;
+import com.example.mlallemant.mentalbattle.UI.Menu.MenuActivity;
+import com.example.mlallemant.mentalbattle.Utils.DatabaseManager;
+import com.example.mlallemant.mentalbattle.Utils.Player;
+import com.example.mlallemant.mentalbattle.Utils.Utils;
 
 /**
  * Created by m.lallemant on 09/11/2017.
@@ -51,12 +41,19 @@ public class SelectorFragment extends Fragment {
 
     //Utils
     private long begin_time;
+    private Player currentPlayer;
+    private DatabaseManager db;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.menu_selector_fragment, container, false);
 
+        MenuActivity menuActivity = (MenuActivity) getActivity();
+        currentPlayer = menuActivity.getCurrentPlayer();
+        db = DatabaseManager.getInstance();
+
+        db.insertPlayerInLobby(currentPlayer);
 
         initUI(v);
         initListener();
@@ -74,6 +71,12 @@ public class SelectorFragment extends Fragment {
         iv_create = (ImageView) v.findViewById(R.id.selector_iv_create);
         iv_join = (ImageView) v.findViewById(R.id.selector_iv_join);
         iv_friends = (ImageView) v.findViewById(R.id.selector_iv_friends);
+
+        if (Utils.AUTHENTIFICATION_TYPE == Utils.AUTHENTIFICATION_GUEST) {
+            DrawableCompat.setTint(iv_friends.getDrawable(), ContextCompat.getColor(getActivity(), R.color.grayColor));
+            tv_friends.setTextColor(ContextCompat.getColor(getActivity(), R.color.grayColor));
+        }
+
     }
 
 
@@ -94,7 +97,12 @@ public class SelectorFragment extends Fragment {
                     DrawableCompat.setTint(iv_play.getDrawable(), ContextCompat.getColor(getActivity(), R.color.orangeColor));
                     DrawableCompat.setTint(iv_create.getDrawable(), ContextCompat.getColor(getActivity(), R.color.orangeColor));
                     DrawableCompat.setTint(iv_join.getDrawable(), ContextCompat.getColor(getActivity(), R.color.orangeColor));
-                    DrawableCompat.setTint(iv_friends.getDrawable(), ContextCompat.getColor(getActivity(), R.color.orangeColor));
+
+                    if (Utils.AUTHENTIFICATION_TYPE != Utils.AUTHENTIFICATION_GUEST) {
+                        DrawableCompat.setTint(iv_friends.getDrawable(), ContextCompat.getColor(getActivity(), R.color.orangeColor));
+                    } else {
+                        DrawableCompat.setTint(iv_friends.getDrawable(), ContextCompat.getColor(getActivity(), R.color.grayColor));
+                    }
 
                 } else {
 
@@ -112,13 +120,15 @@ public class SelectorFragment extends Fragment {
                             break;
 
                         case JoyStick.DIRECTION_DOWN :
-                            DrawableCompat.setTint(iv_friends.getDrawable(), ContextCompat.getColor(getActivity(), R.color.greenColor));
+                            if (Utils.AUTHENTIFICATION_TYPE != Utils.AUTHENTIFICATION_GUEST) {
+                                DrawableCompat.setTint(iv_friends.getDrawable(), ContextCompat.getColor(getActivity(), R.color.greenColor));
+                            }
                             break;
                     }
 
 
 
-                    if ((System.currentTimeMillis() - begin_time) > 1000) {
+                    if ((System.currentTimeMillis() - begin_time) > 750) {
                         begin_time = System.currentTimeMillis();
 
                         switch (direction){
@@ -129,10 +139,12 @@ public class SelectorFragment extends Fragment {
 
                             case JoyStick.DIRECTION_LEFT :
                                 Log.e(TAG, "CREATE SESSION");
+                                launchCreateFragment();
                                 break;
 
                             case JoyStick.DIRECTION_RIGHT :
                                 Log.e(TAG, "JOIN SESSION");
+                                launchJoinFragment();
                                 break;
 
                             case JoyStick.DIRECTION_DOWN :
@@ -173,7 +185,6 @@ public class SelectorFragment extends Fragment {
 
 
     private void launchPlayFragment(){
-
         PlayFragment playFragment = new PlayFragment();
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
@@ -181,13 +192,37 @@ public class SelectorFragment extends Fragment {
         ft.commit();
     }
 
-    private void launchFriendsFragment(){
-
-        FriendsFragment friendsFragment = new FriendsFragment();
+    private void launchCreateFragment() {
+        CreateJoinFragment createJoinFragment = new CreateJoinFragment();
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("creator", true);
+        createJoinFragment.setArguments(bundle);
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(R.id.menu_fl_select, friendsFragment);
+        ft.replace(R.id.menu_fl_select, createJoinFragment);
         ft.commit();
+    }
+
+    private void launchJoinFragment() {
+        CreateJoinFragment createJoinFragment = new CreateJoinFragment();
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("creator", false);
+        createJoinFragment.setArguments(bundle);
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.replace(R.id.menu_fl_select, createJoinFragment);
+        ft.commit();
+    }
+
+    private void launchFriendsFragment(){
+        if (Utils.AUTHENTIFICATION_TYPE != Utils.AUTHENTIFICATION_GUEST) {
+            FriendsFragment friendsFragment = new FriendsFragment();
+            FragmentManager fm = getFragmentManager();
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.replace(R.id.menu_fl_select, friendsFragment);
+            ft.commit();
+        }
+
     }
 
 }

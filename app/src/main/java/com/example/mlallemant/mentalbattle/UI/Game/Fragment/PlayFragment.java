@@ -1,4 +1,4 @@
-package com.example.mlallemant.mentalbattle.UI.Fragment;
+package com.example.mlallemant.mentalbattle.UI.Game.Fragment;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -70,8 +70,8 @@ public class PlayFragment extends Fragment {
         TextView tv_player1_name = (TextView) v.findViewById(R.id.play_tv_player1_name);
         TextView tv_player2_name = (TextView) v.findViewById(R.id.play_tv_player2_name);
 
-        tv_player1_name.setText(currentPlayerName + " (you)");
-        tv_player2_name.setText(otherPlayerName);
+        tv_player1_name.setText(currentPlayerName.split(" ")[0] + " (you)");
+        tv_player2_name.setText(otherPlayerName.split(" ")[0]);
 
         tv_scoreCurrentPlayer = (TextView) v.findViewById(R.id.play_tv_player1_score);
         tv_scoreOtherPlayer = (TextView) v.findViewById(R.id.play_tv_player2_score);

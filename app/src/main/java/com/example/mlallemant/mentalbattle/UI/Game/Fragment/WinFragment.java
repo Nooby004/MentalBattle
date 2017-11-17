@@ -1,9 +1,8 @@
-package com.example.mlallemant.mentalbattle.UI.Fragment;
+package com.example.mlallemant.mentalbattle.UI.Game.Fragment;
 
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -43,8 +42,8 @@ public class WinFragment extends Fragment{
         TextView tv_looser = (TextView) v.findViewById(R.id.win_tv_looser_player);
         TextView tv_resultGame = (TextView) v.findViewById(R.id.win_tv_win_lose);
 
-        String twinner = winnerName + " - " + winnerScore;
-        String tlooser = looserName + " - " + looserScore;
+        String twinner = winnerName.split(" ")[0] + " - " + winnerScore;
+        String tlooser = looserName.split(" ")[0] + " - " + looserScore;
 
         tv_winner.setText(twinner);
         tv_looser.setText(tlooser);

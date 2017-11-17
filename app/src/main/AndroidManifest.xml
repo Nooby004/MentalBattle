@@ -41,21 +41,20 @@
             android:theme="@style/myTheme"
             android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".UI.Lobby.PlayAsGuest"
+        <activity android:name=".UI.Login.PlayAsGuest"
             android:launchMode="singleTop"
             android:theme="@style/myTheme"
-            android:screenOrientation="portrait">
-        </activity>
-        <activity android:name=".UI.Lobby.PlayAsRegistered"
-            android:launchMode="singleTop"
-            android:theme="@style/myTheme"
-            android:windowSoftInputMode="stateHidden|adjustResize"
             android:screenOrientation="portrait">
         </activity>
         <activity android:name=".UI.Menu.MenuActivity"
             android:launchMode="singleTop"
             android:theme="@style/myTheme"
             android:windowSoftInputMode="stateHidden|adjustResize"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity android:name=".UI.Session.SessionActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/myTheme"
             android:screenOrientation="portrait">
         </activity>
 

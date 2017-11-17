@@ -2,14 +2,14 @@ package com.example.mlallemant.mentalbattle.UI.Login;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -20,17 +20,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mlallemant.mentalbattle.R;
-import com.example.mlallemant.mentalbattle.UI.Lobby.PlayAsGuest;
-import com.example.mlallemant.mentalbattle.UI.Lobby.PlayAsRegistered;
 import com.example.mlallemant.mentalbattle.UI.Menu.MenuActivity;
+import com.example.mlallemant.mentalbattle.Utils.DatabaseManager;
 import com.example.mlallemant.mentalbattle.Utils.Player;
-import com.example.mlallemant.mentalbattle.Utils.SearchGameTask;
 import com.example.mlallemant.mentalbattle.Utils.Utils;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -43,6 +40,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -50,10 +49,14 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.UserInfo;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.URL;
 
 /**
  * Created by m.lallemant on 25/10/2017.
@@ -81,18 +84,41 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private GoogleApiClient mGoogleApiClient;
     private static final int RC_SIGN_IN = 9001;
     private boolean isConnectedWithGoogle = false;
+    private DatabaseManager db;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.login_normal_fb_google_activity);
-        initUI();
-        initListener();
-        initLoginButtonFB();
-        initLoginGoogle();
+        setContentView(R.layout.loading_activity);
 
         mAuth = FirebaseAuth.getInstance();
+        db = DatabaseManager.getInstance();
+
+        final FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        if (currentUser != null) {
+            setContentView(R.layout.loading_activity);
+
+            db.getCurrentUserDataById(currentUser.getUid());
+            db.setOnDataUserUpdateListener(new DatabaseManager.OnDataUserUpdateListener() {
+                @Override
+                public void updateDataUserUI(Player player) {
+                    if (player == null) {
+                        Utils.AUTHENTIFICATION_TYPE = Utils.AUTHENTIFICATION_GUEST;
+                    } else {
+                        Utils.AUTHENTIFICATION_TYPE = Utils.AUTHENTIFICATION_ACCOUNT;
+                    }
+                    launchMenuActivity(currentUser);
+                }
+            });
+        } else {
+            setContentView(R.layout.login_normal_fb_google_activity);
+            initUI();
+            initListener();
+            initLoginButtonFB();
+            initLoginGoogle();
+        }
     }
 
     @Override
@@ -101,15 +127,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         signOut();
     }
 
-
-    @Override
-    public void onStart(){
-        super.onStart();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null){
-            launchPlayAsRegisteredActivity(currentUser);
-        }
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -121,12 +138,23 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             if (result.isSuccess()) {
-                // Google Sign In was successful, authenticate with Firebase
+                // Google Sign In was successful, authenticate with FireBase
                 GoogleSignInAccount account = result.getSignInAccount();
-                firebaseAuthWithGoogle(account);
+                fireBaseAuthWithGoogle(account);
             } else {
                 makeToast("Sign in with Google failed");
             }
+        }
+
+        if(requestCode == 1) {
+            if ( resultCode == 10) {
+                String email = data.getStringExtra("email");
+                String password = data.getStringExtra("password");
+
+                et_email.setText(email);
+                et_password.setText(password);
+            }
+
         }
     }
 
@@ -151,6 +179,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         pb_login = (ProgressBar) findViewById(R.id.login_pb_btn_login);
         pb_loginFB = (ProgressBar) findViewById(R.id.login_pb_btn_loginFB);
         pb_loginGoogle = (ProgressBar) findViewById(R.id.login_pb_btn_loginGoogle);
+
+        btn_loginGoogle.setVisibility(View.GONE);
 
         pb_login.setVisibility(View.GONE);
         pb_loginFB.setVisibility(View.GONE);
@@ -222,10 +252,10 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
                             if(task.isSuccessful()) {
                                 FirebaseUser user = mAuth.getCurrentUser();
-                                makeToast(user.getDisplayName() + " connected !");
+                                //makeToast(user.getDisplayName() + " connected !");
                                 pb_login.setVisibility(View.GONE);
                                 Utils.AUTHENTIFICATION_TYPE = Utils.AUTHENTIFICATION_ACCOUNT;
-                                launchPlayAsRegisteredActivity(user);
+                                launchMenuActivity(user);
 
                             } else {
                                 //Error when connecting
@@ -276,6 +306,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             @Override
             public void onCancel() {
                 Log.e(TAG, "facebook:onCancel");
+                pb_loginFB.setVisibility(View.INVISIBLE);
             }
 
             @Override
@@ -296,11 +327,19 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            makeToast("Welcome " + user.getDisplayName());
-                            pb_loginFB.setVisibility(View.GONE);
-                            Utils.AUTHENTIFICATION_TYPE = Utils.AUTHENTIFICATION_FB;
-                            launchPlayAsRegisteredActivity(user);
+                            final FirebaseUser user = mAuth.getCurrentUser();
+                            //Download picture
+
+                            String facebookUserId = "";
+                            for(UserInfo profile : user.getProviderData()) {
+                                // check if the provider id matches "facebook.com"
+                                if(FacebookAuthProvider.PROVIDER_ID.equals(profile.getProviderId())) {
+                                    facebookUserId = profile.getUid();
+                                }
+                            }
+
+                            String photoUrl = "https://graph.facebook.com/" + facebookUserId + "/picture?height=200";
+                            new DownloadImage().execute(photoUrl);
 
                         } else {
                             // If sign in fails, display a message to the user.
@@ -311,8 +350,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 });
     }
 
-    private void firebaseAuthWithGoogle(GoogleSignInAccount acct){
-        Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
+    private void fireBaseAuthWithGoogle(GoogleSignInAccount acct){
+        Log.d(TAG, "fireBaseAuthWithGoogle:" + acct.getId());
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mAuth.signInWithCredential(credential)
@@ -327,7 +366,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             isConnectedWithGoogle = true;
                             pb_loginGoogle.setVisibility(View.GONE);
                             Utils.AUTHENTIFICATION_TYPE = Utils.AUTHENTIFICATION_GOOGLE;
-                            launchPlayAsRegisteredActivity(user);
+                            launchMenuActivity(user);
 
                         } else {
                             // If sign in fails, display a message to the user.
@@ -389,9 +428,10 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     }
 
-    private void launchPlayAsRegisteredActivity(FirebaseUser user){
+    private void launchMenuActivity(FirebaseUser user){
         Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
         startActivity(intent);
+        this.overridePendingTransition(0, 0);
         finish();
     }
 
@@ -403,7 +443,75 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     private void launchSignInActivity(){
         Intent intent = new Intent(LoginActivity.this, SigninActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, 1);
     }
 
+    private class DownloadImage extends AsyncTask<String, Void, Bitmap> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... URL) {
+
+            String imageURL = URL[0];
+
+            Bitmap bitmap = null;
+            try {
+                // Download Image from URL
+                InputStream input = new java.net.URL(imageURL).openStream();
+                // Decode Bitmap
+                bitmap = BitmapFactory.decodeStream(input);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return bitmap;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+
+            final FirebaseUser user = mAuth.getCurrentUser();
+
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+            StorageReference storageRef = storage.getReference();
+            String text = "profilePictures/" + user.getUid() + ".png";
+            StorageReference imagesRef = storageRef.child(text);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            result.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] data = baos.toByteArray();
+
+            UploadTask uploadTask = imagesRef.putBytes(data);
+            uploadTask.addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    makeToast("Error while uploading picture profile");
+                }
+            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Uri downloadUrl = taskSnapshot.getDownloadUrl();
+
+                    db.getCurrentUserDataById(user.getUid());
+                    db.setOnDataUserUpdateListener(new DatabaseManager.OnDataUserUpdateListener() {
+                        @Override
+                        public void updateDataUserUI(Player player) {
+                            if (player == null) {
+                                db.insertRegisteredPlayer(new Player(mAuth.getUid(), user.getDisplayName(), 0, 0 , 0, 0));
+                            }
+                            pb_loginFB.setVisibility(View.GONE);
+                            Utils.AUTHENTIFICATION_TYPE = Utils.AUTHENTIFICATION_FB;
+                            launchMenuActivity(user);
+                        }
+                    });
+
+
+                }
+            });
+        }
     }
+
+}

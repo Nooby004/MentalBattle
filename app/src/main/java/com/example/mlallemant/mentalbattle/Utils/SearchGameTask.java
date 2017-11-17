@@ -3,8 +3,6 @@ package com.example.mlallemant.mentalbattle.Utils;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.example.mlallemant.mentalbattle.UI.Lobby.PlayAsRegistered;
-
 import java.util.UUID;
 
 /**

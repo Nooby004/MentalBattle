@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.example.mlallemant.mentalbattle.R;
@@ -36,6 +37,7 @@ public class CustomDialog {
     private int btnColor1;
     private String btnText2;
     private int btnColor2;
+    private Bitmap bm = null;
 
     private Dialog dialog;
     private DatabaseManager db;
@@ -46,6 +48,21 @@ public class CustomDialog {
 
         this.context = context;
         this.idUser = idUser;
+        this.message = message;
+        this.btnText1 = btnText1;
+        this.btnColor1 = btnColor1;
+        this.btnText2 = btnText2;
+        this.btnColor2 = btnColor2;
+
+        storage = FirebaseStorage.getInstance();
+        db = DatabaseManager.getInstance();
+
+    }
+
+    public CustomDialog(Context context, Bitmap bm, String message, String btnText1, int btnColor1, String btnText2, int btnColor2){
+
+        this.context = context;
+        this.bm = bm;
         this.message = message;
         this.btnText1 = btnText1;
         this.btnColor1 = btnColor1;
@@ -76,16 +93,6 @@ public class CustomDialog {
         String text = "profilePictures/" + idUser  + ".png";
         StorageReference imagesRef = storageRef.child(text);
 
-        final long ONE_MEGABYTE = 1024 * 1024;
-        imagesRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-            @Override
-            public void onSuccess(byte[] bytes) {
-                Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                profile_user.setImageBitmap(bm);
-            }
-        });
-
-
         message.setText(this.message);
 
         btn1.setText(btnText1);
@@ -106,16 +113,33 @@ public class CustomDialog {
             }
         });
 
-       btn2.setOnClickListener(new View.OnClickListener() {
+        btn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onClickBtnListener.onClickBtn2();
             }
         });
 
-        dialog.show();
+        if (this.bm == null) {
+            final long ONE_MEGABYTE = 1024 * 1024;
+            imagesRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                @Override
+                public void onSuccess(byte[] bytes) {
+                    Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                    profile_user.setImageBitmap(bm);
 
+                }
+            });
+        }
+
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(dialog.getWindow().getAttributes());
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        dialog.show();
+        dialog.getWindow().setAttributes(lp);
     }
+
 
     public void dismiss(){
         dialog.dismiss();

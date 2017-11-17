@@ -3,25 +3,18 @@ package com.example.mlallemant.mentalbattle.UI.Menu.Fragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mlallemant.mentalbattle.R;
-import com.example.mlallemant.mentalbattle.UI.Friends.CustomAdapter;
-import com.example.mlallemant.mentalbattle.UI.Friends.DataModel;
-import com.example.mlallemant.mentalbattle.UI.Game.GameActivity;
-import com.example.mlallemant.mentalbattle.UI.Lobby.PlayAsRegistered;
+import com.example.mlallemant.mentalbattle.UI.Friends.FriendAdapter;
+import com.example.mlallemant.mentalbattle.UI.Friends.FriendModel;
 import com.example.mlallemant.mentalbattle.UI.Menu.MenuActivity;
 import com.example.mlallemant.mentalbattle.Utils.CustomDialog;
 import com.example.mlallemant.mentalbattle.Utils.DatabaseManager;
@@ -47,10 +40,11 @@ public class FriendsFragment extends Fragment {
 
     //Utils
     private DatabaseManager db;
-    private ArrayList<DataModel> dataModels;
-    private CustomAdapter adapter;
+    private ArrayList<FriendModel> friendModels;
+    private FriendAdapter adapter;
     private Player currentPlayer;
     private Game currentGame;
+    private CustomDialog cdAskToPlay;
 
 
     @Override
@@ -73,8 +67,8 @@ public class FriendsFragment extends Fragment {
         iv_add = (ImageView) v.findViewById(R.id.select_friends_iv_add);
         listView = (ListView) v.findViewById(R.id.select_friends_list_view);
 
-        dataModels = new ArrayList<>();
-        adapter = new CustomAdapter(dataModels, getApplicationContext());
+        friendModels = new ArrayList<>();
+        adapter = new FriendAdapter(friendModels, getApplicationContext());
         listView.setAdapter(adapter);
         adapter.clear();
         adapter.addAll(db.getFriendList());
@@ -88,23 +82,65 @@ public class FriendsFragment extends Fragment {
             }
         });
 
-        db.setOnFriendChangeListener(new DatabaseManager.OnFriendChangeListener() {
+
+        ((MenuActivity) getActivity()).setFriendListToFragment(new MenuActivity.FriendListToFragment() {
             @Override
-            public void updateFriendListUI(List<DataModel> friendList) {
+            public void sendData(List<FriendModel> friendList) {
                 adapter.clear();
                 adapter.addAll(friendList);
+
+                for (int i = 0; i< friendList.size(); i++) {
+                    final FriendModel friend = friendList.get(i);
+                    if (friend.getPlayReq().equals(Utils.PLAY_CANCEL)) {
+                        if (cdAskToPlay != null) {
+                            if (cdAskToPlay.isShowing()) {
+                                cdAskToPlay.dismiss();
+                                db.resetToPlayWith(currentPlayer, friend.getPlayer());
+                            }
+                        }
+                    }
+                }
             }
         });
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                final FriendModel friend = adapter.getItem(i);
+
+                final CustomDialog cdConfirmDelete = new CustomDialog(getActivity(), friend.getPlayer().getId(),
+                        "Do you really want delete this friend ?",
+                        "YES", R.color.greenColor,
+                        "NO", R.color.redColor);
+                cdConfirmDelete.create();
+                cdConfirmDelete.setOnClickBtnListener(new CustomDialog.OnClickBtnListener() {
+                    @Override
+                    public void onClickBtn1() {
+                        db.deleteFriend(currentPlayer, friend.getPlayer());
+                        cdConfirmDelete.dismiss();
+                    }
+
+                    @Override
+                    public void onClickBtn2() {
+                        cdConfirmDelete.dismiss();
+                    }
+                });
+
+                return false;
+            }
+        });
+
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-                final DataModel friend = adapter.getItem(i);
+                final FriendModel friend = adapter.getItem(i);
 
                 if (friend.getFriendAcq().equals(Utils.ACK_REQUEST_RECEIVED)) {
-                    // if not ack, open dialog in order to accept him
-                    CustomDialog cdAcceptFriend = new CustomDialog(getActivity(), friend.getPlayer().getId(),
+                                       // if not ack, open dialog in order to accept him
+                    final CustomDialog cdAcceptFriend = new CustomDialog(getActivity(), friend.getPlayer().getId(),
                             "Do you want to accept this friend ?",
                             "YES", R.color.greenColor,
                             "NO", R.color.redColor);
@@ -113,11 +149,13 @@ public class FriendsFragment extends Fragment {
                         @Override
                         public void onClickBtn1() {
                             db.ackFriend(currentPlayer, friend.getPlayer());
+                            cdAcceptFriend.dismiss();
                         }
 
                         @Override
                         public void onClickBtn2() {
                             db.deleteFriend(currentPlayer, friend.getPlayer());
+                            cdAcceptFriend.dismiss();
                         }
                     });
 
@@ -133,7 +171,7 @@ public class FriendsFragment extends Fragment {
                         db.insertAvailableGame(currentGame);
                         db.getAvailableGameById(idGame);
 
-                        final CustomDialog cdAskToPlay = new CustomDialog(getActivity(), friend.getPlayer().getId(),
+                        cdAskToPlay = new CustomDialog(getActivity(), friend.getPlayer().getId(),
                                 "Waiting " + friend.getPlayer().getName() + " ...",
                                 "CANCEL" , R.color.redColor,
                                 null, 0);
@@ -159,6 +197,13 @@ public class FriendsFragment extends Fragment {
                 }
             }
         });
+
+        iv_add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                launchSearchFragment();
+            }
+        });
     }
 
 
@@ -170,9 +215,17 @@ public class FriendsFragment extends Fragment {
         ft.commit();
     }
 
+    private void launchSearchFragment(){
+        SearchFriendFragment searchFriendFragment = new SearchFriendFragment();
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.replace(R.id.menu_fl_select, searchFriendFragment);
+        ft.commit();
+    }
+
 
     private void makeToast(String text){
         Toast.makeText(getApplicationContext(), text,
-                Toast.LENGTH_LONG).show();
+                Toast.LENGTH_SHORT).show();
     }
 }

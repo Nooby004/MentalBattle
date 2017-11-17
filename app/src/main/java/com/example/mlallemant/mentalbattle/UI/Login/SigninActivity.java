@@ -261,10 +261,16 @@ public class SigninActivity extends AppCompatActivity {
                 isValidCreation = true;
                 pg_signin.setVisibility(View.GONE);
                 mAuth.signOut();
+
+                String email = et_email.getText().toString();
+                String password = et_password.getText().toString();
+                Intent intent = new Intent();
+                intent.putExtra("email", email);
+                intent.putExtra("password", password);
+                setResult(10, intent);
                 finish();
             }
         });
-
     }
 
 

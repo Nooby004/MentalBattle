@@ -1,21 +1,16 @@
 package com.example.mlallemant.mentalbattle.UI.Friends;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.GradientDrawable;
-import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mlallemant.mentalbattle.R;
-import com.example.mlallemant.mentalbattle.Utils.Player;
 import com.example.mlallemant.mentalbattle.Utils.Utils;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -31,9 +26,9 @@ import static com.facebook.FacebookSdk.getApplicationContext;
  * Created by m.lallemant on 30/10/2017.
  */
 
-public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnClickListener {
+public class FriendAdapter extends ArrayAdapter<FriendModel> implements View.OnClickListener {
 
-    private ArrayList<DataModel> dataSet;
+    private ArrayList<FriendModel> dataSet;
     Context mContext;
 
     private static class ViewHolder {
@@ -44,8 +39,8 @@ public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnCli
         CircleImageView connect;
     }
 
-    public CustomAdapter (ArrayList<DataModel> data, Context context){
-        super(context, R.layout.row_item_template, data);
+    public FriendAdapter(ArrayList<FriendModel> data, Context context){
+        super(context, R.layout.friend_row_item_template, data);
         this.dataSet = data;
         this.mContext = context;
     }
@@ -54,9 +49,9 @@ public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnCli
     public void onClick(View v){
         int position = (Integer) v.getTag();
         Object object = getItem(position);
-        DataModel dataModel = (DataModel) object;
+        FriendModel friendModel = (FriendModel) object;
 
-        makeToast("click on " + dataModel.player.getName());
+        //makeToast("click on " + friendModel.player.getName());
     }
 
     private int lastPosition = -1;
@@ -64,7 +59,7 @@ public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnCli
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
         // Get the data item for this position
-        DataModel dataModel = getItem(position);
+        FriendModel friendModel = getItem(position);
 
         //Check if an existing view is being reused, otherwise inflate the view
         final ViewHolder viewHolder;
@@ -74,7 +69,7 @@ public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnCli
         if (convertView == null){
             viewHolder = new ViewHolder();
             LayoutInflater inflater = LayoutInflater.from(getContext());
-            convertView = inflater.inflate(R.layout.row_item_template, parent, false);
+            convertView = inflater.inflate(R.layout.friend_row_item_template, parent, false);
 
             viewHolder.username = (TextView) convertView.findViewById(R.id.row_item_tv_username);
             viewHolder.connect = (CircleImageView) convertView.findViewById(R.id.row_item_iv_connect);
@@ -91,15 +86,18 @@ public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnCli
 
         lastPosition = position;
 
-        if (dataModel != null){
+        if (friendModel != null){
 
             //USERNAME
-            if (dataModel.getPlayer() != null) viewHolder.username.setText(dataModel.getPlayer().getName());
+            if (friendModel.getPlayer() != null){
+                String splitName = friendModel.getPlayer().getName().split(" ")[0];
+                viewHolder.username.setText(splitName);
+            }
 
             //CONNECTED/DISCONNECTED
-            if (dataModel.getFriendAcq() != null) {
-                if (dataModel.getFriendAcq().equals(Utils.ACK_OK)) {
-                    if (dataModel.getConnected()) {
+            if (friendModel.getFriendAcq() != null) {
+                if (friendModel.getFriendAcq().equals(Utils.ACK_OK)) {
+                    if (friendModel.getConnected()) {
                         viewHolder.connect.setImageResource(R.color.greenColor);
                     } else {
                         viewHolder.connect.setImageResource(R.color.redColor);
@@ -111,8 +109,8 @@ public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnCli
             }
 
             //LEVEL / RANK
-            if (dataModel.getXp()!=null){
-                int level = getLevelByXp(Integer.parseInt(dataModel.getXp()));
+            if (friendModel.getXp()!=null){
+                int level = getLevelByXp(Integer.parseInt(friendModel.getXp()));
                 String text = "LVL " + level;
                 viewHolder.level.setText(text);
                 viewHolder.rank.setText(getRankByLevel(level));
@@ -120,10 +118,10 @@ public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnCli
 
 
             //PROFILE PICTURE
-            if (dataModel.getProfilePicture() == null) {
+            if (friendModel.getProfilePicture() == null) {
                 FirebaseStorage storage = FirebaseStorage.getInstance();
                 StorageReference storageRef = storage.getReference();
-                String text = "profilePictures/" + dataModel.getPlayer().getId()  + ".png";
+                String text = "profilePictures/" + friendModel.getPlayer().getId()  + ".png";
                 StorageReference imagesRef = storageRef.child(text);
 
                 final long ONE_MEGABYTE = 1024 * 1024;
@@ -136,11 +134,7 @@ public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnCli
                 });
 
             }
-
-
         }
-
-
         return convertView;
     }
 

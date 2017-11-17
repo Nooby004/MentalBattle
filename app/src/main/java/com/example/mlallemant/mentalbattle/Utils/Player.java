@@ -16,6 +16,8 @@ public class Player implements Parcelable {
     private Integer nb_lose;
     private Integer xp;
 
+    private String ready;
+    private String new_;
 
     public Player(String id, String name, Integer score, Integer nb_win, Integer nb_lose, Integer xp){
         this.id = id;
@@ -24,6 +26,14 @@ public class Player implements Parcelable {
         this.nb_win = nb_win;
         this.nb_lose = nb_lose;
         this.xp = xp;
+    }
+
+    public Player(String id, String name, Integer score, String ready, String new_){
+        this.id = id;
+        this.name = name;
+        this.score = score;
+        this.ready = ready;
+        this.new_ = new_;
     }
 
     public Player()
@@ -77,6 +87,22 @@ public class Player implements Parcelable {
 
     public void setXp(Integer xp) {
         this.xp = xp;
+    }
+
+    public String getReady() {
+        return ready;
+    }
+
+    public void setReady(String ready) {
+        this.ready = ready;
+    }
+
+    public String getNew_() {
+        return new_;
+    }
+
+    public void setNew_(String new_) {
+        this.new_ = new_;
     }
 
     protected Player(Parcel in) {

@@ -118,6 +118,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="start"
             android:text="CANCEL"
+            android:background="?attr/selectableItemBackground"
             android:textColor="@color/whiteColor"/>
 
 

@@ -8,7 +8,7 @@ import com.example.mlallemant.mentalbattle.Utils.Player;
  * Created by m.lallemant on 30/10/2017.
  */
 
-public class DataModel {
+public class FriendModel {
 
     Player player;
     Boolean isConnected;
@@ -18,7 +18,7 @@ public class DataModel {
     Bitmap profilePicture;
 
 
-    public DataModel(Player player, Boolean isConnected, String friendAcq, String playReq, String xp, Bitmap profilePicture){
+    public FriendModel(Player player, Boolean isConnected, String friendAcq, String playReq, String xp, Bitmap profilePicture){
         this.player = player;
         this.isConnected = isConnected;
         this.friendAcq = friendAcq;
@@ -27,7 +27,7 @@ public class DataModel {
         this.profilePicture = profilePicture;
     }
 
-    public DataModel(){
+    public FriendModel(){
         super();
     }
 

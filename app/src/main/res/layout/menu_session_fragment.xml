@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="3">
+
+
+        <ImageView
+            android:id="@+id/iv_session_back"
+            android:layout_width="0dp"
+            android:layout_height="30sp"
+            android:layout_weight="0.5"
+            android:src="@drawable/ic_select_back"
+            android:scaleType="fitStart"/>
+
+        <TextView
+            android:id="@+id/tv_session_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="Session : Viveris"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:textColor="@color/whiteColor"/>
+
+        <ImageView
+            android:id="@+id/iv_session_list_view"
+            android:layout_width="0dp"
+            android:layout_height="30sp"
+            android:layout_weight="0.5"
+            android:src="@drawable/ic_select_listview"
+            android:scaleType="fitEnd"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20sp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/whiteColor"
+            android:textSize="18sp"
+            android:text="Number of players"/>
+
+        <TextView
+            android:id="@+id/tv_session_nb_player"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:textSize="18sp"
+            android:textColor="@color/greenColor"
+            android:text="5"/>
+
+    </LinearLayout>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10sp">
+
+
+        <ListView
+            android:id="@+id/lv_session_players"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/btn_session_launch_ready"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:dividerHeight="3sp"
+            android:background="@drawable/shape_orange"
+            android:padding="3sp"/>
+
+
+        <Button
+            android:layout_marginTop="15sp"
+            android:id="@+id/btn_session_launch_ready"
+            android:layout_width="match_parent"
+            android:layout_height="35sp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:background="@drawable/buttonshape_orange"
+            android:text="LAUNCH" />
+
+    </RelativeLayout>
+
+
+
+</LinearLayout>

@@ -6,6 +6,8 @@ import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +29,8 @@ import com.example.mlallemant.mentalbattle.Utils.SearchGameTask;
  */
 
 public class PlayFragment extends Fragment {
+
+    private final static String TAG = "PlayFragment";
 
     //UI
     private ImageView iv_back;
@@ -51,6 +55,12 @@ public class PlayFragment extends Fragment {
 
         initUI(v);
         initListener();
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        menuActivity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        Log.e(TAG, "density : " + metrics.density);
+        Log.e(TAG, "densityDpi : " + metrics.densityDpi);
+        Log.e(TAG, "scaleDensity : " + metrics.scaledDensity);
 
         return v;
     }

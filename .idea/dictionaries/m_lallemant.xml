@@ -2,8 +2,10 @@
   <dictionary name="m.lallemant">
     <words>
       <w>authentification</w>
+      <w>baos</w>
       <w>calcul</w>
       <w>signin</w>
+      <w>viveris</w>
     </words>
   </dictionary>
 </component>
