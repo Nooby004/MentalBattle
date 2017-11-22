@@ -163,9 +163,9 @@ public class DatabaseManager {
 
 
     public void deletePlayerInLobby(Player player){
+        notifyFriendsYouAreDisconnected(player);
         DatabaseReference reference = database.getReference("players").child("inLobby");
         reference.child(player.getId()).removeValue();
-        notifyFriendsYouAreDisconnected(player);
     }
 
 
@@ -280,8 +280,6 @@ public class DatabaseManager {
                             FriendModel friendModel = new FriendModel(new Player(id, name, 0,Integer.parseInt(nbWin) ,Integer.parseInt(nbLose) ,Integer.parseInt(xp)), isConnected, friendAcq, playReq, xp, null);
                             if (checkFriendIsOkToAdd(friendModel)){
                                 friendList.add(friendModel);
-                                notifyFriendYouAreConnected(currentPlayer, friendModel.getPlayer());
-                                notifyFriendYourProgress(currentPlayer, friendModel.getPlayer());
                             }
                         }
                     }
@@ -317,12 +315,12 @@ public class DatabaseManager {
         return isOk;
     }
 
-    private void notifyFriendYouAreConnected(Player currentPlayer, Player friend) {
+    public void notifyFriendYouAreConnected(Player currentPlayer, Player friend) {
         DatabaseReference ref = database.getReference("players").child("registered").child(friend.getId()).child("friends").child(currentPlayer.getId());
         ref.child("connected").setValue(true);
     }
 
-    private void notifyFriendYourProgress(Player currentPlayer, Player friend) {
+    public void notifyFriendYourProgress(Player currentPlayer, Player friend) {
         DatabaseReference ref = database.getReference("players").child("registered").child(friend.getId()).child("friends").child(currentPlayer.getId());
         ref.child("xp").setValue(currentPlayer.getXp().toString());
         ref.child("nbWin").setValue(currentPlayer.getNb_win().toString());
@@ -683,7 +681,19 @@ public class DatabaseManager {
         DatabaseReference reference = database.getReference("sessions");
         reference.child(session.getIdSession()).child("name").setValue(session.getName());
         reference.child(session.getIdSession()).child("password").setValue(session.getPassword());
+        reference.child(session.getIdSession()).child("state").setValue(session.getState());
+        for (int i=0; i<session.getCalculationList().size(); i++) {
+            reference.child(session.getIdSession()).child("calculationList").child(String.valueOf(i)).setValue(session.getCalculationList().get(i));
+        }
     }
+
+    public void updateCalculationListInSession(Session session, List<Calculation> calculationList){
+        DatabaseReference reference = database.getReference("sessions");
+        for (int i=0; i<calculationList.size(); i++) {
+            reference.child(session.getIdSession()).child("calculationList").child(String.valueOf(i)).setValue(calculationList.get(i));
+        }
+    }
+
 
     public void insertPlayerInSession(Session session, Player player) {
         DatabaseReference reference = database.getReference("sessions").child(session.getIdSession()).child("players");
@@ -711,13 +721,30 @@ public class DatabaseManager {
         reference.child(player.getId()).child("new_").setValue(new_);
     }
 
+    public void updateStateSession(Session session, String state){
+        DatabaseReference reference = database.getReference("sessions").child(session.getIdSession()).child("state");
+        reference.setValue(state);
+    }
+
+    public void updateScoreCurrentPlayerInSession(Session session, Player player, int score){
+        DatabaseReference reference = database.getReference("sessions").child(session.getIdSession()).child("players");
+        reference.child(player.getId()).child("score").setValue(score);
+
+    }
+
     public void initCheckSessionExist(final Session session) {
         DatabaseReference reference = database.getReference("sessions");
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.child(session.getIdSession()).exists()) {
-                    onSessionExistListener.notifyUser(true);
+
+                    String state = (String) dataSnapshot.child(session.getIdSession()).child("state").getValue();
+                    if (state.equals(Utils.SESSION_STATE_WAITING)) {
+                        onSessionExistListener.notifyUser(true);
+                    }else {
+                        onSessionExistListener.notifyUser(false);
+                    }
                 } else {
                     onSessionExistListener.notifyUser(false);
                 }
@@ -738,7 +765,12 @@ public class DatabaseManager {
                 if (dataSnapshot.exists()){
                     String name = (String) dataSnapshot.child("name").getValue();
                     String password = (String) dataSnapshot.child("password").getValue();
-                    Session session_ = new Session(name, password);
+                    String state = (String) dataSnapshot.child("state").getValue();
+
+                    GenericTypeIndicator<List<Calculation>> genericType = new GenericTypeIndicator<List<Calculation>>() {};
+                    List<Calculation> calculationList = dataSnapshot.child("calculationList").getValue(genericType);
+
+                    Session session_ = new Session(name, password, state, calculationList);
                     for (DataSnapshot playersSnapshot : dataSnapshot.child("players").getChildren()) {
                         Player player = playersSnapshot.getValue(Player.class);
                         if (player.getId() != null && player.getNew_() != null && player.getReady() != null && player.getName() != null){

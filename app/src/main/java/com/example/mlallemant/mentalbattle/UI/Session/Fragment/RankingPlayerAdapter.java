@@ -62,7 +62,7 @@ public class RankingPlayerAdapter extends ArrayAdapter<Player> implements View.O
             viewHolder.tv_score = (TextView) convertView.findViewById(R.id.session_transition_row_tv_score);
 
             result = convertView;
-            convertView.setTag(position);
+            convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
             result = convertView;

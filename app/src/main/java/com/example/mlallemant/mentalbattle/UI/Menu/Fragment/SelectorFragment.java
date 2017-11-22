@@ -1,8 +1,11 @@
 package com.example.mlallemant.mentalbattle.UI.Menu.Fragment;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -40,7 +43,7 @@ public class SelectorFragment extends Fragment {
     private ImageView iv_friends;
 
     //Utils
-    private long begin_time;
+    private long begin_time = System.currentTimeMillis();
     private Player currentPlayer;
     private DatabaseManager db;
 
@@ -80,6 +83,7 @@ public class SelectorFragment extends Fragment {
     }
 
 
+
     private void initListener(){
 
         joy.setListener(new JoyStick.JoyStickListener() {
@@ -105,30 +109,30 @@ public class SelectorFragment extends Fragment {
                     }
 
                 } else {
-
+                    int color[] = getColorByDuration((int)(System.currentTimeMillis() - begin_time));
                     switch (direction){
                         case JoyStick.DIRECTION_UP :
-                            DrawableCompat.setTint(iv_play.getDrawable(), ContextCompat.getColor(getActivity(), R.color.greenColor));
+                            DrawableCompat.setTint(iv_play.getDrawable(), Color.rgb(color[0], color[1], color[2]));
                             break;
 
                         case JoyStick.DIRECTION_LEFT :
-                            DrawableCompat.setTint(iv_create.getDrawable(), ContextCompat.getColor(getActivity(), R.color.greenColor));
+                            DrawableCompat.setTint(iv_create.getDrawable(), Color.rgb(color[0], color[1], color[2]));
                             break;
 
                         case JoyStick.DIRECTION_RIGHT :
-                            DrawableCompat.setTint(iv_join.getDrawable(), ContextCompat.getColor(getActivity(), R.color.greenColor));
+                            DrawableCompat.setTint(iv_join.getDrawable(), Color.rgb(color[0], color[1], color[2]));
                             break;
 
                         case JoyStick.DIRECTION_DOWN :
                             if (Utils.AUTHENTIFICATION_TYPE != Utils.AUTHENTIFICATION_GUEST) {
-                                DrawableCompat.setTint(iv_friends.getDrawable(), ContextCompat.getColor(getActivity(), R.color.greenColor));
+                                DrawableCompat.setTint(iv_friends.getDrawable(), Color.rgb(color[0], color[1], color[2]));
                             }
                             break;
                     }
 
 
 
-                    if ((System.currentTimeMillis() - begin_time) > 750) {
+                    if ((System.currentTimeMillis() - begin_time) > 850) {
                         begin_time = System.currentTimeMillis();
 
                         switch (direction){
@@ -223,6 +227,36 @@ public class SelectorFragment extends Fragment {
             ft.commit();
         }
 
+    }
+
+    private int[] getColorByDuration(int duration){
+
+       int color[]= new int[3];
+
+       float nbStep = 50;
+       float durationMax = 850;
+
+       int r1 = 255;
+       int g1 = 143;
+       int b1 = 89;
+
+       int r2 = 96;
+       int g2 = 195;
+       int b2 = 117;
+
+       float redStep = (r2 - r1) / nbStep;
+       float greenStep = (g2 - g1) / nbStep;
+       float blueStep = (b2 - b1) / nbStep;
+
+       float rf = r1 + redStep * (duration * (nbStep/durationMax));
+       float gf = g1 + greenStep * (duration * (nbStep/durationMax));
+       float bf = b1 + blueStep *  (duration * (nbStep/durationMax));
+
+       color[0] = Math.round(rf);
+       color[1] = Math.round(gf);
+       color[2] = Math.round(bf);
+
+       return color;
     }
 
 }

@@ -154,6 +154,14 @@ public class MenuActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (currentPlayer != null){
+            db.deletePlayerInLobby(currentPlayer);
+        }
+    }
+
+    @Override
     public void onBackPressed()
     {
         if (onBackPressedListener != null){
@@ -161,6 +169,9 @@ public class MenuActivity extends AppCompatActivity {
         }
         else {
             super.onBackPressed();
+            if (currentPlayer != null){
+                db.deletePlayerInLobby(currentPlayer);
+            }
             if (Utils.AUTHENTIFICATION_TYPE == Utils.AUTHENTIFICATION_GUEST) {
                 signOut();
             }
@@ -261,7 +272,9 @@ public class MenuActivity extends AppCompatActivity {
         for (int i = 0; i< friendList.size(); i++){
             final FriendModel friend = friendList.get(i);
 
-            Log.e(TAG, friend.getPlayReq());
+            db.notifyFriendYouAreConnected(currentPlayer, friend.getPlayer());
+            db.notifyFriendYourProgress(currentPlayer, friend.getPlayer());
+
             if (friend.getPlayReq().equals(Utils.PLAY_REQUEST_RECEIVED) && !isFirstReqToPlay){
                 isFirstReqToPlay = true;
                 cdRequestReceived = new CustomDialog(MenuActivity.this,

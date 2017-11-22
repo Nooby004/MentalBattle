@@ -11,44 +11,37 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/whiteColor"
-        android:textSize="50sp"
+        android:textSize="30sp"
         android:gravity="center"
-        android:text="ROUND 1"
-        />
-
-    <ListView
-        android:id="@+id/session_transition_lv_ranking"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="2sp"
-        android:layout_marginTop="20sp"
-        android:dividerHeight="2sp"
-        android:background="@drawable/shape_orange" />
-
+        android:text="Round 1 - Ranking" />
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_marginTop="20sp"
-        android:layout_height="wrap_content">
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-        <TextView
-            android:id="@+id/session_transition_tv_counter"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:background="@drawable/circle"
-            android:gravity="center"
-            android:textColor="@color/orangeColor"
+        <ListView
+            android:id="@+id/session_transition_lv_ranking"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="2sp"
             android:layout_centerInParent="true"
-            android:textSize="25sp"
-            android:text="60" />
+            android:layout_marginTop="20sp"
+            android:dividerHeight="2sp"
+            android:background="@drawable/shape_orange" />
 
-        <ProgressBar
-            android:id="@+id/session_transition_pg_counter"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:layout_centerInParent="true"
-            android:visibility="visible" />
     </RelativeLayout>
+
+
+
+
+    <Button
+        android:layout_marginTop="15sp"
+        android:id="@+id/session_transition_btn_next_round"
+        android:layout_width="match_parent"
+        android:layout_height="35sp"
+        android:background="@drawable/shape_green"
+        android:text="Next Round" />
+
 
 </LinearLayout>

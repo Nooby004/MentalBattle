@@ -20,6 +20,7 @@
             android:scaleType="fitStart"/>
 
         <TextView
+            android:id="@+id/tv_title_session"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
@@ -69,13 +70,29 @@
             android:textColorHint="@color/whiteGrayColor" />
 
 
-        <Button
-            android:id="@+id/btn_create_session"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_marginTop="30sp"
-            android:layout_height="35sp"
-            android:background="@drawable/buttonshape_orange"
-            android:text="CREATE"/>
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30sp">
+
+            <Button
+                android:id="@+id/btn_create_session"
+                android:layout_width="match_parent"
+                android:layout_height="35sp"
+                android:background="@drawable/buttonshape_orange"
+                android:text="CREATE"/>
+
+            <ProgressBar
+                android:id="@+id/pb_create_session"
+                android:layout_width="wrap_content"
+                android:layout_height="35sp"
+                android:elevation="2dp"
+                android:layout_alignParentEnd="true"
+                android:visibility="invisible"/>
+
+
+        </RelativeLayout>
+
 
     </LinearLayout>
 

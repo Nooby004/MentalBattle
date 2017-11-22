@@ -40,6 +40,9 @@ public class Utils {
     public static String SESSION_NEW_NO = "new_no";
     public static String SESSION_CREATOR = "creator";
     public static String SESSION_LEFT = "left";
-    public static String SESSION_LAUNCH_PARTY = "launch_party";
+
+    public static String SESSION_STATE_LAUNCH_ROUND = "launch_round";
+    public static String SESSION_STATE_LAUNCH_PARTY = "launch_party";
+    public static String SESSION_STATE_WAITING = "waiting";
 
 }

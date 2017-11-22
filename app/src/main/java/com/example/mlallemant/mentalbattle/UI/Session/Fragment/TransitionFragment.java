@@ -1,23 +1,36 @@
 package com.example.mlallemant.mentalbattle.UI.Session.Fragment;
 
 import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.mlallemant.mentalbattle.R;
+import com.example.mlallemant.mentalbattle.UI.Menu.MenuActivity;
+import com.example.mlallemant.mentalbattle.UI.Session.SessionActivity;
+import com.example.mlallemant.mentalbattle.Utils.DatabaseManager;
 import com.example.mlallemant.mentalbattle.Utils.Player;
 import com.example.mlallemant.mentalbattle.Utils.Session;
 import com.example.mlallemant.mentalbattle.Utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * Created by m.lallemant on 17/11/2017.
@@ -28,15 +41,17 @@ public class TransitionFragment extends Fragment {
     //UI
     private TextView tv_round_number;
     private ListView lv_ranking;
-    private TextView tv_counter;
-    private ProgressBar pg_counter;
+    private Button btn_next_round;
 
     //UTILS
-    private final static int WAITING_TIME = 10000; //10s
     private Session session;
     private int currentRoundSessionNumber;
+    private Player currentPlayer;
     private ArrayList<Player> playerModel;
     private RankingPlayerAdapter adapter;
+    private final static int MAX_ROUND = 3;
+    private boolean isCreator = false;
+    private DatabaseManager db;
 
 
     @Override
@@ -45,48 +60,115 @@ public class TransitionFragment extends Fragment {
 
         Bundle bundle = getArguments();
         session = bundle.getParcelable("session");
+        currentPlayer = bundle.getParcelable("currentPlayer");
         currentRoundSessionNumber = bundle.getInt("currentRoundSessionNumber");
 
+        isCreator = ((SessionActivity) getActivity()).isCreator();
+
+        db = DatabaseManager.getInstance();
+        db.initListenerCurrentSession(session);
+
         initUI(v);
-        launchCountDown();
+        initListener();
+
         return v;
     }
 
     private void initUI(View v) {
         tv_round_number = (TextView) v.findViewById(R.id.session_transition_tv_round_number);
         lv_ranking = (ListView) v.findViewById(R.id.session_transition_lv_ranking);
-        tv_counter = (TextView) v.findViewById(R.id.session_transition_tv_counter);
-        pg_counter = (ProgressBar) v.findViewById(R.id.session_transition_pg_counter);
+        btn_next_round = (Button) v.findViewById(R.id.session_transition_btn_next_round);
 
-        tv_round_number.setText("ROUND " + currentRoundSessionNumber);
+        String text = "Ranking - Round " + currentRoundSessionNumber +"/"+MAX_ROUND;
+        tv_round_number.setText(text);
 
         playerModel = new ArrayList<>();
         adapter = new RankingPlayerAdapter(playerModel, getActivity());
         lv_ranking.setAdapter(adapter);
         adapter.clear();
 
-        List<Player> players = session.getPlayerList();
+        Collections.sort(session.getPlayerList(), new Comparator<Player>() {
+            @Override
+            public int compare(Player lhs, Player rhs) {
+                return rhs.getScore().compareTo(lhs.getScore());
+            }
+        });
 
-        Log.e("ERROR", session.getPlayerList().get(0).getName());
+        List<Player> players = session.getPlayerList();
         adapter.addAll(players);
 
+
+        if (currentRoundSessionNumber >= MAX_ROUND){
+            tv_round_number.setText("Final Ranking");
+            btn_next_round.setEnabled(true);
+            text = "Return menu";
+            btn_next_round.setText(text);
+        } else {
+            if (isCreator) {
+                btn_next_round.setEnabled(true);
+                btn_next_round.setText("Next Round");
+            } else {
+                btn_next_round.setEnabled(false);
+                text = "Waiting creator for next round...";
+                btn_next_round.setText(text);
+            }
+        }
+    }
+
+   private void initListener(){
+        btn_next_round.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (currentRoundSessionNumber >= MAX_ROUND){
+                    ((SessionActivity) getActivity()).deleteSession();
+                    launchMenuActivity();
+                } else {
+                    if (isCreator) {
+                        db.updateStateSession(session, Utils.SESSION_STATE_LAUNCH_ROUND);
+                    }
+                }
+            }
+        });
+
+        db.setOnSessionUpdateListener(new DatabaseManager.OnSessionUpdateListener() {
+            @Override
+            public void updateSessionUI(Session session) {
+                if (session != null) {
+
+                    if (session.getState().equals(Utils.SESSION_STATE_LAUNCH_ROUND)) {
+                        launchRoundFragment();
+                    }
+                }
+            }
+        });
+   }
+
+    private void launchRoundFragment() {
+        db.removeListenerCurrentSession(session);
+        db.updateStateSession(session, Utils.SESSION_STATE_LAUNCH_PARTY);
+        RoundFragment rf = new RoundFragment();
+        Bundle args = new Bundle();
+        args.putInt("currentRoundSessionNumber", currentRoundSessionNumber);
+        args.putParcelable("session", session);
+        args.putParcelable("currentPlayer", currentPlayer);
+        rf.setArguments(args);
+
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.replace(R.id.fl_session, rf);
+        ft.commit();
     }
 
 
+    private void launchMenuActivity() {
+        Intent intent = new Intent(getActivity(), MenuActivity.class);
+        startActivity(intent);
+        getActivity().finish();
+    }
 
-    private void launchCountDown(){
-
-        new CountDownTimer(WAITING_TIME, 1000){
-            public void onTick(long millisUntilFinished){
-
-                String remainingTime = ""+millisUntilFinished/1000;
-                tv_counter.setText(remainingTime);
-            }
-
-            public void onFinish(){
-                //LAUNCH ROUND
-            }
-
-        }.start();
+    private void makeToast(String text){
+        Toast.makeText(getApplicationContext(), text,
+                Toast.LENGTH_SHORT).show();
     }
 }

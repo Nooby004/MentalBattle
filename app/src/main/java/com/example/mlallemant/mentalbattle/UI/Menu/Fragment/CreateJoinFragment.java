@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mlallemant.mentalbattle.R;
@@ -29,10 +31,12 @@ import static com.facebook.FacebookSdk.getApplicationContext;
 public class CreateJoinFragment extends Fragment {
 
     //UI
+    private TextView tv_title;
     private ImageView iv_back;
     private EditText et_session_name;
     private EditText et_session_password;
     private Button btn_create_session;
+    private ProgressBar pb_create_session;
 
     //Utils
     private Player currentPlayer;
@@ -64,11 +68,16 @@ public class CreateJoinFragment extends Fragment {
         et_session_name = (EditText) v.findViewById(R.id.et_create_session_name);
         et_session_password = (EditText) v.findViewById(R.id.et_create_session_password);
         btn_create_session = (Button) v.findViewById(R.id.btn_create_session);
+        tv_title = (TextView) v.findViewById(R.id.tv_title_session);
+        pb_create_session = (ProgressBar) v.findViewById(R.id.pb_create_session);
 
+        pb_create_session.setVisibility(View.INVISIBLE);
         if (isCreator){
             btn_create_session.setText("CREATE");
+            tv_title.setText("Create Session");
         } else {
             btn_create_session.setText("JOIN");
+            tv_title.setText("Join Session");
         }
     }
 
@@ -84,6 +93,7 @@ public class CreateJoinFragment extends Fragment {
         btn_create_session.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                pb_create_session.setVisibility(View.VISIBLE);
                 if (isCreator){
                     createSession();
                 } else {
@@ -101,7 +111,7 @@ public class CreateJoinFragment extends Fragment {
 
         if (sessionName.length() > 4 && sessionPassword.length() > 5) {
 
-            final Session session = new Session(sessionName, sessionPassword);
+            final Session session = new Session(sessionName, sessionPassword, Utils.SESSION_STATE_WAITING);
             db.initCheckSessionExist(session);
 
             db.setOnSessionExistListener(new DatabaseManager.OnSessionExistListener() {
@@ -115,6 +125,7 @@ public class CreateJoinFragment extends Fragment {
                         db.insertPlayerInSession(session, playerForSession);
                         launchSessionLauncherFragment(true);
                     }
+                    pb_create_session.setVisibility(View.INVISIBLE);
                 }
             });
 
@@ -130,7 +141,7 @@ public class CreateJoinFragment extends Fragment {
 
 
         if (sessionName.length() > 0 && sessionPassword.length() > 0) {
-            final Session session = new Session(sessionName, sessionPassword);
+            final Session session = new Session(sessionName, sessionPassword, Utils.SESSION_STATE_WAITING);
             db.initCheckSessionExist(session);
 
             db.setOnSessionExistListener(new DatabaseManager.OnSessionExistListener() {
@@ -143,6 +154,7 @@ public class CreateJoinFragment extends Fragment {
                     } else {
                         makeToast("Bad name or password");
                     }
+                    pb_create_session.setVisibility(View.INVISIBLE);
                 }
             });
         }else {
