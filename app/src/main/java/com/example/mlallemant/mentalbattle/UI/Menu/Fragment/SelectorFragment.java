@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -14,11 +15,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.erz.joysticklibrary.JoyStick;
 import com.example.mlallemant.mentalbattle.R;
 import com.example.mlallemant.mentalbattle.UI.Menu.MenuActivity;
+import com.example.mlallemant.mentalbattle.UI.Training.TrainingActivity;
 import com.example.mlallemant.mentalbattle.Utils.DatabaseManager;
 import com.example.mlallemant.mentalbattle.Utils.Player;
 import com.example.mlallemant.mentalbattle.Utils.Utils;
@@ -41,6 +44,8 @@ public class SelectorFragment extends Fragment {
     private ImageView iv_create;
     private ImageView iv_join;
     private ImageView iv_friends;
+
+    private LinearLayout ll_training;
 
     //Utils
     private long begin_time = System.currentTimeMillis();
@@ -74,6 +79,8 @@ public class SelectorFragment extends Fragment {
         iv_create = (ImageView) v.findViewById(R.id.selector_iv_create);
         iv_join = (ImageView) v.findViewById(R.id.selector_iv_join);
         iv_friends = (ImageView) v.findViewById(R.id.selector_iv_friends);
+
+        ll_training = (LinearLayout) v.findViewById(R.id.selector_hide_training);
 
         if (Utils.AUTHENTIFICATION_TYPE == Utils.AUTHENTIFICATION_GUEST) {
             DrawableCompat.setTint(iv_friends.getDrawable(), ContextCompat.getColor(getActivity(), R.color.grayColor));
@@ -170,6 +177,14 @@ public class SelectorFragment extends Fragment {
 
             }
         });
+
+
+        ll_training.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                launchTrainingActivity();
+            }
+        });
     }
 
     private void setTextViewVisibility(boolean visible) {
@@ -257,6 +272,13 @@ public class SelectorFragment extends Fragment {
        color[2] = Math.round(bf);
 
        return color;
+    }
+
+
+    private void launchTrainingActivity(){
+        Intent intent = new Intent(getActivity(), TrainingActivity.class);
+        startActivity(intent);
+        getActivity().finish();
     }
 
 }

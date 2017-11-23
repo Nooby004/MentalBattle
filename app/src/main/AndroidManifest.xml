@@ -57,6 +57,11 @@
             android:theme="@style/myTheme"
             android:screenOrientation="portrait">
         </activity>
+        <activity android:name=".UI.Training.TrainingActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/myTheme"
+            android:screenOrientation="portrait">
+        </activity>
 
     </application>
 

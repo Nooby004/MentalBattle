@@ -150,11 +150,22 @@
                 android:textColor="@color/whiteColor"/>
         </LinearLayout>
 
-        <View
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1">
-        </View>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:id="@+id/selector_hide_training"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true">
+
+            </LinearLayout>
+
+        </RelativeLayout>
 
     </TableRow>
 
