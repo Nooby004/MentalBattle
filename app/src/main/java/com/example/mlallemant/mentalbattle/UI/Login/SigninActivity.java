@@ -1,15 +1,10 @@
 package com.example.mlallemant.mentalbattle.UI.Login;
 
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -21,8 +16,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.esafirm.imagepicker.features.ImagePicker;
-import com.esafirm.imagepicker.model.Image;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+
 import com.example.mlallemant.mentalbattle.R;
 import com.example.mlallemant.mentalbattle.Utils.DatabaseManager;
 import com.example.mlallemant.mentalbattle.Utils.Player;
@@ -99,10 +96,10 @@ public class SigninActivity extends AppCompatActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        List<Image> images = ImagePicker.getImages(data);
-        if (images != null && !images.isEmpty()) {
-            iv_profile_user.setImageBitmap(BitmapFactory.decodeFile(images.get(0).getPath()));
-        }
+//        List<Image> images = ImagePicker.getImages(data);
+//        if (images != null && !images.isEmpty()) {
+//            iv_profile_user.setImageBitmap(BitmapFactory.decodeFile(images.get(0).getPath()));
+//        }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -211,18 +208,18 @@ public class SigninActivity extends AppCompatActivity {
         iv_profile_user.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ImagePicker.create(SigninActivity.this)
-                        .returnAfterFirst(true) // set whether pick or camera action should return immediate result or not. For pick image only work on single mode
-                        .folderMode(true) // folder mode (false by default)
-                        .folderTitle("Folder") // folder selection title
-                        .imageTitle("Tap to select") // image selection title
-                        .single() // single mode
-                        .limit(1) // max images can be selected (99 by default)
-                        .showCamera(true) // show camera or not (true by default)
-                        .theme(R.style.myTheme)
-                        .imageDirectory("Camera") // directory name for captured image  ("Camera" folder by default)
-                        .enableLog(true) // disabling log
-                        .start(RC_CODE_PICKER); // start image picker activity with request code
+//                ImagePicker.create(SigninActivity.this)
+//                        .returnAfterFirst(true) // set whether pick or camera action should return immediate result or not. For pick image only work on single mode
+//                        .folderMode(true) // folder mode (false by default)
+//                        .folderTitle("Folder") // folder selection title
+//                        .imageTitle("Tap to select") // image selection title
+//                        .single() // single mode
+//                        .limit(1) // max images can be selected (99 by default)
+//                        .showCamera(true) // show camera or not (true by default)
+//                        .theme(R.style.myTheme)
+//                        .imageDirectory("Camera") // directory name for captured image  ("Camera" folder by default)
+//                        .enableLog(true) // disabling log
+//                        .start(RC_CODE_PICKER); // start image picker activity with request code
             }
         });
 

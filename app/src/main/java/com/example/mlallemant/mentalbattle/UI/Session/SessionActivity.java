@@ -1,11 +1,12 @@
 package com.example.mlallemant.mentalbattle.UI.Session;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.FrameLayout;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mlallemant.mentalbattle.R;
 import com.example.mlallemant.mentalbattle.UI.Session.Fragment.RoundFragment;
@@ -17,7 +18,7 @@ import com.example.mlallemant.mentalbattle.Utils.Session;
  * Created by m.lallemant on 17/11/2017.
  */
 
-public class SessionActivity extends AppCompatActivity{
+public class SessionActivity extends AppCompatActivity {
 
     //UI
     private FrameLayout fl_session;
@@ -84,7 +85,7 @@ public class SessionActivity extends AppCompatActivity{
         args.putParcelable("currentPlayer", currentPlayer);
         rf.setArguments(args);
 
-        FragmentManager fm = getFragmentManager();
+        FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         ft.replace(R.id.fl_session, rf);
         ft.commit();

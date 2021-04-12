@@ -1,26 +1,22 @@
 package com.example.mlallemant.mentalbattle.UI.Login;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.mlallemant.mentalbattle.R;
-import com.example.mlallemant.mentalbattle.UI.Game.GameActivity;
 import com.example.mlallemant.mentalbattle.UI.Menu.MenuActivity;
 import com.example.mlallemant.mentalbattle.Utils.DatabaseManager;
-import com.example.mlallemant.mentalbattle.Utils.Game;
 import com.example.mlallemant.mentalbattle.Utils.Player;
-import com.example.mlallemant.mentalbattle.Utils.SearchGameTask;
 import com.example.mlallemant.mentalbattle.Utils.Utils;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -29,8 +25,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
-
-import java.util.UUID;
 
 /**
  * Created by m.lallemant on 26/10/2017.

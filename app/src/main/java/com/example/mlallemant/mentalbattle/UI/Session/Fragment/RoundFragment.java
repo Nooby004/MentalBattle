@@ -1,8 +1,6 @@
 package com.example.mlallemant.mentalbattle.UI.Session.Fragment;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.Editable;
@@ -15,8 +13,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.example.mlallemant.mentalbattle.R;
-import com.example.mlallemant.mentalbattle.UI.Session.SessionActivity;
 import com.example.mlallemant.mentalbattle.Utils.Calculation;
 import com.example.mlallemant.mentalbattle.Utils.DatabaseManager;
 import com.example.mlallemant.mentalbattle.Utils.Player;
