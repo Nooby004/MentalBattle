@@ -16,31 +16,31 @@ public class Game {
     private Player player2;
     private List<Calculation> calculationList;
 
-    public Game(String id, Player player1, Player player2){
+    public Game(final String id, final Player player1, final Player player2) {
         this.id = id;
         this.player1 = player1;
         this.player2 = player2;
         calculationList = generateCalculationList();
     }
 
-    public Game(String id, Player player1, Player player2, List<Calculation> calculationList){
+    public Game(final String id, final Player player1, final Player player2, final List<Calculation> calculationList) {
         this.id = id;
         this.player1 = player1;
         this.player2 = player2;
         this.calculationList = calculationList;
     }
 
-    private List<Calculation> generateCalculationList(){
+    private List<Calculation> generateCalculationList() {
 
-        List<Calculation> calculationList_ = new ArrayList<>();
+        final List<Calculation> calculationList_ = new ArrayList<>();
 
-        for (int i=0; i<NB_CALCULATION; i++){
+        for (int i = 0; i < NB_CALCULATION; i++) {
             calculationList_.add(new Calculation());
         }
-        return  calculationList_;
+        return calculationList_;
     }
 
-    public Game(){
+    public Game() {
         super();
     }
 

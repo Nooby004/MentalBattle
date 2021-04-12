@@ -8,8 +8,8 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mlallemant.mentalbattle.R;
-import com.example.mlallemant.mentalbattle.UI.Game.Fragment.PlayerFindFragment;
 import com.example.mlallemant.mentalbattle.UI.Game.Fragment.PlayFragment;
+import com.example.mlallemant.mentalbattle.UI.Game.Fragment.PlayerFindFragment;
 import com.example.mlallemant.mentalbattle.UI.Game.Fragment.WinFragment;
 import com.example.mlallemant.mentalbattle.UI.Menu.MenuActivity;
 import com.example.mlallemant.mentalbattle.Utils.DatabaseManager;
@@ -37,7 +37,7 @@ public class GameActivity extends AppCompatActivity implements PlayerFindFragmen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game_activity);
-
+ 
         String currentPlayerId;
         String id = getIntent().getExtras().getString("idGame");
         currentPlayerId = getIntent().getExtras().getString("currentPlayerId");
@@ -45,10 +45,10 @@ public class GameActivity extends AppCompatActivity implements PlayerFindFragmen
         db = DatabaseManager.getInstance();
         game = db.getCurrentGame();
 
-        if (game.getPlayer1().getId().equals(currentPlayerId)){
+        if (game.getPlayer1().getId().equals(currentPlayerId)) {
             currentPlayer = game.getPlayer1();
             otherPlayer = game.getPlayer2();
-        }else{
+        } else {
             currentPlayer = game.getPlayer2();
             otherPlayer = game.getPlayer1();
         }
@@ -78,8 +78,7 @@ public class GameActivity extends AppCompatActivity implements PlayerFindFragmen
 
 
     @Override
-    public void onStop()
-    {
+    public void onStop() {
         super.onStop();
         if (!appGoesToBackground) {
             db.deleteCurrentGame(game);
@@ -88,7 +87,7 @@ public class GameActivity extends AppCompatActivity implements PlayerFindFragmen
     }
 
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
         if (!appGoesToBackground) {
             db.deleteCurrentGame(game);
@@ -106,21 +105,20 @@ public class GameActivity extends AppCompatActivity implements PlayerFindFragmen
     }
 
     @Override
-    public void onPause()
-    {
+    public void onPause() {
         super.onPause();
         appGoesToBackground = true;
     }
 
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         appGoesToBackground = false;
 
     }
 
-    public void launchGame(){
+    public void launchGame() {
 
         //create play fragment
         if (!gameIsFinished) {
@@ -163,7 +161,7 @@ public class GameActivity extends AppCompatActivity implements PlayerFindFragmen
         ft.commit();
     }
 
-    public void launchNextGame(){
+    public void launchNextGame() {
         //Return on LoginActivity
         db.deleteCurrentGame(game);
         launchMenuActivity(currentPlayer);
@@ -177,7 +175,7 @@ public class GameActivity extends AppCompatActivity implements PlayerFindFragmen
         finish();
     }
 
-    private void calculXpGain(String winnerName, Integer winnerScore, Integer looserScore){
+    private void calculXpGain(String winnerName, Integer winnerScore, Integer looserScore) {
         int gainXP = 0;
 
         boolean currentPlayerWin = false;
@@ -190,19 +188,19 @@ public class GameActivity extends AppCompatActivity implements PlayerFindFragmen
         int rand = r.nextInt(4 - 1) + 1;
 
         int base;
-        if (currentPlayerWin){
-            db.setNbWinLoseByPlayer(currentPlayer, (currentPlayer.getNb_win()+1), (currentPlayer.getNb_lose()));
+        if (currentPlayerWin) {
+            db.setNbWinLoseByPlayer(currentPlayer, (currentPlayer.getNb_win() + 1), (currentPlayer.getNb_lose()));
             base = (winnerScore * 5) + (rand * getLevelByXp(currentPlayer.getXp()));
             gainXP = (int) Math.round(base + 0.3 * base);
         } else {
-            db.setNbWinLoseByPlayer(currentPlayer, (currentPlayer.getNb_win()), (currentPlayer.getNb_lose()+1));
+            db.setNbWinLoseByPlayer(currentPlayer, (currentPlayer.getNb_win()), (currentPlayer.getNb_lose() + 1));
             base = (looserScore * 5) + (rand * getLevelByXp(currentPlayer.getXp()));
             gainXP = (int) Math.round(base - 0.2 * base);
         }
 
-        if (winnerScore == 999){
+        if (winnerScore == 999) {
             gainXP = 0;
-            db.setNbWinLoseByPlayer(otherPlayer, otherPlayer.getNb_win(), (otherPlayer.getNb_lose()+1));
+            db.setNbWinLoseByPlayer(otherPlayer, otherPlayer.getNb_win(), (otherPlayer.getNb_lose() + 1));
         }
 
 
@@ -213,13 +211,11 @@ public class GameActivity extends AppCompatActivity implements PlayerFindFragmen
     }
 
 
-
-    private int getLevelByXp(int XP){
+    private int getLevelByXp(int XP) {
         int level;
-        level = (int) Math.round ((Math.sqrt(100 * (2 * XP + 25) + 50) / 100));
+        level = (int) Math.round((Math.sqrt(100 * (2 * XP + 25) + 50) / 100));
         return level;
     }
-
 
 
 }

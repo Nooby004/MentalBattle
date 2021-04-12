@@ -1,10 +1,5 @@
 package com.example.mlallemant.mentalbattle.UI.Menu.Fragment;
 
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -15,6 +10,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.erz.joysticklibrary.JoyStick;
 import com.example.mlallemant.mentalbattle.R;
@@ -52,10 +53,10 @@ public class SelectorFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.menu_selector_fragment, container, false);
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
+        final View v = inflater.inflate(R.layout.menu_selector_fragment, container, false);
 
-        MenuActivity menuActivity = (MenuActivity) getActivity();
+        final MenuActivity menuActivity = (MenuActivity) getActivity();
         currentPlayer = menuActivity.getCurrentPlayer();
         db = DatabaseManager.getInstance();
 
@@ -67,7 +68,7 @@ public class SelectorFragment extends Fragment {
         return v;
     }
 
-    private void initUI(View v){
+    private void initUI(final View v) {
         joy = (JoyStick) v.findViewById(R.id.selector_joy);
         tv_play = (TextView) v.findViewById(R.id.selector_play);
         tv_create_session = (TextView) v.findViewById(R.id.selector_create_session);
@@ -88,12 +89,11 @@ public class SelectorFragment extends Fragment {
     }
 
 
-
-    private void initListener(){
+    private void initListener() {
 
         joy.setListener(new JoyStick.JoyStickListener() {
             @Override
-            public void onMove(JoyStick joyStick, double angle, double power, int direction) {
+            public void onMove(final JoyStick joyStick, final double angle, final double power, final int direction) {
 
                 if (direction == JoyStick.DIRECTION_CENTER) {
                     setTextViewVisibility(true);
@@ -101,7 +101,7 @@ public class SelectorFragment extends Fragment {
                     setTextViewVisibility(false);
                 }
 
-                if (power < 90){
+                if (power < 90) {
                     begin_time = System.currentTimeMillis();
                     DrawableCompat.setTint(iv_play.getDrawable(), ContextCompat.getColor(getActivity(), R.color.orangeColor));
                     DrawableCompat.setTint(iv_create.getDrawable(), ContextCompat.getColor(getActivity(), R.color.orangeColor));
@@ -114,21 +114,21 @@ public class SelectorFragment extends Fragment {
                     }
 
                 } else {
-                    int color[] = getColorByDuration((int)(System.currentTimeMillis() - begin_time));
-                    switch (direction){
-                        case JoyStick.DIRECTION_UP :
+                    final int[] color = getColorByDuration((int) (System.currentTimeMillis() - begin_time));
+                    switch (direction) {
+                        case JoyStick.DIRECTION_UP:
                             DrawableCompat.setTint(iv_play.getDrawable(), Color.rgb(color[0], color[1], color[2]));
                             break;
 
-                        case JoyStick.DIRECTION_LEFT :
+                        case JoyStick.DIRECTION_LEFT:
                             DrawableCompat.setTint(iv_create.getDrawable(), Color.rgb(color[0], color[1], color[2]));
                             break;
 
-                        case JoyStick.DIRECTION_RIGHT :
+                        case JoyStick.DIRECTION_RIGHT:
                             DrawableCompat.setTint(iv_join.getDrawable(), Color.rgb(color[0], color[1], color[2]));
                             break;
 
-                        case JoyStick.DIRECTION_DOWN :
+                        case JoyStick.DIRECTION_DOWN:
                             if (Utils.AUTHENTIFICATION_TYPE != Utils.AUTHENTIFICATION_GUEST) {
                                 DrawableCompat.setTint(iv_friends.getDrawable(), Color.rgb(color[0], color[1], color[2]));
                             }
@@ -136,27 +136,26 @@ public class SelectorFragment extends Fragment {
                     }
 
 
-
                     if ((System.currentTimeMillis() - begin_time) > 850) {
                         begin_time = System.currentTimeMillis();
 
-                        switch (direction){
-                            case JoyStick.DIRECTION_UP :
+                        switch (direction) {
+                            case JoyStick.DIRECTION_UP:
                                 Log.e(TAG, "PLAY");
                                 launchPlayFragment();
                                 break;
 
-                            case JoyStick.DIRECTION_LEFT :
+                            case JoyStick.DIRECTION_LEFT:
                                 Log.e(TAG, "CREATE SESSION");
                                 launchCreateFragment();
                                 break;
 
-                            case JoyStick.DIRECTION_RIGHT :
+                            case JoyStick.DIRECTION_RIGHT:
                                 Log.e(TAG, "JOIN SESSION");
                                 launchJoinFragment();
                                 break;
 
-                            case JoyStick.DIRECTION_DOWN :
+                            case JoyStick.DIRECTION_DOWN:
                                 Log.e(TAG, "FRIENDS");
                                 launchFriendsFragment();
                                 break;
@@ -179,13 +178,13 @@ public class SelectorFragment extends Fragment {
 
         ll_training.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
                 launchTrainingActivity();
             }
         });
     }
 
-    private void setTextViewVisibility(boolean visible) {
+    private void setTextViewVisibility(final boolean visible) {
         if (visible) {
             tv_friends.setVisibility(View.VISIBLE);
             tv_play.setVisibility(View.VISIBLE);
@@ -201,80 +200,80 @@ public class SelectorFragment extends Fragment {
     }
 
 
-    private void launchPlayFragment(){
-        PlayFragment playFragment = new PlayFragment();
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
+    private void launchPlayFragment() {
+        final PlayFragment playFragment = new PlayFragment();
+        final FragmentManager fm = getFragmentManager();
+        final FragmentTransaction ft = fm.beginTransaction();
         ft.replace(R.id.menu_fl_select, playFragment);
         ft.commit();
     }
 
     private void launchCreateFragment() {
-        CreateJoinFragment createJoinFragment = new CreateJoinFragment();
-        Bundle bundle = new Bundle();
+        final CreateJoinFragment createJoinFragment = new CreateJoinFragment();
+        final Bundle bundle = new Bundle();
         bundle.putBoolean("creator", true);
         createJoinFragment.setArguments(bundle);
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
+        final FragmentManager fm = getFragmentManager();
+        final FragmentTransaction ft = fm.beginTransaction();
         ft.replace(R.id.menu_fl_select, createJoinFragment);
         ft.commit();
     }
 
     private void launchJoinFragment() {
-        CreateJoinFragment createJoinFragment = new CreateJoinFragment();
-        Bundle bundle = new Bundle();
+        final CreateJoinFragment createJoinFragment = new CreateJoinFragment();
+        final Bundle bundle = new Bundle();
         bundle.putBoolean("creator", false);
         createJoinFragment.setArguments(bundle);
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
+        final FragmentManager fm = getFragmentManager();
+        final FragmentTransaction ft = fm.beginTransaction();
         ft.replace(R.id.menu_fl_select, createJoinFragment);
         ft.commit();
     }
 
-    private void launchFriendsFragment(){
+    private void launchFriendsFragment() {
         if (Utils.AUTHENTIFICATION_TYPE != Utils.AUTHENTIFICATION_GUEST) {
-            FriendsFragment friendsFragment = new FriendsFragment();
-            FragmentManager fm = getFragmentManager();
-            FragmentTransaction ft = fm.beginTransaction();
+            final FriendsFragment friendsFragment = new FriendsFragment();
+            final FragmentManager fm = getFragmentManager();
+            final FragmentTransaction ft = fm.beginTransaction();
             ft.replace(R.id.menu_fl_select, friendsFragment);
             ft.commit();
         }
 
     }
 
-    private int[] getColorByDuration(int duration){
+    private int[] getColorByDuration(final int duration) {
 
-       int color[]= new int[3];
+        final int[] color = new int[3];
 
-       float nbStep = 50;
-       float durationMax = 850;
+        final float nbStep = 50;
+        final float durationMax = 850;
 
-       int r1 = 255;
-       int g1 = 143;
-       int b1 = 89;
+        final int r1 = 255;
+        final int g1 = 143;
+        final int b1 = 89;
 
-       int r2 = 96;
-       int g2 = 195;
-       int b2 = 117;
+        final int r2 = 96;
+        final int g2 = 195;
+        final int b2 = 117;
 
-       float redStep = (r2 - r1) / nbStep;
-       float greenStep = (g2 - g1) / nbStep;
-       float blueStep = (b2 - b1) / nbStep;
+        final float redStep = (r2 - r1) / nbStep;
+        final float greenStep = (g2 - g1) / nbStep;
+        final float blueStep = (b2 - b1) / nbStep;
 
-       float rf = r1 + redStep * (duration * (nbStep/durationMax));
-       float gf = g1 + greenStep * (duration * (nbStep/durationMax));
-       float bf = b1 + blueStep *  (duration * (nbStep/durationMax));
+        final float rf = r1 + redStep * (duration * (nbStep / durationMax));
+        final float gf = g1 + greenStep * (duration * (nbStep / durationMax));
+        final float bf = b1 + blueStep * (duration * (nbStep / durationMax));
 
-       color[0] = Math.round(rf);
-       color[1] = Math.round(gf);
-       color[2] = Math.round(bf);
+        color[0] = Math.round(rf);
+        color[1] = Math.round(gf);
+        color[2] = Math.round(bf);
 
-       return color;
+        return color;
     }
 
 
-    private void launchTrainingActivity(){
-        Intent intent = new Intent(getActivity(), TrainingActivity.class);
+    private void launchTrainingActivity() {
+        final Intent intent = new Intent(getActivity(), TrainingActivity.class);
         startActivity(intent);
         getActivity().finish();
     }

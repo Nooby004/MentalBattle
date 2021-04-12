@@ -10,7 +10,7 @@ public class FriendSearchModel {
 
     Player player;
 
-    public FriendSearchModel(Player player) {
+    public FriendSearchModel(final Player player) {
         this.player = player;
     }
 

@@ -1,13 +1,14 @@
 package com.example.mlallemant.mentalbattle.UI.Session.Fragment;
 
 
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.mlallemant.mentalbattle.R;
 import com.example.mlallemant.mentalbattle.UI.Session.SessionActivity;
@@ -29,10 +30,10 @@ public class LoadingFragment extends Fragment {
     private Player currentPlayer;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.loading_activity, container, false);
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
+        final View v = inflater.inflate(R.layout.loading_activity, container, false);
 
-        Bundle bundle = getArguments();
+        final Bundle bundle = getArguments();
         session = bundle.getParcelable("session");
         currentPlayer = bundle.getParcelable("currentPlayer");
 
@@ -46,12 +47,12 @@ public class LoadingFragment extends Fragment {
     private void initListener() {
         db.setOnSessionUpdateListener(new DatabaseManager.OnSessionUpdateListener() {
             @Override
-            public void updateSessionUI(Session session) {
+            public void updateSessionUI(final Session session) {
                 if (session != null) {
 
                     boolean isEverybodyReady = true;
 
-                    for (Player player : session.getPlayerList()) {
+                    for (final Player player : session.getPlayerList()) {
                         if (player.getReady().equals(Utils.SESSION_RDY_NO)) {
                             isEverybodyReady = false;
                         }
@@ -65,21 +66,21 @@ public class LoadingFragment extends Fragment {
         });
     }
 
-    private void launchTransitionFragment(Session session){
-        SessionActivity sa = (SessionActivity) getActivity();
+    private void launchTransitionFragment(final Session session) {
+        final SessionActivity sa = (SessionActivity) getActivity();
         sa.addCurrentRoundSessionNumber();
 
         db.removeListenerCurrentSession(session);
-        TransitionFragment tf = new TransitionFragment();
+        final TransitionFragment tf = new TransitionFragment();
 
-        Bundle args = new Bundle();
+        final Bundle args = new Bundle();
         args.putInt("currentRoundSessionNumber", sa.getCurrentRoundSessionNumber());
         args.putParcelable("session", session);
         args.putParcelable("currentPlayer", currentPlayer);
         tf.setArguments(args);
 
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
+        final FragmentManager fm = getFragmentManager();
+        final FragmentTransaction ft = fm.beginTransaction();
         ft.replace(R.id.fl_session, tf);
         ft.commit();
     }

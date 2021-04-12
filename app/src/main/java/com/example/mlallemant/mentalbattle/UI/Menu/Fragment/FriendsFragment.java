@@ -1,8 +1,5 @@
 package com.example.mlallemant.mentalbattle.UI.Menu.Fragment;
 
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +8,10 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.mlallemant.mentalbattle.R;
 import com.example.mlallemant.mentalbattle.UI.Friends.FriendAdapter;
@@ -48,10 +49,10 @@ public class FriendsFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.menu_friends_fragment, container, false);
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
+        final View v = inflater.inflate(R.layout.menu_friends_fragment, container, false);
 
-        MenuActivity menuActivity = (MenuActivity) getActivity();
+        final MenuActivity menuActivity = (MenuActivity) getActivity();
         currentPlayer = menuActivity.getCurrentPlayer();
 
         db = DatabaseManager.getInstance();
@@ -62,7 +63,7 @@ public class FriendsFragment extends Fragment {
         return v;
     }
 
-    private void initUI(View v){
+    private void initUI(final View v) {
         iv_back = (ImageView) v.findViewById(R.id.select_friends_iv_back);
         iv_add = (ImageView) v.findViewById(R.id.select_friends_iv_add);
         listView = (ListView) v.findViewById(R.id.select_friends_list_view);
@@ -77,7 +78,7 @@ public class FriendsFragment extends Fragment {
     private void initListener() {
         iv_back.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
                 returnSelectorFragment();
             }
         });
@@ -85,11 +86,11 @@ public class FriendsFragment extends Fragment {
 
         ((MenuActivity) getActivity()).setFriendListToFragment(new MenuActivity.FriendListToFragment() {
             @Override
-            public void sendData(List<FriendModel> friendList) {
+            public void sendData(final List<FriendModel> friendList) {
                 adapter.clear();
                 adapter.addAll(friendList);
 
-                for (int i = 0; i< friendList.size(); i++) {
+                for (int i = 0; i < friendList.size(); i++) {
                     final FriendModel friend = friendList.get(i);
                     if (friend.getPlayReq().equals(Utils.PLAY_CANCEL)) {
                         if (cdAskToPlay != null) {
@@ -105,7 +106,7 @@ public class FriendsFragment extends Fragment {
 
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public boolean onItemLongClick(final AdapterView<?> adapterView, final View view, final int i, final long l) {
 
                 final FriendModel friend = adapter.getItem(i);
 
@@ -134,12 +135,12 @@ public class FriendsFragment extends Fragment {
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public void onItemClick(final AdapterView<?> adapterView, final View view, final int i, final long l) {
 
                 final FriendModel friend = adapter.getItem(i);
 
                 if (friend.getFriendAcq().equals(Utils.ACK_REQUEST_RECEIVED)) {
-                                       // if not ack, open dialog in order to accept him
+                    // if not ack, open dialog in order to accept him
                     final CustomDialog cdAcceptFriend = new CustomDialog(getActivity(), friend.getPlayer().getId(),
                             "Do you want to accept this friend ?",
                             "YES", R.color.greenColor,
@@ -165,21 +166,21 @@ public class FriendsFragment extends Fragment {
                     //REQUEST FRIEND TO PLAY
                     if (friend.getConnected()) {
                         db.askToPlayWith(currentPlayer, friend.getPlayer());
-                        final String idGame = currentPlayer.getId()+friend.getPlayer().getId();
-                        Game game = new Game(idGame, currentPlayer, friend.getPlayer());
+                        final String idGame = currentPlayer.getId() + friend.getPlayer().getId();
+                        final Game game = new Game(idGame, currentPlayer, friend.getPlayer());
                         currentGame = game;
                         db.insertAvailableGame(currentGame);
                         db.getAvailableGameById(idGame);
 
                         cdAskToPlay = new CustomDialog(getActivity(), friend.getPlayer().getId(),
                                 "Waiting " + friend.getPlayer().getName() + " ...",
-                                "CANCEL" , R.color.redColor,
+                                "CANCEL", R.color.redColor,
                                 null, 0);
                         cdAskToPlay.create();
                         cdAskToPlay.setOnClickBtnListener(new CustomDialog.OnClickBtnListener() {
                             @Override
                             public void onClickBtn1() {
-                                db.declineToPlayWith(currentPlayer,friend.getPlayer());
+                                db.declineToPlayWith(currentPlayer, friend.getPlayer());
                                 db.getAvailableGameById(idGame);
                                 db.deleteAvailableGame(currentGame);
                                 currentGame = null;
@@ -191,7 +192,7 @@ public class FriendsFragment extends Fragment {
 
                             }
                         });
-                    }else {
+                    } else {
                         makeToast("Your friend is not connected");
                     }
                 }
@@ -200,31 +201,31 @@ public class FriendsFragment extends Fragment {
 
         iv_add.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
                 launchSearchFragment();
             }
         });
     }
 
 
-    private void returnSelectorFragment(){
-        SelectorFragment selectorFragment = new SelectorFragment();
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
+    private void returnSelectorFragment() {
+        final SelectorFragment selectorFragment = new SelectorFragment();
+        final FragmentManager fm = getFragmentManager();
+        final FragmentTransaction ft = fm.beginTransaction();
         ft.replace(R.id.menu_fl_select, selectorFragment);
         ft.commit();
     }
 
-    private void launchSearchFragment(){
-        SearchFriendFragment searchFriendFragment = new SearchFriendFragment();
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
+    private void launchSearchFragment() {
+        final SearchFriendFragment searchFriendFragment = new SearchFriendFragment();
+        final FragmentManager fm = getFragmentManager();
+        final FragmentTransaction ft = fm.beginTransaction();
         ft.replace(R.id.menu_fl_select, searchFriendFragment);
         ft.commit();
     }
 
 
-    private void makeToast(String text){
+    private void makeToast(final String text) {
         Toast.makeText(getApplicationContext(), text,
                 Toast.LENGTH_SHORT).show();
     }

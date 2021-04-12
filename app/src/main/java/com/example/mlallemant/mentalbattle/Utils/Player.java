@@ -19,7 +19,7 @@ public class Player implements Parcelable {
     private String ready;
     private String new_;
 
-    public Player(String id, String name, Integer score, Integer nb_win, Integer nb_lose, Integer xp){
+    public Player(final String id, final String name, final Integer score, final Integer nb_win, final Integer nb_lose, final Integer xp) {
         this.id = id;
         this.name = name;
         this.score = score;
@@ -28,7 +28,7 @@ public class Player implements Parcelable {
         this.xp = xp;
     }
 
-    public Player(String id, String name, Integer score, String ready, String new_){
+    public Player(final String id, final String name, final Integer score, final String ready, final String new_) {
         this.id = id;
         this.name = name;
         this.score = score;
@@ -36,8 +36,7 @@ public class Player implements Parcelable {
         this.new_ = new_;
     }
 
-    public Player()
-    {
+    public Player() {
         super();
     }
 
@@ -45,7 +44,7 @@ public class Player implements Parcelable {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(final String id) {
         this.id = id;
     }
 
@@ -53,7 +52,7 @@ public class Player implements Parcelable {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -61,7 +60,7 @@ public class Player implements Parcelable {
         return score;
     }
 
-    public void setScore(Integer score) {
+    public void setScore(final Integer score) {
         this.score = score;
     }
 
@@ -69,7 +68,7 @@ public class Player implements Parcelable {
         return nb_win;
     }
 
-    public void setNb_win(Integer nb_win) {
+    public void setNb_win(final Integer nb_win) {
         this.nb_win = nb_win;
     }
 
@@ -77,7 +76,7 @@ public class Player implements Parcelable {
         return nb_lose;
     }
 
-    public void setNb_lose(Integer nb_lose) {
+    public void setNb_lose(final Integer nb_lose) {
         this.nb_lose = nb_lose;
     }
 
@@ -85,7 +84,7 @@ public class Player implements Parcelable {
         return xp;
     }
 
-    public void setXp(Integer xp) {
+    public void setXp(final Integer xp) {
         this.xp = xp;
     }
 
@@ -93,7 +92,7 @@ public class Player implements Parcelable {
         return ready;
     }
 
-    public void setReady(String ready) {
+    public void setReady(final String ready) {
         this.ready = ready;
     }
 
@@ -101,11 +100,11 @@ public class Player implements Parcelable {
         return new_;
     }
 
-    public void setNew_(String new_) {
+    public void setNew_(final String new_) {
         this.new_ = new_;
     }
 
-    protected Player(Parcel in) {
+    protected Player(final Parcel in) {
         id = in.readString();
         name = in.readString();
         score = in.readByte() == 0x00 ? null : in.readInt();
@@ -120,7 +119,7 @@ public class Player implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeString(id);
         dest.writeString(name);
         if (score == null) {
@@ -152,12 +151,12 @@ public class Player implements Parcelable {
     @SuppressWarnings("unused")
     public static final Parcelable.Creator<Player> CREATOR = new Parcelable.Creator<Player>() {
         @Override
-        public Player createFromParcel(Parcel in) {
+        public Player createFromParcel(final Parcel in) {
             return new Player(in);
         }
 
         @Override
-        public Player[] newArray(int size) {
+        public Player[] newArray(final int size) {
             return new Player[size];
         }
     };

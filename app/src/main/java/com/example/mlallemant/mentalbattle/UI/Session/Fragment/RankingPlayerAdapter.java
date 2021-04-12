@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 public class RankingPlayerAdapter extends ArrayAdapter<Player> implements View.OnClickListener {
 
-    private ArrayList<Player> dataSet;
+    private final ArrayList<Player> dataSet;
     Context mContext;
 
 
@@ -30,24 +30,24 @@ public class RankingPlayerAdapter extends ArrayAdapter<Player> implements View.O
         TextView tv_score;
     }
 
-    public RankingPlayerAdapter(ArrayList<Player> data, Context context){
+    public RankingPlayerAdapter(final ArrayList<Player> data, final Context context) {
         super(context, R.layout.session_transition_row_item_template, data);
         this.dataSet = data;
         this.mContext = context;
     }
 
     @Override
-    public void onClick(View v) {
-        int position = (Integer) v.getTag();
-        Object object = getItem(position);
+    public void onClick(final View v) {
+        final int position = (Integer) v.getTag();
+        final Object object = getItem(position);
 
-        Player rankingPlayerModel = (Player) object;
+        final Player rankingPlayerModel = (Player) object;
     }
 
     private int lastPosition = -1;
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, final ViewGroup parent) {
 
         final Player rankingPlayerModel = getItem(position);
         final RankingPlayerAdapter.ViewHolder viewHolder;
@@ -55,11 +55,11 @@ public class RankingPlayerAdapter extends ArrayAdapter<Player> implements View.O
 
         if (convertView == null) {
             viewHolder = new RankingPlayerAdapter.ViewHolder();
-            LayoutInflater inflater = LayoutInflater.from(getContext());
+            final LayoutInflater inflater = LayoutInflater.from(getContext());
             convertView = inflater.inflate(R.layout.session_transition_row_item_template, parent, false);
 
             viewHolder.tv_position = (TextView) convertView.findViewById(R.id.session_transition_row_tv_position);
-            viewHolder.tv_username= (TextView) convertView.findViewById(R.id.session_transition_row_tv_username);
+            viewHolder.tv_username = (TextView) convertView.findViewById(R.id.session_transition_row_tv_username);
             viewHolder.tv_score = (TextView) convertView.findViewById(R.id.session_transition_row_tv_score);
 
             result = convertView;
@@ -74,7 +74,7 @@ public class RankingPlayerAdapter extends ArrayAdapter<Player> implements View.O
         if (rankingPlayerModel != null) {
 
             //POSITION
-            viewHolder.tv_position.setText(String.valueOf(position+1));
+            viewHolder.tv_position.setText(String.valueOf(position + 1));
 
             if (position == 0) {
                 viewHolder.tv_position.setTextColor(ContextCompat.getColor(mContext, R.color.greenColor));
@@ -86,7 +86,7 @@ public class RankingPlayerAdapter extends ArrayAdapter<Player> implements View.O
                 viewHolder.tv_username.setText(rankingPlayerModel.getName());
             }
 
-            if(rankingPlayerModel.getScore() != null) {
+            if (rankingPlayerModel.getScore() != null) {
                 viewHolder.tv_score.setText(String.valueOf(rankingPlayerModel.getScore()));
             }
 

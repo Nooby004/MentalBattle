@@ -24,18 +24,18 @@ import java.util.ArrayList;
 
 public class PlayersAdapter extends ArrayAdapter<Player> implements View.OnClickListener {
 
-    private ArrayList<Player> dataSet;
+    private final ArrayList<Player> dataSet;
     Context mContext;
-    private DatabaseManager db;
-    private Session session;
-    private boolean isCreator;
+    private final DatabaseManager db;
+    private final Session session;
+    private final boolean isCreator;
 
     private static class ViewHolder {
         TextView username;
         ImageView delete;
     }
 
-    public PlayersAdapter(ArrayList<Player> data, Session session, boolean isCreator, Context context) {
+    public PlayersAdapter(final ArrayList<Player> data, final Session session, final boolean isCreator, final Context context) {
         super(context, R.layout.session_player_row_item_template, data);
         this.dataSet = data;
         this.mContext = context;
@@ -45,17 +45,17 @@ public class PlayersAdapter extends ArrayAdapter<Player> implements View.OnClick
     }
 
     @Override
-    public void onClick(View v) {
-        int position = (Integer) v.getTag();
-        Object object = getItem(position);
+    public void onClick(final View v) {
+        final int position = (Integer) v.getTag();
+        final Object object = getItem(position);
 
-        Player playerModel = (Player) object;
+        final Player playerModel = (Player) object;
     }
 
     private int lastPosition = -1;
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, final ViewGroup parent) {
 
         final Player playerModel = getItem(position);
         final ViewHolder viewHolder;
@@ -63,8 +63,8 @@ public class PlayersAdapter extends ArrayAdapter<Player> implements View.OnClick
 
         if (convertView == null) {
             viewHolder = new ViewHolder();
-            LayoutInflater inflater = LayoutInflater.from(getContext());
-            convertView = inflater.inflate(R.layout.session_player_row_item_template, parent,false);
+            final LayoutInflater inflater = LayoutInflater.from(getContext());
+            convertView = inflater.inflate(R.layout.session_player_row_item_template, parent, false);
 
             viewHolder.username = (TextView) convertView.findViewById(R.id.session_row_tv_username);
             viewHolder.delete = (ImageView) convertView.findViewById(R.id.session_row_iv_delete);
@@ -95,11 +95,11 @@ public class PlayersAdapter extends ArrayAdapter<Player> implements View.OnClick
             if (isCreator) {
                 if (playerModel.getNew_().equals(Utils.SESSION_CREATOR)) {
                     viewHolder.delete.setVisibility(View.INVISIBLE);
-                }else {
+                } else {
                     viewHolder.delete.setVisibility(View.VISIBLE);
                     viewHolder.delete.setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public void onClick(View view) {
+                        public void onClick(final View view) {
                             db.removePlayerInSession(session, playerModel);
                         }
                     });

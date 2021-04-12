@@ -26,26 +26,27 @@ public class CustomDialog {
 
     private OnClickBtnListener onClickBtnListener;
 
-    public interface OnClickBtnListener{
+    public interface OnClickBtnListener {
         void onClickBtn1();
+
         void onClickBtn2();
     }
 
-    private Context context;
+    private final Context context;
     private String idUser;
-    private String message;
-    private String btnText1;
-    private int btnColor1;
-    private String btnText2;
-    private int btnColor2;
+    private final String message;
+    private final String btnText1;
+    private final int btnColor1;
+    private final String btnText2;
+    private final int btnColor2;
     private Bitmap bm = null;
 
     private Dialog dialog;
-    private DatabaseManager db;
-    private FirebaseStorage storage;
+    private final DatabaseManager db;
+    private final FirebaseStorage storage;
 
 
-    public CustomDialog(Context context, String idUser, String message, String btnText1, int btnColor1, String btnText2, int btnColor2){
+    public CustomDialog(final Context context, final String idUser, final String message, final String btnText1, final int btnColor1, final String btnText2, final int btnColor2) {
 
         this.context = context;
         this.idUser = idUser;
@@ -60,7 +61,7 @@ public class CustomDialog {
 
     }
 
-    public CustomDialog(Context context, Bitmap bm, String message, String btnText1, int btnColor1, String btnText2, int btnColor2){
+    public CustomDialog(final Context context, final Bitmap bm, final String message, final String btnText1, final int btnColor1, final String btnText2, final int btnColor2) {
 
         this.context = context;
         this.bm = bm;
@@ -75,33 +76,33 @@ public class CustomDialog {
 
     }
 
-    public void setOnClickBtnListener(OnClickBtnListener listener) {
+    public void setOnClickBtnListener(final OnClickBtnListener listener) {
         this.onClickBtnListener = listener;
     }
 
-    public void create(){
+    public void create() {
         dialog = new Dialog(context);
         dialog.setContentView(R.layout.menu_dialog_template);
         dialog.setCancelable(false);
 
         final CircleImageView profile_user = (CircleImageView) dialog.findViewById(R.id.dialog_profile_user);
-        TextView message = (TextView) dialog.findViewById(R.id.dialog_message);
-        TextView btn1 = (TextView) dialog.findViewById(R.id.dialog_btn1);
-        TextView btn2 = (TextView) dialog.findViewById(R.id.dialog_btn2);
+        final TextView message = (TextView) dialog.findViewById(R.id.dialog_message);
+        final TextView btn1 = (TextView) dialog.findViewById(R.id.dialog_btn1);
+        final TextView btn2 = (TextView) dialog.findViewById(R.id.dialog_btn2);
 
 
-        StorageReference storageRef = storage.getReference();
-        String text = "profilePictures/" + idUser  + ".png";
-        StorageReference imagesRef = storageRef.child(text);
+        final StorageReference storageRef = storage.getReference();
+        final String text = "profilePictures/" + idUser + ".png";
+        final StorageReference imagesRef = storageRef.child(text);
 
         message.setText(this.message);
 
         btn1.setText(btnText1);
-        btn1.setTextColor(ContextCompat.getColor(context,btnColor1));
+        btn1.setTextColor(ContextCompat.getColor(context, btnColor1));
 
         if (btnText2 != null) {
             btn2.setText(btnText2);
-            btn2.setTextColor(ContextCompat.getColor(context,btnColor2));
+            btn2.setTextColor(ContextCompat.getColor(context, btnColor2));
         } else {
             btn2.setVisibility(View.GONE);
         }
@@ -109,14 +110,14 @@ public class CustomDialog {
 
         btn1.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
                 onClickBtnListener.onClickBtn1();
             }
         });
 
         btn2.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
                 onClickBtnListener.onClickBtn2();
             }
         });
@@ -125,15 +126,15 @@ public class CustomDialog {
             final long ONE_MEGABYTE = 1024 * 1024;
             imagesRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                 @Override
-                public void onSuccess(byte[] bytes) {
-                    Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                public void onSuccess(final byte[] bytes) {
+                    final Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                     profile_user.setImageBitmap(bm);
 
                 }
             });
         }
 
-        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        final WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
         lp.copyFrom(dialog.getWindow().getAttributes());
         lp.width = WindowManager.LayoutParams.MATCH_PARENT;
         lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
@@ -142,11 +143,11 @@ public class CustomDialog {
     }
 
 
-    public void dismiss(){
+    public void dismiss() {
         dialog.dismiss();
     }
 
-    public boolean isShowing(){
+    public boolean isShowing() {
         return dialog.isShowing();
     }
 }

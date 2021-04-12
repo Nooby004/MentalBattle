@@ -1,11 +1,5 @@
 package com.example.mlallemant.mentalbattle.UI.Menu.Fragment;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,6 +12,12 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.mlallemant.mentalbattle.R;
 import com.example.mlallemant.mentalbattle.UI.Menu.MenuActivity;
@@ -63,10 +63,10 @@ public class SessionLauncherFragment extends Fragment {
     private boolean isEverybodyReady = false;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.menu_session_fragment, container, false);
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
+        final View v = inflater.inflate(R.layout.menu_session_fragment, container, false);
 
-        MenuActivity menuActivity = (MenuActivity) getActivity();
+        final MenuActivity menuActivity = (MenuActivity) getActivity();
 
         currentPlayer = menuActivity.getCurrentPlayer();
 
@@ -94,7 +94,7 @@ public class SessionLauncherFragment extends Fragment {
     }
 
 
-    private void initUI(View v) {
+    private void initUI(final View v) {
         iv_back = (ImageView) v.findViewById(R.id.iv_session_back);
         tv_name = (TextView) v.findViewById(R.id.tv_session_name);
         iv_list_view = (ImageView) v.findViewById(R.id.iv_session_list_view);
@@ -107,25 +107,25 @@ public class SessionLauncherFragment extends Fragment {
         iv_list_view.setVisibility(View.INVISIBLE);
 
         playerModel = new ArrayList<>();
-        adapter = new PlayersAdapter(playerModel, session,isCreator, getActivity());
+        adapter = new PlayersAdapter(playerModel, session, isCreator, getActivity());
         lv_players.setAdapter(adapter);
         adapter.clear();
 
-        if(isCreator) {
+        if (isCreator) {
             btn_launch_ready.setText("LAUNCH");
         } else {
             btn_launch_ready.setText("READY ?");
         }
 
         nbPlayer++;
-        tv_nb_players.setText(""+nbPlayer);
+        tv_nb_players.setText("" + nbPlayer);
     }
 
 
-    private void initListener(){
+    private void initListener() {
         iv_back.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
                 db.removeListenerCurrentSession(session);
                 db.insertPlayerInLobby(currentPlayer);
                 if (isCreator) {
@@ -141,11 +141,11 @@ public class SessionLauncherFragment extends Fragment {
 
         btn_launch_ready.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
                 if (isCreator) {
                     if (isEverybodyReady) {
                         db.updateStateSession(session, Utils.SESSION_STATE_LAUNCH_PARTY);
-                    }else {
+                    } else {
                         makeToast("All the players are not ready");
                     }
                 } else {
@@ -167,12 +167,12 @@ public class SessionLauncherFragment extends Fragment {
 
         db.setOnSessionUpdateListener(new DatabaseManager.OnSessionUpdateListener() {
             @Override
-            public void updateSessionUI(Session session_) {
+            public void updateSessionUI(final Session session_) {
 
                 if (session_ != null) {
                     session = session_;
 
-                    List<Player> players = session_.getPlayerList();
+                    final List<Player> players = session_.getPlayerList();
                     adapter.clear();
                     adapter.addAll(players);
                     tv_nb_players.setText("" + players.size());
@@ -180,16 +180,16 @@ public class SessionLauncherFragment extends Fragment {
                     boolean currentPlayerIsInList = false;
                     boolean isEverybodyReady_tmp = true;
 
-                    for (Player player : players) {
+                    for (final Player player : players) {
                         if (player.getId().equals(currentPlayer.getId())) {
                             currentPlayerIsInList = true;
                         }
-                        if (!player.getReady().equals(Utils.SESSION_RDY_YES)){
+                        if (!player.getReady().equals(Utils.SESSION_RDY_YES)) {
                             isEverybodyReady_tmp = false;
                         }
                     }
 
-                    if (session_.getState().equals(Utils.SESSION_STATE_LAUNCH_PARTY)){
+                    if (session_.getState().equals(Utils.SESSION_STATE_LAUNCH_PARTY)) {
                         //launchSessionActivity();
                         launchCountDown();
                     }
@@ -210,7 +210,6 @@ public class SessionLauncherFragment extends Fragment {
                     }
 
 
-
                 } else {
                     displayAlertSession("The current session does not exist anymore.");
                     quitSession();
@@ -219,15 +218,15 @@ public class SessionLauncherFragment extends Fragment {
         });
     }
 
-    private void returnSelectorFragment(){
-        SelectorFragment selectorFragment = new SelectorFragment();
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
+    private void returnSelectorFragment() {
+        final SelectorFragment selectorFragment = new SelectorFragment();
+        final FragmentManager fm = getFragmentManager();
+        final FragmentTransaction ft = fm.beginTransaction();
         ft.replace(R.id.menu_fl_select, selectorFragment);
         ft.commit();
     }
 
-    private void quitSession(){
+    private void quitSession() {
         db.updatePlayerNew(session, currentPlayer, Utils.SESSION_LEFT);
         db.removeListenerCurrentSession(session);
         db.removePlayerInSession(session, currentPlayer);
@@ -236,7 +235,7 @@ public class SessionLauncherFragment extends Fragment {
 
     private void launchSessionActivity() {
         db.removeListenerCurrentSession(session);
-        Intent intent = new Intent(getActivity(), SessionActivity.class);
+        final Intent intent = new Intent(getActivity(), SessionActivity.class);
         intent.putExtra("isCreator", isCreator);
         intent.putExtra("session", session);
         intent.putExtra("currentPlayer", currentPlayer);
@@ -244,31 +243,31 @@ public class SessionLauncherFragment extends Fragment {
         getActivity().finish();
     }
 
-    private void displayAlertSession(String message) {
-        AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
+    private void displayAlertSession(final String message) {
+        final AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
         alertDialog.setTitle("Info");
         alertDialog.setMessage(message);
         alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
                 new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onClick(final DialogInterface dialog, final int which) {
                         dialog.dismiss();
                     }
                 });
         alertDialog.show();
     }
 
-    private void makeToast(String text){
+    private void makeToast(final String text) {
         Toast.makeText(getApplicationContext(), text,
                 Toast.LENGTH_SHORT).show();
     }
 
-    private void launchCountDown(){
+    private void launchCountDown() {
         tv_nb_players_title.setText("Game will begin in ");
         tv_nb_players.setText("5");
 
-        new CountDownTimer(5000,1000) {
-            public void onTick(long millisUntilFinished) {
-                tv_nb_players.setText(""+(int) millisUntilFinished/1000);
+        new CountDownTimer(5000, 1000) {
+            public void onTick(final long millisUntilFinished) {
+                tv_nb_players.setText("" + (int) millisUntilFinished / 1000);
             }
 
             public void onFinish() {

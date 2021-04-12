@@ -1,8 +1,5 @@
 package com.example.mlallemant.mentalbattle.UI.Menu;
 
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,6 +11,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.mlallemant.mentalbattle.R;
 import com.example.mlallemant.mentalbattle.UI.Friends.FriendModel;
@@ -68,21 +67,21 @@ public class MenuActivity extends AppCompatActivity {
     private Game currentGame;
     private CustomDialog cdRequestReceived;
 
-    public interface OnBackPressedListener{
+    public interface OnBackPressedListener {
         void doBack();
     }
 
     public interface FriendListToFragment {
         void sendData(List<FriendModel> friendList);
     }
-    
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.loading_activity);
 
         mAuth = FirebaseAuth.getInstance();
-        FirebaseUser user = mAuth.getCurrentUser();
+        final FirebaseUser user = mAuth.getCurrentUser();
 
         if (Utils.AUTHENTIFICATION_TYPE != Utils.AUTHENTIFICATION_GUEST) {
             if (user != null) {
@@ -94,7 +93,7 @@ public class MenuActivity extends AppCompatActivity {
                     db.getCurrentUserDataById(user.getUid());
                     db.setOnDataUserUpdateListener(new DatabaseManager.OnDataUserUpdateListener() {
                         @Override
-                        public void updateDataUserUI(Player player_) {
+                        public void updateDataUserUI(final Player player_) {
                             setContentView(R.layout.menu_activity);
 
                             currentPlayer = player_;
@@ -102,8 +101,8 @@ public class MenuActivity extends AppCompatActivity {
 
                             db.initFriendList();
 
-                            String splitName = currentPlayer.getName().split(" ")[0];
-                            Player player = new Player(currentPlayer.getId(), splitName, 0, currentPlayer.getNb_win(), currentPlayer.getNb_lose(), currentPlayer.getXp());
+                            final String splitName = currentPlayer.getName().split(" ")[0];
+                            final Player player = new Player(currentPlayer.getId(), splitName, 0, currentPlayer.getNb_win(), currentPlayer.getNb_lose(), currentPlayer.getXp());
                             loadProfilePicture(player);
 
                             db.insertPlayerInLobby(player);
@@ -138,18 +137,18 @@ public class MenuActivity extends AppCompatActivity {
         }
     }
 
-    public void setFriendListToFragment(FriendListToFragment listener){
+    public void setFriendListToFragment(final FriendListToFragment listener) {
         this.friendListToFragment = listener;
     }
 
-    public void setOnBackPressedListener(OnBackPressedListener listener) {
+    public void setOnBackPressedListener(final OnBackPressedListener listener) {
         this.onBackPressedListener = listener;
     }
 
     @Override
-    public void onStop(){
+    public void onStop() {
         super.onStop();
-        if (currentPlayer != null){
+        if (currentPlayer != null) {
             db.deletePlayerInLobby(currentPlayer);
         }
     }
@@ -157,20 +156,18 @@ public class MenuActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (currentPlayer != null){
+        if (currentPlayer != null) {
             db.deletePlayerInLobby(currentPlayer);
         }
     }
 
     @Override
-    public void onBackPressed()
-    {
-        if (onBackPressedListener != null){
+    public void onBackPressed() {
+        if (onBackPressedListener != null) {
             onBackPressedListener.doBack();
-        }
-        else {
+        } else {
             super.onBackPressed();
-            if (currentPlayer != null){
+            if (currentPlayer != null) {
                 db.deletePlayerInLobby(currentPlayer);
             }
             if (Utils.AUTHENTIFICATION_TYPE == Utils.AUTHENTIFICATION_GUEST) {
@@ -180,15 +177,15 @@ public class MenuActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         if (currentPlayer != null) {
             db.insertPlayerInLobby(currentPlayer);
         }
     }
-    
-    
-    private void initUI(){
+
+
+    private void initUI() {
         iv_profile_user = (CircleImageView) findViewById(R.id.menu_iv_profile);
         tv_nb_win_loses = (TextView) findViewById(R.id.menu_tv_nb_win_loses);
         tv_username = (TextView) findViewById(R.id.menu_tv_username);
@@ -203,7 +200,7 @@ public class MenuActivity extends AppCompatActivity {
 
             //SET NAME CURRENT PLAYER
             String text = currentPlayer.getName();
-            String splitName = currentPlayer.getName().split(" ")[0];
+            final String splitName = currentPlayer.getName().split(" ")[0];
             tv_username.setText(splitName);
 
             //Win / Lose
@@ -211,7 +208,7 @@ public class MenuActivity extends AppCompatActivity {
             tv_nb_win_loses.setText(Html.fromHtml(text));
 
             //LEVEL
-            int level = getLevelByXp(currentPlayer.getXp());
+            final int level = getLevelByXp(currentPlayer.getXp());
             text = "LEVEL " + level;
             tv_current_level.setText(text);
 
@@ -224,16 +221,16 @@ public class MenuActivity extends AppCompatActivity {
             tv_next_rank.setText(text);
 
             //CURRENT XP + RANGE
-            int[] range = getRangeLevelByLevel(level);
+            final int[] range = getRangeLevelByLevel(level);
             text = currentPlayer.getXp() + "/" + range[1] + " XP";
             tv_current_xp.setText(text);
 
             pb_progress_xp.setMax(range[1] - range[0]);
-            int progress = (currentPlayer.getXp() * (range[1] - range[0])) / range[1];
+            final int progress = (currentPlayer.getXp() * (range[1] - range[0])) / range[1];
             pb_progress_xp.setProgress(progress);
         } else {
             //SET NAME CURRENT PLAYER
-            String text = currentPlayer.getName();
+            final String text = currentPlayer.getName();
             tv_username.setText(text);
             tv_current_rank.setText("GUEST");
             tv_next_rank.setText("Register for more contents !");
@@ -246,11 +243,11 @@ public class MenuActivity extends AppCompatActivity {
 
     }
 
-    private void initListener(){
+    private void initListener() {
         //LOG OFF
         iv_logout.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
                 db.notifyFriendsYouAreDisconnected(currentPlayer);
                 signOut();
                 launchLoginActivity();
@@ -260,7 +257,7 @@ public class MenuActivity extends AppCompatActivity {
         if (Utils.AUTHENTIFICATION_TYPE != Utils.AUTHENTIFICATION_GUEST) {
             db.setOnFriendChangeListener(new DatabaseManager.OnFriendChangeListener() {
                 @Override
-                public void updateFriendListUI(List<FriendModel> friendList) {
+                public void updateFriendListUI(final List<FriendModel> friendList) {
                     handleNotification(friendList);
                     if (friendListToFragment != null) friendListToFragment.sendData(friendList);
                 }
@@ -268,15 +265,15 @@ public class MenuActivity extends AppCompatActivity {
         }
     }
 
-    private void handleNotification(List<FriendModel> friendList){
+    private void handleNotification(final List<FriendModel> friendList) {
 
-        for (int i = 0; i< friendList.size(); i++){
+        for (int i = 0; i < friendList.size(); i++) {
             final FriendModel friend = friendList.get(i);
 
             db.notifyFriendYouAreConnected(currentPlayer, friend.getPlayer());
             db.notifyFriendYourProgress(currentPlayer, friend.getPlayer());
 
-            if (friend.getPlayReq().equals(Utils.PLAY_REQUEST_RECEIVED) && !isFirstReqToPlay){
+            if (friend.getPlayReq().equals(Utils.PLAY_REQUEST_RECEIVED) && !isFirstReqToPlay) {
                 isFirstReqToPlay = true;
                 cdRequestReceived = new CustomDialog(MenuActivity.this,
                         friend.getPlayer().getId(),
@@ -287,7 +284,7 @@ public class MenuActivity extends AppCompatActivity {
                 cdRequestReceived.setOnClickBtnListener(new CustomDialog.OnClickBtnListener() {
                     @Override
                     public void onClickBtn1() {
-                        String idGame = friend.getPlayer().getId() + currentPlayer.getId();
+                        final String idGame = friend.getPlayer().getId() + currentPlayer.getId();
                         db.getAvailableGameById(idGame);
                         db.acceptToPlayWith(currentPlayer, friend.getPlayer());
                         isFirstReqToPlay = false;
@@ -296,7 +293,7 @@ public class MenuActivity extends AppCompatActivity {
                     @Override
                     public void onClickBtn2() {
                         db.declineToPlayWith(currentPlayer, friend.getPlayer());
-                        String idGame = friend.getPlayer().getId() + currentPlayer.getId();
+                        final String idGame = friend.getPlayer().getId() + currentPlayer.getId();
                         db.getAvailableGameById(idGame);
                         if (currentGame != null) db.deleteAvailableGame(currentGame);
                         currentGame = null;
@@ -317,8 +314,8 @@ public class MenuActivity extends AppCompatActivity {
                 db.declineToPlayWith(currentPlayer, friend.getPlayer());
 
             } else if (friend.getPlayReq().equals(Utils.PLAY_CANCEL)) {
-               if (cdRequestReceived != null){
-                    if (cdRequestReceived.isShowing()){
+                if (cdRequestReceived != null) {
+                    if (cdRequestReceived.isShowing()) {
                         cdRequestReceived.dismiss();
                     }
                 }
@@ -335,31 +332,31 @@ public class MenuActivity extends AppCompatActivity {
 
     }
 
-    private void launchGameActivity(Game game){
-        Intent intent = new Intent(MenuActivity.this, GameActivity.class);
+    private void launchGameActivity(final Game game) {
+        final Intent intent = new Intent(MenuActivity.this, GameActivity.class);
         intent.putExtra("idGame", game.getId());
         intent.putExtra("currentPlayerId", currentPlayer.getId());
         startActivity(intent);
         this.finish();
     }
 
-    private void loadProfilePicture(Player player){
-        StorageReference storageRef = storage.getReference();
-        String text = "profilePictures/" + player.getId()  + ".png";
-        StorageReference imagesRef = storageRef.child(text);
+    private void loadProfilePicture(final Player player) {
+        final StorageReference storageRef = storage.getReference();
+        final String text = "profilePictures/" + player.getId() + ".png";
+        final StorageReference imagesRef = storageRef.child(text);
 
         final long ONE_MEGABYTE = 1024 * 1024;
         imagesRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
             @Override
-            public void onSuccess(byte[] bytes) {
-                Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+            public void onSuccess(final byte[] bytes) {
+                final Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                 iv_profile_user.setImageBitmap(bm);
             }
         });
     }
 
 
-    private String getRankByLevel(int level){
+    private String getRankByLevel(final int level) {
 
         String rank = "Unknown";
         if (level > 0 && level <= 5) rank = "Brainless";
@@ -372,7 +369,7 @@ public class MenuActivity extends AppCompatActivity {
         return rank;
     }
 
-    private String getNextRankByLevel(int level) {
+    private String getNextRankByLevel(final int level) {
         String nextRank = "Do you have a life ?";
         if (level > 0 && level <= 5) nextRank = "Next rank : Little Head";
         if (level > 5 && level <= 10) nextRank = "Next rank : Genius";
@@ -383,40 +380,40 @@ public class MenuActivity extends AppCompatActivity {
         return nextRank;
     }
 
-    private int getLevelByXp(int XP){
-        int level;
-        level = (int) Math.round ((Math.sqrt(100 * (2 * XP + 25) + 50) / 100));
+    private int getLevelByXp(final int XP) {
+        final int level;
+        level = (int) Math.round((Math.sqrt(100 * (2 * XP + 25) + 50) / 100));
         return level;
     }
 
-    private int[] getRangeLevelByLevel(int level){
-        int[] range = new int[2];
+    private int[] getRangeLevelByLevel(final int level) {
+        final int[] range = new int[2];
 
-        range[0] = ((level * level + level)/2) *100 - (level * 100);
-        range[1] = (((level+1) * (level+1) + (level+1))/2) *100 - ((level+1) * 100);
+        range[0] = ((level * level + level) / 2) * 100 - (level * 100);
+        range[1] = (((level + 1) * (level + 1) + (level + 1)) / 2) * 100 - ((level + 1) * 100);
 
         return range;
     }
 
-    private void launchLoginActivity(){
-        Intent intent = new Intent(MenuActivity.this, LoginActivity.class);
+    private void launchLoginActivity() {
+        final Intent intent = new Intent(MenuActivity.this, LoginActivity.class);
         startActivity(intent);
         finish();
     }
 
-    private void launchSelectorFragment(){
-        SelectorFragment sf = new SelectorFragment();
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
+    private void launchSelectorFragment() {
+        final SelectorFragment sf = new SelectorFragment();
+        final FragmentManager fm = getSupportFragmentManager();
+        final FragmentTransaction ft = fm.beginTransaction();
         ft.add(R.id.menu_fl_select, sf);
         ft.commit();
     }
 
-    public Player getCurrentPlayer(){
+    public Player getCurrentPlayer() {
         return currentPlayer;
     }
 
-    private void signOut(){
+    private void signOut() {
         if (currentPlayer != null) db.notifyFriendsYouAreDisconnected(currentPlayer);
         if (db != null) db.initFriendList();
         mAuth.signOut();

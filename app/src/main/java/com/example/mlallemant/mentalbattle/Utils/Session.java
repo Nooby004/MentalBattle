@@ -10,7 +10,7 @@ import java.util.List;
  * Created by m.lallemant on 15/11/2017.
  */
 
-public class Session implements Parcelable{
+public class Session implements Parcelable {
 
     private final static int NB_CALCULATION = 50;
 
@@ -20,7 +20,7 @@ public class Session implements Parcelable{
     private List<Calculation> calculationList;
     private List<Player> playerList;
 
-    public Session(String name, String password, String state){
+    public Session(final String name, final String password, final String state) {
         this.name = name;
         this.password = password;
         this.state = state;
@@ -29,7 +29,7 @@ public class Session implements Parcelable{
     }
 
 
-    public Session(String name, String password, String state, List<Calculation> calculationList ){
+    public Session(final String name, final String password, final String state, final List<Calculation> calculationList) {
         this.name = name;
         this.password = password;
         this.state = state;
@@ -37,21 +37,21 @@ public class Session implements Parcelable{
         playerList = new ArrayList<>();
     }
 
-    public Session(){
+    public Session() {
         super();
     }
 
-    private List<Calculation> generateCalculationList(){
+    private List<Calculation> generateCalculationList() {
 
-        List<Calculation> calculationList_ = new ArrayList<>();
+        final List<Calculation> calculationList_ = new ArrayList<>();
 
-        for (int i=0; i<NB_CALCULATION; i++){
+        for (int i = 0; i < NB_CALCULATION; i++) {
             calculationList_.add(new Calculation());
         }
-        return  calculationList_;
+        return calculationList_;
     }
 
-    public void setPlayerList(List<Player> playerList) {
+    public void setPlayerList(final List<Player> playerList) {
         this.playerList = playerList;
     }
 
@@ -59,7 +59,7 @@ public class Session implements Parcelable{
         return state;
     }
 
-    public void setState(String state) {
+    public void setState(final String state) {
         this.state = state;
     }
 
@@ -67,7 +67,7 @@ public class Session implements Parcelable{
         return calculationList;
     }
 
-    public void setCalculationList(List<Calculation> calculationList) {
+    public void setCalculationList(final List<Calculation> calculationList) {
         this.calculationList = calculationList;
     }
 
@@ -83,19 +83,19 @@ public class Session implements Parcelable{
         return password;
     }
 
-    public void addPlayerToSession(Player player){
+    public void addPlayerToSession(final Player player) {
         playerList.add(player);
     }
 
-    public void deletePlayerToSession(Player player){
+    public void deletePlayerToSession(final Player player) {
         playerList.remove(player);
     }
 
-    public String getIdSession(){
-        return  name + password;
+    public String getIdSession() {
+        return name + password;
     }
 
-    protected Session(Parcel in) {
+    protected Session(final Parcel in) {
         name = in.readString();
         password = in.readString();
         state = in.readString();
@@ -119,7 +119,7 @@ public class Session implements Parcelable{
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeString(name);
         dest.writeString(password);
         dest.writeString(state);
@@ -140,12 +140,12 @@ public class Session implements Parcelable{
     @SuppressWarnings("unused")
     public static final Parcelable.Creator<Session> CREATOR = new Parcelable.Creator<Session>() {
         @Override
-        public Session createFromParcel(Parcel in) {
+        public Session createFromParcel(final Parcel in) {
             return new Session(in);
         }
 
         @Override
-        public Session[] newArray(int size) {
+        public Session[] newArray(final int size) {
             return new Session[size];
         }
     };

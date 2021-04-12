@@ -1,8 +1,5 @@
 package com.example.mlallemant.mentalbattle.UI.Menu.Fragment;
 
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +10,10 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.mlallemant.mentalbattle.R;
 import com.example.mlallemant.mentalbattle.UI.Menu.MenuActivity;
@@ -41,7 +42,7 @@ public class CreateJoinFragment extends Fragment {
     private Player currentPlayer;
     private DatabaseManager db;
     private boolean isCreator = false;
-
+ 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -62,7 +63,7 @@ public class CreateJoinFragment extends Fragment {
     }
 
 
-    private void initUI(View v){
+    private void initUI(View v) {
         iv_back = (ImageView) v.findViewById(R.id.iv_create_back);
         et_session_name = (EditText) v.findViewById(R.id.et_create_session_name);
         et_session_password = (EditText) v.findViewById(R.id.et_create_session_password);
@@ -71,7 +72,7 @@ public class CreateJoinFragment extends Fragment {
         pb_create_session = (ProgressBar) v.findViewById(R.id.pb_create_session);
 
         pb_create_session.setVisibility(View.INVISIBLE);
-        if (isCreator){
+        if (isCreator) {
             btn_create_session.setText("CREATE");
             tv_title.setText("Create Session");
         } else {
@@ -80,7 +81,7 @@ public class CreateJoinFragment extends Fragment {
         }
     }
 
-    private void initListener(){
+    private void initListener() {
         iv_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -93,7 +94,7 @@ public class CreateJoinFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 pb_create_session.setVisibility(View.VISIBLE);
-                if (isCreator){
+                if (isCreator) {
                     createSession();
                 } else {
                     joinSession();
@@ -116,7 +117,7 @@ public class CreateJoinFragment extends Fragment {
             db.setOnSessionExistListener(new DatabaseManager.OnSessionExistListener() {
                 @Override
                 public void notifyUser(boolean isExist) {
-                    if (isExist){
+                    if (isExist) {
                         makeToast("Session already exists");
                     } else {
                         db.insertSession(session);
@@ -134,7 +135,7 @@ public class CreateJoinFragment extends Fragment {
 
     }
 
-    private void joinSession(){
+    private void joinSession() {
         String sessionName = et_session_name.getText().toString();
         String sessionPassword = et_session_password.getText().toString();
 
@@ -146,7 +147,7 @@ public class CreateJoinFragment extends Fragment {
             db.setOnSessionExistListener(new DatabaseManager.OnSessionExistListener() {
                 @Override
                 public void notifyUser(boolean isExist) {
-                    if (isExist){
+                    if (isExist) {
                         Player playerForSession = new Player(currentPlayer.getId(), currentPlayer.getName(), currentPlayer.getScore(), Utils.SESSION_RDY_KO, Utils.SESSION_NEW_YES);
                         db.insertPlayerInSession(session, playerForSession);
                         launchSessionLauncherFragment(false);
@@ -156,20 +157,20 @@ public class CreateJoinFragment extends Fragment {
                     pb_create_session.setVisibility(View.INVISIBLE);
                 }
             });
-        }else {
+        } else {
             makeToast("Bad name or password");
         }
 
 
     }
 
-    private void makeToast(String text){
+    private void makeToast(String text) {
         Toast.makeText(getApplicationContext(), text,
                 Toast.LENGTH_SHORT).show();
     }
 
 
-    private void returnSelectorFragment(){
+    private void returnSelectorFragment() {
         SelectorFragment selectorFragment = new SelectorFragment();
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
@@ -177,7 +178,7 @@ public class CreateJoinFragment extends Fragment {
         ft.commit();
     }
 
-    private void launchSessionLauncherFragment(boolean isCreator){
+    private void launchSessionLauncherFragment(boolean isCreator) {
 
         SessionLauncherFragment sessionLauncherFragment = new SessionLauncherFragment();
         Bundle bundle = new Bundle();

@@ -42,7 +42,7 @@ public class SearchFriendFragment extends Fragment {
     private DatabaseManager db;
     private ArrayList<FriendSearchModel> friendSearchModel;
     private FriendSearchAdapter adapter;
-
+ 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -59,7 +59,7 @@ public class SearchFriendFragment extends Fragment {
         return v;
     }
 
-    private void initUI(View v){
+    private void initUI(View v) {
         lv_search = (ListView) v.findViewById(R.id.select_find_list_view);
         sv_friend = (SearchView) v.findViewById(R.id.select_find_sv_friend);
         iv_back = (ImageView) v.findViewById(R.id.select_find_iv_back);
@@ -70,7 +70,7 @@ public class SearchFriendFragment extends Fragment {
         adapter.clear();
     }
 
-    private void initListener(){
+    private void initListener() {
 
         iv_back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,7 +107,7 @@ public class SearchFriendFragment extends Fragment {
             @Override
             public void updateFriendFoundUI(List<Player> players) {
                 adapter.clear();
-                for (int i = 0; i<players.size();i++) {
+                for (int i = 0; i < players.size(); i++) {
                     if (!players.get(i).getId().equals(currentPlayer.getId())) {
                         adapter.add(new FriendSearchModel(players.get(i)));
                     }
@@ -136,7 +136,7 @@ public class SearchFriendFragment extends Fragment {
 
     }
 
-    private void returnFriendFragment(){
+    private void returnFriendFragment() {
         FriendsFragment friendsFragment = new FriendsFragment();
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();

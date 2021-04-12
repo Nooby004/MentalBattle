@@ -1,12 +1,12 @@
 package com.example.mlallemant.mentalbattle.UI.Session;
 
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.FrameLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.mlallemant.mentalbattle.R;
 import com.example.mlallemant.mentalbattle.UI.Session.Fragment.RoundFragment;
@@ -31,11 +31,11 @@ public class SessionActivity extends AppCompatActivity {
     private boolean isCreator;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.session_activity);
 
-        Intent intent = getIntent();
+        final Intent intent = getIntent();
         session = intent.getParcelableExtra("session");
         currentPlayer = intent.getParcelableExtra("currentPlayer");
         isCreator = intent.getBooleanExtra("isCreator", false);
@@ -47,7 +47,7 @@ public class SessionActivity extends AppCompatActivity {
 
 
     @Override
-    public void onBackPressed(){
+    public void onBackPressed() {
         if (isCreator) {
             db.deleteSession(session);
         } else {
@@ -56,37 +56,37 @@ public class SessionActivity extends AppCompatActivity {
     }
 
 
-    private void initUI(){
+    private void initUI() {
         fl_session = (FrameLayout) findViewById(R.id.fl_session);
         launchRoundFragment();
     }
 
-    public int getCurrentRoundSessionNumber(){
+    public int getCurrentRoundSessionNumber() {
         return currentRoundSessionNumber;
     }
 
-    public void deleteSession(){
+    public void deleteSession() {
         db.deleteSession(session);
     }
 
-    public void addCurrentRoundSessionNumber(){
+    public void addCurrentRoundSessionNumber() {
         currentRoundSessionNumber++;
     }
 
-    public boolean isCreator(){
+    public boolean isCreator() {
         return isCreator;
     }
 
     private void launchRoundFragment() {
         db.removeListenerCurrentSession(session);
-        RoundFragment rf = new RoundFragment();
-        Bundle args = new Bundle();
+        final RoundFragment rf = new RoundFragment();
+        final Bundle args = new Bundle();
         args.putParcelable("session", session);
         args.putParcelable("currentPlayer", currentPlayer);
         rf.setArguments(args);
 
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
+        final FragmentManager fm = getSupportFragmentManager();
+        final FragmentTransaction ft = fm.beginTransaction();
         ft.replace(R.id.fl_session, rf);
         ft.commit();
     }

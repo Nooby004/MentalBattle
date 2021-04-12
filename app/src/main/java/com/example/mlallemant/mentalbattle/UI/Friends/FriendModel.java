@@ -18,7 +18,7 @@ public class FriendModel {
     Bitmap profilePicture;
 
 
-    public FriendModel(Player player, Boolean isConnected, String friendAcq, String playReq, String xp, Bitmap profilePicture){
+    public FriendModel(final Player player, final Boolean isConnected, final String friendAcq, final String playReq, final String xp, final Bitmap profilePicture) {
         this.player = player;
         this.isConnected = isConnected;
         this.friendAcq = friendAcq;
@@ -27,7 +27,7 @@ public class FriendModel {
         this.profilePicture = profilePicture;
     }
 
-    public FriendModel(){
+    public FriendModel() {
         super();
     }
 

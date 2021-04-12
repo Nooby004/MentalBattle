@@ -1,9 +1,5 @@
 package com.example.mlallemant.mentalbattle.UI.Menu.Fragment;
 
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -14,6 +10,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.mlallemant.mentalbattle.R;
 import com.example.mlallemant.mentalbattle.UI.Game.GameActivity;
@@ -44,7 +45,7 @@ public class PlayFragment extends Fragment {
     private Player currentPlayer;
     private SearchGameTask searchGameTask;
     private DatabaseManager db;
-
+ 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.menu_play_fragment, container, false);
@@ -66,15 +67,13 @@ public class PlayFragment extends Fragment {
     }
 
     @Override
-    public void onStop()
-    {
+    public void onStop() {
         super.onStop();
         cancelSearch();
     }
 
-    private void cancelSearch()
-    {
-        if (searchGameTask != null){
+    private void cancelSearch() {
+        if (searchGameTask != null) {
             searchGameTask.cancel(true);
             searchGameTask = null;
         }
@@ -85,7 +84,7 @@ public class PlayFragment extends Fragment {
     }
 
 
-    private void initUI(View v){
+    private void initUI(View v) {
         iv_back = (ImageView) v.findViewById(R.id.select_play_iv_back);
         iv_play = (ImageView) v.findViewById(R.id.select_play_iv_play);
         pg_play = (ProgressBar) v.findViewById(R.id.select_play_pg_play);
@@ -94,13 +93,13 @@ public class PlayFragment extends Fragment {
         tv_info.setText("Click on Play to search game !");
     }
 
-    private void initListener(){
+    private void initListener() {
 
         iv_play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                if (!isSearchingGame){
+                if (!isSearchingGame) {
                     launchSearchingGameTask();
                 } else {
                     cancelSearch();
@@ -119,7 +118,7 @@ public class PlayFragment extends Fragment {
 
     }
 
-    private void returnSelectorFragment(){
+    private void returnSelectorFragment() {
         SelectorFragment selectorFragment = new SelectorFragment();
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
@@ -127,7 +126,7 @@ public class PlayFragment extends Fragment {
         ft.commit();
     }
 
-    private void launchSearchingGameTask(){
+    private void launchSearchingGameTask() {
         isSearchingGame = true;
         tv_info.setText("Searching game ...");
         iv_play.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_select_cancel));
@@ -137,13 +136,14 @@ public class PlayFragment extends Fragment {
         searchGameTask = new SearchGameTask(new SearchGameTask.AsyncResponse() {
             @Override
             public void onFinishTask(Game game) {
-                updateUI(game);}
+                updateUI(game);
+            }
         });
         searchGameTask.setParams(currentPlayer, currentGame);
         searchGameTask.execute("");
     }
 
-    private void launchGameActivity(Game game){
+    private void launchGameActivity(Game game) {
         Intent intent = new Intent(getActivity(), GameActivity.class);
         intent.putExtra("idGame", game.getId());
         intent.putExtra("currentPlayerId", currentPlayer.getId());
@@ -152,7 +152,7 @@ public class PlayFragment extends Fragment {
     }
 
 
-    private void updateUI(Game game){
+    private void updateUI(Game game) {
         currentGame = searchGameTask.getCurrentGame();
         currentPlayer = searchGameTask.getCurrentPlayer();
 

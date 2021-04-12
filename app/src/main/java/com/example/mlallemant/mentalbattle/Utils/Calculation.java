@@ -15,16 +15,15 @@ public class Calculation implements Parcelable {
     private static final int MAX_RANGE = 100;
 
     private Integer result;
-    private String calculText;
+    private final String calculText;
 
-    public Calculation()
-    {
+    public Calculation() {
         Integer A, B;
 
         A = getRandomNumber();
         B = getRandomNumber();
         result = calculResult(A, B);
-        while (result > MAX_VALUE_ADDITION && result < -MAX_VALUE_ADDITION){
+        while (result > MAX_VALUE_ADDITION && result < -MAX_VALUE_ADDITION) {
             A = getRandomNumber();
             B = getRandomNumber();
             result = calculResult(A, B);
@@ -34,25 +33,26 @@ public class Calculation implements Parcelable {
     }
 
     private Integer getRandomNumber() {
-        Integer a;
+        final Integer a;
 
-        Random random=new Random();
-        a=(random.nextInt(MAX_RANGE + 1 + MAX_RANGE) - MAX_RANGE);
+        final Random random = new Random();
+        a = (random.nextInt(MAX_RANGE + 1 + MAX_RANGE) - MAX_RANGE);
 
         return a;
     }
 
-    private Integer calculResult(Integer a, Integer b){
-        return a+b;
+    private Integer calculResult(final Integer a, final Integer b) {
+        return a + b;
     }
 
-    private String makeString(Integer a, Integer b){
-        String text, sign;
+    private String makeString(final Integer a, Integer b) {
+        final String text;
+        final String sign;
 
-        if (b < 0){
+        if (b < 0) {
             sign = "-";
             b *= -1;
-        }else{
+        } else {
             sign = "+";
         }
 
@@ -68,7 +68,7 @@ public class Calculation implements Parcelable {
         return calculText;
     }
 
-    protected Calculation(Parcel in) {
+    protected Calculation(final Parcel in) {
         result = in.readByte() == 0x00 ? null : in.readInt();
         calculText = in.readString();
     }
@@ -79,7 +79,7 @@ public class Calculation implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(final Parcel dest, final int flags) {
         if (result == null) {
             dest.writeByte((byte) (0x00));
         } else {
@@ -92,12 +92,12 @@ public class Calculation implements Parcelable {
     @SuppressWarnings("unused")
     public static final Parcelable.Creator<Calculation> CREATOR = new Parcelable.Creator<Calculation>() {
         @Override
-        public Calculation createFromParcel(Parcel in) {
+        public Calculation createFromParcel(final Parcel in) {
             return new Calculation(in);
         }
 
         @Override
-        public Calculation[] newArray(int size) {
+        public Calculation[] newArray(final int size) {
             return new Calculation[size];
         }
     };

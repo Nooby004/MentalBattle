@@ -50,7 +50,7 @@ public class TransitionFragment extends Fragment {
     private final static int MAX_ROUND = 3;
     private boolean isCreator = false;
     private DatabaseManager db;
-
+ 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -77,7 +77,7 @@ public class TransitionFragment extends Fragment {
         lv_ranking = (ListView) v.findViewById(R.id.session_transition_lv_ranking);
         btn_next_round = (Button) v.findViewById(R.id.session_transition_btn_next_round);
 
-        String text = "Ranking - Round " + currentRoundSessionNumber +"/"+MAX_ROUND;
+        String text = "Ranking - Round " + currentRoundSessionNumber + "/" + MAX_ROUND;
         tv_round_number.setText(text);
 
         playerModel = new ArrayList<>();
@@ -96,7 +96,7 @@ public class TransitionFragment extends Fragment {
         adapter.addAll(players);
 
 
-        if (currentRoundSessionNumber >= MAX_ROUND){
+        if (currentRoundSessionNumber >= MAX_ROUND) {
             tv_round_number.setText("Final Ranking");
             btn_next_round.setEnabled(true);
             text = "Return menu";
@@ -113,12 +113,12 @@ public class TransitionFragment extends Fragment {
         }
     }
 
-   private void initListener(){
+    private void initListener() {
         btn_next_round.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                if (currentRoundSessionNumber >= MAX_ROUND){
+                if (currentRoundSessionNumber >= MAX_ROUND) {
                     ((SessionActivity) getActivity()).deleteSession();
                     launchMenuActivity();
                 } else {
@@ -140,7 +140,7 @@ public class TransitionFragment extends Fragment {
                 }
             }
         });
-   }
+    }
 
     private void launchRoundFragment() {
         db.removeListenerCurrentSession(session);
@@ -165,7 +165,7 @@ public class TransitionFragment extends Fragment {
         getActivity().finish();
     }
 
-    private void makeToast(String text){
+    private void makeToast(String text) {
         Toast.makeText(getApplicationContext(), text,
                 Toast.LENGTH_SHORT).show();
     }

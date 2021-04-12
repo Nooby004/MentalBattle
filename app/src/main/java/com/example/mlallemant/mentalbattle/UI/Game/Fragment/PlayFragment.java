@@ -33,7 +33,7 @@ public class PlayFragment extends Fragment {
 
     OnGameFinish mCallBack;
 
-    public interface OnGameFinish{
+    public interface OnGameFinish {
         void displayWinScreen(String winnerName, String looserName, Integer winnerScore, Integer looserScore, String resultGame);
     }
 
@@ -51,7 +51,7 @@ public class PlayFragment extends Fragment {
     private List<Calculation> calculationList;
     private String currentPlayerName;
     private String otherPlayerName;
-
+ 
     private CountDownTimer countDownTimer;
 
     @Override
@@ -88,14 +88,14 @@ public class PlayFragment extends Fragment {
 
         db.setScoreChangeListener(new DatabaseManager.OnScoreChangeListener() {
             @Override
-            public void updateScoreUI(Integer score, String playerID){
-                if (score!= null && playerID !=null) {
+            public void updateScoreUI(Integer score, String playerID) {
+                if (score != null && playerID != null) {
                     if (playerID.equals(currentPlayerID)) {
                         tv_scoreCurrentPlayer.setText(String.valueOf(score));
                         scoreCurrentPlayer = score;
                     } else {
                         tv_scoreOtherPlayer.setText(String.valueOf(score));
-                        scoreOtherPlayer=score;
+                        scoreOtherPlayer = score;
                     }
                 }
             }
@@ -119,7 +119,7 @@ public class PlayFragment extends Fragment {
             public void afterTextChanged(Editable editable) {
                 String resultTextPlayer = editable.toString();
 
-                if (resultTextPlayer.equals(String.valueOf(calculationList.get(COMPTEUR).getResult()))){
+                if (resultTextPlayer.equals(String.valueOf(calculationList.get(COMPTEUR).getResult()))) {
                     //Player found the correct calculation
 
                     COMPTEUR++;
@@ -127,9 +127,9 @@ public class PlayFragment extends Fragment {
                     et_result.setText("");
                     scoreCurrentPlayer++;
 
-                    if (game.getPlayer1().getId().equals(currentPlayerID)){
+                    if (game.getPlayer1().getId().equals(currentPlayerID)) {
                         db.setScorePlayer1ByIdGame(scoreCurrentPlayer, game.getId());
-                    }else{
+                    } else {
                         db.setScorePlayer2ByIdGame(scoreCurrentPlayer, game.getId());
                     }
                 }
@@ -162,18 +162,18 @@ public class PlayFragment extends Fragment {
     }
 
 
-    private void launchCountDown(final View v, int countdownPlay ){
+    private void launchCountDown(final View v, int countdownPlay) {
 
-        final TextView tv_countdown = (TextView)  v.findViewById(R.id.play_tv_counter);
+        final TextView tv_countdown = (TextView) v.findViewById(R.id.play_tv_counter);
         final ProgressBar pg_counter = (ProgressBar) v.findViewById(R.id.play_pg_counter);
-        countDownTimer = new  CountDownTimer(countdownPlay, 1000){
-            public void onTick(long millisUntilFinished){
+        countDownTimer = new CountDownTimer(countdownPlay, 1000) {
+            public void onTick(long millisUntilFinished) {
 
-                String remainingTime = ""+millisUntilFinished/1000;
+                String remainingTime = "" + millisUntilFinished / 1000;
                 tv_countdown.setText(remainingTime);
             }
 
-            public void onFinish(){
+            public void onFinish() {
                 //GAME FINISHED
                 tv_countdown.setText("0");
                 //pg_counter.setVisibility(View.INVISIBLE);
@@ -182,14 +182,14 @@ public class PlayFragment extends Fragment {
                 Boolean win = isCurrentPlayerWining();
                 String winnerName, looserName, resultGame;
                 Integer winnerScore, looserScore;
-                if (win != null){
-                    if (win){
-                         winnerName = currentPlayerName;
-                         looserName = otherPlayerName;
-                         winnerScore = scoreCurrentPlayer;
-                         looserScore = scoreOtherPlayer;
-                         resultGame = "YOU WIN !";
-                    }else{
+                if (win != null) {
+                    if (win) {
+                        winnerName = currentPlayerName;
+                        looserName = otherPlayerName;
+                        winnerScore = scoreCurrentPlayer;
+                        looserScore = scoreOtherPlayer;
+                        resultGame = "YOU WIN !";
+                    } else {
                         winnerName = otherPlayerName;
                         looserName = currentPlayerName;
                         winnerScore = scoreOtherPlayer;
@@ -197,7 +197,7 @@ public class PlayFragment extends Fragment {
                         resultGame = "YOU LOSE !";
                     }
                     mCallBack.displayWinScreen(winnerName, looserName, winnerScore, looserScore, resultGame);
-                }else{
+                } else {
                     launchCountDown(v, 20000);
                 }
 
@@ -206,20 +206,19 @@ public class PlayFragment extends Fragment {
         }.start();
     }
 
-    private Boolean isCurrentPlayerWining(){
+    private Boolean isCurrentPlayerWining() {
         Boolean isWining = false;
         Integer currentScore = Integer.parseInt(tv_scoreCurrentPlayer.getText().toString());
         Integer otherScore = Integer.parseInt(tv_scoreOtherPlayer.getText().toString());
 
-        if(currentScore > otherScore) isWining = true;
+        if (currentScore > otherScore) isWining = true;
 
         if (currentScore.equals(otherScore)) isWining = null;
 
         return isWining;
     }
 
-    private void initListenerButton(final View v)
-    {
+    private void initListenerButton(final View v) {
         Button btn_0 = (Button) v.findViewById(R.id.play_btn_0);
         Button btn_1 = (Button) v.findViewById(R.id.play_btn_1);
         Button btn_2 = (Button) v.findViewById(R.id.play_btn_2);
@@ -316,7 +315,7 @@ public class PlayFragment extends Fragment {
         btn_minus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!et_result.getText().toString().contains("-")){
+                if (!et_result.getText().toString().contains("-")) {
                     String text = "-" + et_result.getText().toString();
                     if (checkLengthText(text)) et_result.setText(text);
                 }
@@ -335,7 +334,7 @@ public class PlayFragment extends Fragment {
 
     }
 
-    private Boolean checkLengthText(String text){
+    private Boolean checkLengthText(String text) {
         Boolean success = false;
         if (text.length() <= Utils.MAX_LENGTH_RESULT) success = true;
         return success;

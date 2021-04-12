@@ -28,7 +28,7 @@ import static com.facebook.FacebookSdk.getApplicationContext;
 
 public class FriendAdapter extends ArrayAdapter<FriendModel> implements View.OnClickListener {
 
-    private ArrayList<FriendModel> dataSet;
+    private final ArrayList<FriendModel> dataSet;
     Context mContext;
 
     private static class ViewHolder {
@@ -39,17 +39,17 @@ public class FriendAdapter extends ArrayAdapter<FriendModel> implements View.OnC
         CircleImageView connect;
     }
 
-    public FriendAdapter(ArrayList<FriendModel> data, Context context){
+    public FriendAdapter(final ArrayList<FriendModel> data, final Context context) {
         super(context, R.layout.friend_row_item_template, data);
         this.dataSet = data;
         this.mContext = context;
     }
 
     @Override
-    public void onClick(View v){
-        int position = (Integer) v.getTag();
-        Object object = getItem(position);
-        FriendModel friendModel = (FriendModel) object;
+    public void onClick(final View v) {
+        final int position = (Integer) v.getTag();
+        final Object object = getItem(position);
+        final FriendModel friendModel = (FriendModel) object;
 
         //makeToast("click on " + friendModel.player.getName());
     }
@@ -57,18 +57,18 @@ public class FriendAdapter extends ArrayAdapter<FriendModel> implements View.OnC
     private int lastPosition = -1;
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent){
+    public View getView(final int position, View convertView, final ViewGroup parent) {
         // Get the data item for this position
-        FriendModel friendModel = getItem(position);
+        final FriendModel friendModel = getItem(position);
 
         //Check if an existing view is being reused, otherwise inflate the view
         final ViewHolder viewHolder;
 
         final View result;
 
-        if (convertView == null){
+        if (convertView == null) {
             viewHolder = new ViewHolder();
-            LayoutInflater inflater = LayoutInflater.from(getContext());
+            final LayoutInflater inflater = LayoutInflater.from(getContext());
             convertView = inflater.inflate(R.layout.friend_row_item_template, parent, false);
 
             viewHolder.username = (TextView) convertView.findViewById(R.id.row_item_tv_username);
@@ -86,11 +86,11 @@ public class FriendAdapter extends ArrayAdapter<FriendModel> implements View.OnC
 
         lastPosition = position;
 
-        if (friendModel != null){
+        if (friendModel != null) {
 
             //USERNAME
-            if (friendModel.getPlayer() != null){
-                String splitName = friendModel.getPlayer().getName().split(" ")[0];
+            if (friendModel.getPlayer() != null) {
+                final String splitName = friendModel.getPlayer().getName().split(" ")[0];
                 viewHolder.username.setText(splitName);
             }
 
@@ -109,9 +109,9 @@ public class FriendAdapter extends ArrayAdapter<FriendModel> implements View.OnC
             }
 
             //LEVEL / RANK
-            if (friendModel.getXp()!=null){
-                int level = getLevelByXp(Integer.parseInt(friendModel.getXp()));
-                String text = "LVL " + level;
+            if (friendModel.getXp() != null) {
+                final int level = getLevelByXp(Integer.parseInt(friendModel.getXp()));
+                final String text = "LVL " + level;
                 viewHolder.level.setText(text);
                 viewHolder.rank.setText(getRankByLevel(level));
             }
@@ -119,16 +119,16 @@ public class FriendAdapter extends ArrayAdapter<FriendModel> implements View.OnC
 
             //PROFILE PICTURE
             if (friendModel.getProfilePicture() == null) {
-                FirebaseStorage storage = FirebaseStorage.getInstance();
-                StorageReference storageRef = storage.getReference();
-                String text = "profilePictures/" + friendModel.getPlayer().getId()  + ".png";
-                StorageReference imagesRef = storageRef.child(text);
+                final FirebaseStorage storage = FirebaseStorage.getInstance();
+                final StorageReference storageRef = storage.getReference();
+                final String text = "profilePictures/" + friendModel.getPlayer().getId() + ".png";
+                final StorageReference imagesRef = storageRef.child(text);
 
                 final long ONE_MEGABYTE = 1024 * 1024;
                 imagesRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                     @Override
-                    public void onSuccess(byte[] bytes) {
-                        Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                    public void onSuccess(final byte[] bytes) {
+                        final Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                         viewHolder.profile_picture.setImageBitmap(bm);
                     }
                 });
@@ -139,13 +139,13 @@ public class FriendAdapter extends ArrayAdapter<FriendModel> implements View.OnC
     }
 
 
-    private void makeToast(String text){
+    private void makeToast(final String text) {
         Toast.makeText(getApplicationContext(), text,
                 Toast.LENGTH_LONG).show();
     }
 
 
-    private String getRankByLevel(int level){
+    private String getRankByLevel(final int level) {
 
         String rank = "Unknown";
         if (level > 0 && level <= 5) rank = "Brainless";
@@ -158,9 +158,9 @@ public class FriendAdapter extends ArrayAdapter<FriendModel> implements View.OnC
         return rank;
     }
 
-    private int getLevelByXp(int XP){
-        int level;
-        level = (int) Math.round ((Math.sqrt(100 * (2 * XP + 25) + 50) / 100));
+    private int getLevelByXp(final int XP) {
+        final int level;
+        level = (int) Math.round((Math.sqrt(100 * (2 * XP + 25) + 50) / 100));
         return level;
     }
 

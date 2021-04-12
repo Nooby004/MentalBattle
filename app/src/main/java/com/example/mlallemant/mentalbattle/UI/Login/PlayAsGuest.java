@@ -46,7 +46,7 @@ public class PlayAsGuest extends AppCompatActivity {
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.play_as_guest_activity);
 
@@ -60,22 +60,22 @@ public class PlayAsGuest extends AppCompatActivity {
     }
 
     @Override
-    public void onStop(){
+    public void onStop() {
         super.onStop();
     }
 
     @Override
-    public void onPause(){
+    public void onPause() {
         super.onPause();
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
     }
 
 
-    private void initUI(){
+    private void initUI() {
 
         et_guest_name = (EditText) findViewById(R.id.guest_et_guest_name);
         btn_play = (Button) findViewById(R.id.guest_btn_play);
@@ -88,20 +88,20 @@ public class PlayAsGuest extends AppCompatActivity {
         pb_btn_play.setVisibility(View.GONE);
     }
 
-    private void initListener(){
+    private void initListener() {
 
         tv_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
                 launchLoginActivity();
             }
         });
 
         btn_play.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
 
-                String username = et_guest_name.getText().toString();
+                final String username = et_guest_name.getText().toString();
 
                 if (username.length() > 3 && username.length() < 12) {
                     pb_btn_play.setVisibility(View.VISIBLE);
@@ -115,23 +115,23 @@ public class PlayAsGuest extends AppCompatActivity {
     }
 
 
-    private void signInAnonymously(final String username){
+    private void signInAnonymously(final String username) {
 
         Utils.AUTHENTIFICATION_TYPE = Utils.AUTHENTIFICATION_GUEST;
         mAuth.signInAnonymously()
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
+                    public void onComplete(@NonNull final Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "signInAnonymously:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
+                            final FirebaseUser user = mAuth.getCurrentUser();
 
-                            if(user!=null) {
-                                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                            if (user != null) {
+                                final UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                         .setDisplayName(username).build();
                                 user.updateProfile(profileUpdates);
 
-                                Player player = new Player(user.getUid(), username, 0,0,0,0);
+                                final Player player = new Player(user.getUid(), username, 0, 0, 0, 0);
                                 currentPlayer = player;
 
                                 Utils.AUTHENTIFICATION_TYPE = Utils.AUTHENTIFICATION_GUEST;
@@ -149,22 +149,20 @@ public class PlayAsGuest extends AppCompatActivity {
     }
 
 
-
-
-    private void launchMenuActivity(Player currentPlayer){
-        Intent intent = new Intent(PlayAsGuest.this, MenuActivity.class);
+    private void launchMenuActivity(final Player currentPlayer) {
+        final Intent intent = new Intent(PlayAsGuest.this, MenuActivity.class);
         intent.putExtra("currentPlayer", currentPlayer);
         startActivity(intent);
         finish();
     }
 
-    private void makeToast(String text){
+    private void makeToast(final String text) {
         Toast.makeText(getApplicationContext(), text,
                 Toast.LENGTH_LONG).show();
     }
 
-    private void launchLoginActivity(){
-        Intent intent = new Intent(PlayAsGuest.this, LoginActivity.class);
+    private void launchLoginActivity() {
+        final Intent intent = new Intent(PlayAsGuest.this, LoginActivity.class);
         startActivity(intent);
         finish();
     }

@@ -17,42 +17,42 @@ import java.util.ArrayList;
 
 public class FriendSearchAdapter extends ArrayAdapter<FriendSearchModel> implements View.OnClickListener {
 
-    private ArrayList<FriendSearchModel> dataSet;
+    private final ArrayList<FriendSearchModel> dataSet;
     Context mContext;
 
     private static class ViewHolder {
         TextView username;
     }
 
-    public FriendSearchAdapter(ArrayList<FriendSearchModel> data, Context context){
+    public FriendSearchAdapter(final ArrayList<FriendSearchModel> data, final Context context) {
         super(context, R.layout.friend_search_row_item_template, data);
         this.dataSet = data;
         this.mContext = context;
     }
 
     @Override
-    public void onClick(View v){
-        int position = (Integer) v.getTag();
-        Object object = getItem(position);
+    public void onClick(final View v) {
+        final int position = (Integer) v.getTag();
+        final Object object = getItem(position);
 
-        FriendSearchModel friendSearchModel = (FriendSearchModel) object;
+        final FriendSearchModel friendSearchModel = (FriendSearchModel) object;
     }
 
     private int lastPosition = -1;
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent){
+    public View getView(final int position, View convertView, final ViewGroup parent) {
         // Get the data item for this position
-        FriendSearchModel friendSearchModel  = getItem(position);
+        final FriendSearchModel friendSearchModel = getItem(position);
 
         //Check if an existing view is being reused, otherwise inflate the view
         final ViewHolder viewHolder;
 
         final View result;
 
-        if (convertView == null){
+        if (convertView == null) {
             viewHolder = new ViewHolder();
-            LayoutInflater inflater = LayoutInflater.from(getContext());
+            final LayoutInflater inflater = LayoutInflater.from(getContext());
             convertView = inflater.inflate(R.layout.friend_search_row_item_template, parent, false);
 
             viewHolder.username = (TextView) convertView.findViewById(R.id.friend_search_tv_username);
@@ -66,8 +66,8 @@ public class FriendSearchAdapter extends ArrayAdapter<FriendSearchModel> impleme
 
         lastPosition = position;
 
-        if (friendSearchModel != null){
-             viewHolder.username.setText(friendSearchModel.player.getName());
+        if (friendSearchModel != null) {
+            viewHolder.username.setText(friendSearchModel.player.getName());
 
         }
         return convertView;

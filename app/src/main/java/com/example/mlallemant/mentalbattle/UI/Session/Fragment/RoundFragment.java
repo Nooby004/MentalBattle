@@ -54,10 +54,10 @@ public class RoundFragment extends Fragment {
     private int totalScore = 0;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.play_fragment, container, false);
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
+        final View v = inflater.inflate(R.layout.play_fragment, container, false);
 
-        Bundle bundle = getArguments();
+        final Bundle bundle = getArguments();
         session = bundle.getParcelable("session");
         currentPlayer = bundle.getParcelable("currentPlayer");
 
@@ -70,7 +70,7 @@ public class RoundFragment extends Fragment {
     }
 
 
-    private void initUI(View v) {
+    private void initUI(final View v) {
         tv_round_score_title = (TextView) v.findViewById(R.id.play_tv_player1_name);
         tv_round_score = (TextView) v.findViewById(R.id.play_tv_player1_score);
         tv_total_score_title = (TextView) v.findViewById(R.id.play_tv_player2_name);
@@ -93,11 +93,11 @@ public class RoundFragment extends Fragment {
 
         db.setOnSessionUpdateListener(new DatabaseManager.OnSessionUpdateListener() {
             @Override
-            public void updateSessionUI(Session session_) {
+            public void updateSessionUI(final Session session_) {
 
                 session = session_;
-                for(Player player : session_.getPlayerList()){
-                    if (player.getId().equals(currentPlayer.getId())){
+                for (final Player player : session_.getPlayerList()) {
+                    if (player.getId().equals(currentPlayer.getId())) {
                         totalScore = player.getScore();
                         tv_total_score.setText(String.valueOf(totalScore));
                     }
@@ -109,22 +109,22 @@ public class RoundFragment extends Fragment {
 
         et_result.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            public void beforeTextChanged(final CharSequence charSequence, final int i, final int i1, final int i2) {
 
             }
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            public void onTextChanged(final CharSequence charSequence, final int i, final int i1, final int i2) {
 
             }
 
             @Override
-            public void afterTextChanged(Editable editable) {
-                String resultTextPlayer = editable.toString();
+            public void afterTextChanged(final Editable editable) {
+                final String resultTextPlayer = editable.toString();
 
-                if (resultTextPlayer.equals(String.valueOf(session.getCalculationList().get(COUNTER).getResult()))){
+                if (resultTextPlayer.equals(String.valueOf(session.getCalculationList().get(COUNTER).getResult()))) {
                     //Player found the correct result
-                    COUNTER ++;
+                    COUNTER++;
                     tv_calculation.setText(session.getCalculationList().get(COUNTER).getCalculText());
                     et_result.setText("");
                     totalScore++;
@@ -138,18 +138,16 @@ public class RoundFragment extends Fragment {
     }
 
 
+    private void launchCountDown(final int countdownPlay) {
 
+        countDownTimer = new CountDownTimer(countdownPlay, 1000) {
+            public void onTick(final long millisUntilFinished) {
 
-    private void launchCountDown(int countdownPlay){
-
-        countDownTimer = new  CountDownTimer(countdownPlay, 1000){
-            public void onTick(long millisUntilFinished){
-
-                String remainingTime = ""+millisUntilFinished/1000;
+                final String remainingTime = "" + millisUntilFinished / 1000;
                 tv_counter.setText(remainingTime);
             }
 
-            public void onFinish(){
+            public void onFinish() {
                 //GAME FINISHED
                 tv_counter.setText("0");
                 countDownTimer.cancel();
@@ -160,106 +158,105 @@ public class RoundFragment extends Fragment {
         }.start();
     }
 
-    private void initListenerButton(final View v)
-    {
-        Button btn_0 = (Button) v.findViewById(R.id.play_btn_0);
-        Button btn_1 = (Button) v.findViewById(R.id.play_btn_1);
-        Button btn_2 = (Button) v.findViewById(R.id.play_btn_2);
-        Button btn_3 = (Button) v.findViewById(R.id.play_btn_3);
-        Button btn_4 = (Button) v.findViewById(R.id.play_btn_4);
-        Button btn_5 = (Button) v.findViewById(R.id.play_btn_5);
-        Button btn_6 = (Button) v.findViewById(R.id.play_btn_6);
-        Button btn_7 = (Button) v.findViewById(R.id.play_btn_7);
-        Button btn_8 = (Button) v.findViewById(R.id.play_btn_8);
-        Button btn_9 = (Button) v.findViewById(R.id.play_btn_9);
-        Button btn_minus = (Button) v.findViewById(R.id.play_btn_minus);
-        ImageButton btn_backspace = (ImageButton) v.findViewById(R.id.play_btn_backspace);
+    private void initListenerButton(final View v) {
+        final Button btn_0 = (Button) v.findViewById(R.id.play_btn_0);
+        final Button btn_1 = (Button) v.findViewById(R.id.play_btn_1);
+        final Button btn_2 = (Button) v.findViewById(R.id.play_btn_2);
+        final Button btn_3 = (Button) v.findViewById(R.id.play_btn_3);
+        final Button btn_4 = (Button) v.findViewById(R.id.play_btn_4);
+        final Button btn_5 = (Button) v.findViewById(R.id.play_btn_5);
+        final Button btn_6 = (Button) v.findViewById(R.id.play_btn_6);
+        final Button btn_7 = (Button) v.findViewById(R.id.play_btn_7);
+        final Button btn_8 = (Button) v.findViewById(R.id.play_btn_8);
+        final Button btn_9 = (Button) v.findViewById(R.id.play_btn_9);
+        final Button btn_minus = (Button) v.findViewById(R.id.play_btn_minus);
+        final ImageButton btn_backspace = (ImageButton) v.findViewById(R.id.play_btn_backspace);
 
         btn_0.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                String text = et_result.getText().toString() + 0;
+            public void onClick(final View view) {
+                final String text = et_result.getText().toString() + 0;
                 if (checkLengthText(text)) et_result.setText(text);
             }
         });
 
         btn_1.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                String text = et_result.getText().toString() + 1;
+            public void onClick(final View view) {
+                final String text = et_result.getText().toString() + 1;
                 if (checkLengthText(text)) et_result.setText(text);
             }
         });
 
         btn_2.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                String text = et_result.getText().toString() + 2;
+            public void onClick(final View view) {
+                final String text = et_result.getText().toString() + 2;
                 if (checkLengthText(text)) et_result.setText(text);
             }
         });
 
         btn_3.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                String text = et_result.getText().toString() + 3;
+            public void onClick(final View view) {
+                final String text = et_result.getText().toString() + 3;
                 if (checkLengthText(text)) et_result.setText(text);
             }
         });
 
         btn_4.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                String text = et_result.getText().toString() + 4;
+            public void onClick(final View view) {
+                final String text = et_result.getText().toString() + 4;
                 if (checkLengthText(text)) et_result.setText(text);
             }
         });
 
         btn_5.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                String text = et_result.getText().toString() + 5;
+            public void onClick(final View view) {
+                final String text = et_result.getText().toString() + 5;
                 if (checkLengthText(text)) et_result.setText(text);
             }
         });
 
         btn_6.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                String text = et_result.getText().toString() + 6;
+            public void onClick(final View view) {
+                final String text = et_result.getText().toString() + 6;
                 if (checkLengthText(text)) et_result.setText(text);
             }
         });
 
         btn_7.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                String text = et_result.getText().toString() + 7;
+            public void onClick(final View view) {
+                final String text = et_result.getText().toString() + 7;
                 if (checkLengthText(text)) et_result.setText(text);
             }
         });
 
         btn_8.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                String text = et_result.getText().toString() + 8;
+            public void onClick(final View view) {
+                final String text = et_result.getText().toString() + 8;
                 if (checkLengthText(text)) et_result.setText(text);
             }
         });
 
         btn_9.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                String text = et_result.getText().toString() + 9;
+            public void onClick(final View view) {
+                final String text = et_result.getText().toString() + 9;
                 if (checkLengthText(text)) et_result.setText(text);
             }
         });
 
         btn_minus.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                if (!et_result.getText().toString().contains("-")){
-                    String text = "-" + et_result.getText().toString();
+            public void onClick(final View view) {
+                if (!et_result.getText().toString().contains("-")) {
+                    final String text = "-" + et_result.getText().toString();
                     if (checkLengthText(text)) et_result.setText(text);
                 }
             }
@@ -267,9 +264,9 @@ public class RoundFragment extends Fragment {
 
         btn_backspace.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
                 if (et_result.getText().toString().length() > 0) {
-                    String text = removeLastChar(et_result.getText().toString());
+                    final String text = removeLastChar(et_result.getText().toString());
                     if (checkLengthText(text)) et_result.setText(text);
                 }
             }
@@ -277,47 +274,48 @@ public class RoundFragment extends Fragment {
 
     }
 
-    private Boolean checkLengthText(String text){
+    private Boolean checkLengthText(final String text) {
         Boolean success = false;
         if (text.length() <= Utils.MAX_LENGTH_RESULT) success = true;
         return success;
     }
 
-    private String removeLastChar(String str) {
+    private String removeLastChar(final String str) {
         return str.substring(0, str.length() - 1);
     }
 
-    private void launchLoadingFragment(){
+    private void launchLoadingFragment() {
 
-        for (Player player : session.getPlayerList()){
-            if (player.getNew_().equals(Utils.SESSION_CREATOR)){
-                if (player.getId().equals(currentPlayer.getId())){
+        for (final Player player : session.getPlayerList()) {
+            if (player.getNew_().equals(Utils.SESSION_CREATOR)) {
+                if (player.getId().equals(currentPlayer.getId())) {
                     db.updateCalculationListInSession(session, generateCalculationList());
                 }
             }
         }
 
         db.removeListenerCurrentSession(session);
-        LoadingFragment lf = new LoadingFragment();
+        final LoadingFragment lf = new LoadingFragment();
 
-        Bundle args = new Bundle();
+        final Bundle args = new Bundle();
         args.putParcelable("session", session);
         args.putParcelable("currentPlayer", currentPlayer);
         lf.setArguments(args);
 
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
+        final FragmentManager fm = getFragmentManager();
+        final FragmentTransaction ft = fm.beginTransaction();
         ft.replace(R.id.fl_session, lf);
         ft.commit();
     }
-    private List<Calculation> generateCalculationList(){
 
-        List<Calculation> calculationList_ = new ArrayList<>();
+    private List<Calculation> generateCalculationList() {
 
-        for (int i=0; i<50; i++){
+        final List<Calculation> calculationList_ = new ArrayList<>();
+
+        for (int i = 0; i < 50; i++) {
             calculationList_.add(new Calculation());
         }
-        return  calculationList_;
+        return calculationList_;
     }
 
 }

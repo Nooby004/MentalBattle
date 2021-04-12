@@ -22,20 +22,20 @@ public class PlayerFindFragment extends Fragment {
 
     OnCountdownFinish mCallBack;
 
-    public interface OnCountdownFinish{
+    public interface OnCountdownFinish {
         void launchGame();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
-        View v = inflater.inflate(R.layout.player_find_fragment, container, false);
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
+        final View v = inflater.inflate(R.layout.player_find_fragment, container, false);
 
-        Bundle args = getArguments();
-        String currentPlayerName = args.getString("currentPlayer");
-        String otherPlayerName = args.getString("otherPlayer");
+        final Bundle args = getArguments();
+        final String currentPlayerName = args.getString("currentPlayer");
+        final String otherPlayerName = args.getString("otherPlayer");
 
-        TextView tvPlayerOne = (TextView) v.findViewById(R.id.tv_player1);
-        TextView tvPlayerTwo = (TextView) v.findViewById(R.id.tv_player2);
+        final TextView tvPlayerOne = (TextView) v.findViewById(R.id.tv_player1);
+        final TextView tvPlayerTwo = (TextView) v.findViewById(R.id.tv_player2);
 
         tvPlayerOne.setText(currentPlayerName.split(" ")[0]);
         tvPlayerTwo.setText(otherPlayerName.split(" ")[0]);
@@ -47,7 +47,7 @@ public class PlayerFindFragment extends Fragment {
 
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(final Activity activity) {
         super.onAttach(activity);
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) return;
         if (activity instanceof OnCountdownFinish) {
@@ -59,7 +59,7 @@ public class PlayerFindFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(final Context context) {
         super.onAttach(context);
         if (context instanceof OnCountdownFinish) {
             mCallBack = (OnCountdownFinish) context;
@@ -69,17 +69,17 @@ public class PlayerFindFragment extends Fragment {
         }
     }
 
-    private void launchCountDown(final View v){
+    private void launchCountDown(final View v) {
 
-        final TextView tv_countdown = (TextView)  v.findViewById(R.id.tv_countdown);
-        new CountDownTimer(Utils.COUNTDOWN_LOBBY, 1000){
-            public void onTick(long millisUntilFinished){
+        final TextView tv_countdown = (TextView) v.findViewById(R.id.tv_countdown);
+        new CountDownTimer(Utils.COUNTDOWN_LOBBY, 1000) {
+            public void onTick(final long millisUntilFinished) {
 
-                String remainingTime = ""+millisUntilFinished/1000;
+                final String remainingTime = "" + millisUntilFinished / 1000;
                 tv_countdown.setText(remainingTime);
             }
 
-            public void onFinish(){
+            public void onFinish() {
                 mCallBack.launchGame();
             }
 
