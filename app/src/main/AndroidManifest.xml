@@ -16,7 +16,7 @@
             android:value="@string/facebook_app_id"/>
 
 
-        <activity android:name=".ui.MainActivity"
+        <activity android:name=".ui.SplashActivity"
             android:theme="@style/myTheme"
             android:screenOrientation="portrait">
             <intent-filter>

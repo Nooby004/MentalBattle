@@ -3,7 +3,6 @@ package com.example.mlallemant.mentalbattle.ui.training
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.os.Bundle
-import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -33,19 +32,16 @@ class TrainingActivity : AppCompatActivity() {
     private val compositeDisposable = CompositeDisposable()
 
     //Utils
-    private var calculations: MutableList<AnimatedCalculation>? = null
+    private var calculations: MutableList<AnimatedCalculation> = ArrayList()
 
     private var timeBetweenEachCalcul: Long = 10000
 
     private var score = 0
-    private var mHandler: Handler? = null
-    private var mRunnable: Runnable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = TrainingActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        calculations = ArrayList()
         calculAndDisplaySpeed()
         initListener()
     }
@@ -80,11 +76,11 @@ class TrainingActivity : AppCompatActivity() {
     }
 
     private fun checkResultOk(value: String) {
-        for (calculation in calculations!!) {
+        for (calculation in calculations) {
             if (calculation.calculation.result.toString() == value) {
                 calculation.remove()
                 binding.trainingEtResult.setText("")
-                calculations!!.remove(calculation)
+                calculations.remove(calculation)
                 score++
                 binding.trainingTvScore.text = "" + score
                 break
@@ -93,10 +89,10 @@ class TrainingActivity : AppCompatActivity() {
     }
 
     private fun removeAllAnimation() {
-        for (calculation in calculations!!) {
+        for (calculation in calculations) {
             calculation.remove()
         }
-        calculations!!.clear()
+        calculations.clear()
     }
 
     private fun launchTraining() {
@@ -148,12 +144,11 @@ class TrainingActivity : AppCompatActivity() {
             if (java.lang.Float.valueOf(yPosition).toInt() > y - 50) {
                 removeAllAnimation()
                 timeBetweenEachCalcul = 10000
-                mHandler!!.removeCallbacks(mRunnable!!)
                 score = 0
                 binding.trainingBtnStart.visibility = View.VISIBLE
             }
         }
-        calculations!!.add(AnimatedCalculation(rl, calculation, set))
+        calculations.add(AnimatedCalculation(rl, calculation, set))
     }
 
     private fun getRandomIntBetween(x1: Int, x2: Int): Int {
