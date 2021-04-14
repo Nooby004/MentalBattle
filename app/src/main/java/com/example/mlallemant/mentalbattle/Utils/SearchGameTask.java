@@ -58,7 +58,7 @@ public class SearchGameTask extends AsyncTask<String, Void, Game> {
                 Log.e(TAG, "no game available");
                 final Player tmpPlayer = new Player("", "", 0, 0, 0, 0);
                 final String id = getRandomId();
-                final Game game = new Game(id, currentPlayer, tmpPlayer);
+                final Game game = new Game(id, currentPlayer, tmpPlayer, Game.generateCalculationList());
                 db.insertAvailableGame(game);
                 currentGame = game;
 

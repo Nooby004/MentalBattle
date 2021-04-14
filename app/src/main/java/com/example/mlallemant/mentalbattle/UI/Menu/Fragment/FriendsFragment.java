@@ -167,7 +167,7 @@ public class FriendsFragment extends Fragment {
                     if (friend.getConnected()) {
                         db.askToPlayWith(currentPlayer, friend.getPlayer());
                         final String idGame = currentPlayer.getId() + friend.getPlayer().getId();
-                        final Game game = new Game(idGame, currentPlayer, friend.getPlayer());
+                        final Game game = new Game(idGame, currentPlayer, friend.getPlayer(), Game.generateCalculationList());
                         currentGame = game;
                         db.insertAvailableGame(currentGame);
                         db.getAvailableGameById(idGame);
