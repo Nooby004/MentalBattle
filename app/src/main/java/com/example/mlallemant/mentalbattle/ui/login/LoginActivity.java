@@ -491,9 +491,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(final UploadTask.TaskSnapshot taskSnapshot) {
-                    final Uri downloadUrl = taskSnapshot.getDownloadUrl();
-
+                    launchMenuActivity(user);
                     db.getCurrentUserDataById(user.getUid());
+
                     db.setOnDataUserUpdateListener(new DatabaseManager.OnDataUserUpdateListener() {
                         @Override
                         public void updateDataUserUI(final Player player) {

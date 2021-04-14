@@ -248,7 +248,6 @@ public class SigninActivity extends AppCompatActivity {
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(final UploadTask.TaskSnapshot taskSnapshot) {
-                final Uri downloadUrl = taskSnapshot.getDownloadUrl();
 
                 db.insertRegisteredPlayer(new Player(mAuth.getUid(), et_username.getText().toString(), 0, 0, 0, 0));
 
