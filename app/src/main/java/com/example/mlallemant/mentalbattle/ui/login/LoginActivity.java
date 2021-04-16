@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -178,8 +177,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         pb_login = (ProgressBar) findViewById(R.id.login_pb_btn_login);
         pb_loginFB = (ProgressBar) findViewById(R.id.login_pb_btn_loginFB);
         pb_loginGoogle = (ProgressBar) findViewById(R.id.login_pb_btn_loginGoogle);
-
-        btn_loginGoogle.setVisibility(View.GONE);
 
         pb_login.setVisibility(View.GONE);
         pb_loginFB.setVisibility(View.GONE);
