@@ -20,4 +20,7 @@
     <string name="rank_god">God</string>
     <string name="rank_chuck_norris">Chuck Norris</string>
     <string name="rank_unknown">Unknown</string>
+
+    <string name="result_game_ragequit">YOU WIN BY RAGEQUIT!</string>
+    <string name="result_you_loose">YOU LOOSE!</string>
 </resources>
