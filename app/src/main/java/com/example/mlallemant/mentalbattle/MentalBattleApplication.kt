@@ -27,9 +27,9 @@ class MentalBattleApplication: Application() {
                 val updated = task.result
                 if (task.isSuccessful) {
                     val updated = task.result
-                    Log.d("TAG", "Config params updated: $updated")
+                    Log.d("TAG", "Remote config Config params updated: $updated")
                 } else {
-                    Log.d("TAG", "Config params updated: $updated")
+                    Log.d("TAG", "Remote config Config params updated: $updated")
                 }
             }
         }

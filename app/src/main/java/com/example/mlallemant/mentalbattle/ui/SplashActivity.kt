@@ -52,9 +52,9 @@ class SplashActivity : AppCompatActivity() {
         val signinWithGoogle = remoteConfig.getBoolean(REMOTE_CONFIG_SIGNIN_WITH_GOOGLE)
         val signinWithFacebook = remoteConfig.getBoolean(REMOTE_CONFIG_SIGNIN_WITH_FACEBOOK)
 
-        Log.i(javaClass.simpleName, REMOTE_CONFIG_TEST_VALUE + testValue)
-        Log.i(javaClass.simpleName, REMOTE_CONFIG_SIGNIN_WITH_GOOGLE + signinWithGoogle)
-        Log.i(javaClass.simpleName, REMOTE_CONFIG_SIGNIN_WITH_FACEBOOK + signinWithFacebook)
+        Log.i(javaClass.simpleName, "Remote config $REMOTE_CONFIG_TEST_VALUE $testValue")
+        Log.i(javaClass.simpleName, "Remote config $REMOTE_CONFIG_SIGNIN_WITH_GOOGLE $signinWithGoogle")
+        Log.i(javaClass.simpleName, "Remote config $REMOTE_CONFIG_SIGNIN_WITH_FACEBOOK $signinWithFacebook")
 
     }
 
