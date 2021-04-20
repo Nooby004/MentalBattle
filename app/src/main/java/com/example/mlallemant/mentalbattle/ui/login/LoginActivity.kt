@@ -8,9 +8,10 @@ import android.util.Log
 import android.util.Patterns
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.mlallemant.mentalbattle.R
+import com.example.mlallemant.mentalbattle.databinding.LoginActivityBinding
 import com.example.mlallemant.mentalbattle.ui.menu.MenuActivity
 import com.example.mlallemant.mentalbattle.utils.DatabaseManager
 import com.example.mlallemant.mentalbattle.utils.Utils
@@ -36,16 +37,7 @@ import com.google.firebase.auth.GoogleAuthProvider
  * Created by m.lallemant on 25/10/2017.
  */
 class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
-    private var etEmail: EditText? = null
-    private var etPassword: EditText? = null
-    private var btnLogin: Button? = null
-    private var tvSignin: TextView? = null
-    private var tvPlayAsGuest: TextView? = null
-    private var btnLoginFB: Button? = null
-    private var btnLoginGoogle: Button? = null
-    private var pbLogin: ProgressBar? = null
-    private var pbLoginFB: ProgressBar? = null
-    private var pbLoginGoogle: ProgressBar? = null
+
     private var mAuth: FirebaseAuth? = null
     private var mCallbackManager: CallbackManager? = null
     private var loginButtonFB: LoginButton? = null
@@ -53,9 +45,15 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
     private var isConnectedWithGoogle = false
     private var db: DatabaseManager? = null
 
+    private var _binding: LoginActivityBinding? = null
+    private val binding get() = _binding!!
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.loading_activity)
+
+        _binding = LoginActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         mAuth = FirebaseAuth.getInstance()
         db = DatabaseManager.getInstance()
         val currentUser = mAuth?.currentUser
@@ -73,7 +71,7 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
                 launchMenuActivity(currentUser)
             }
         } else {
-            setContentView(R.layout.login_normal_fb_google_activity)
+            setContentView(R.layout.login_activity)
             initUI()
             initListener()
             initLoginButtonFB()
@@ -84,6 +82,11 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
     override fun onBackPressed() {
         super.onBackPressed()
         signOut()
+    }
+
+    public override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 
     override fun onActivityResult(
@@ -109,8 +112,8 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
             if (resultCode == 10) {
                 val email = data!!.getStringExtra("email")
                 val password = data.getStringExtra("password")
-                etEmail!!.setText(email)
-                etPassword!!.setText(password)
+                binding.loginEtEmail.setText(email)
+                binding.loginEtPassword.setText(password)
             }
         }
     }
@@ -123,53 +126,42 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
     }
 
     private fun initUI() {
-        etEmail = findViewById<View>(R.id.login_et_email) as EditText
-        etPassword = findViewById<View>(R.id.login_et_password) as EditText
-        btnLogin = findViewById<View>(R.id.login_btn_login) as Button
-        tvSignin = findViewById<View>(R.id.login_tv_signin) as TextView
-        tvPlayAsGuest = findViewById<View>(R.id.login_tv_playasguest) as TextView
-        btnLoginFB =
-            findViewById<View>(R.id.login_btn_loginFB) as Button
-        btnLoginGoogle =
-            findViewById<View>(R.id.login_btn_loginGoogle) as Button
-        pbLogin = findViewById<View>(R.id.login_pb_btn_login) as ProgressBar
-        pbLoginFB = findViewById<View>(R.id.login_pb_btn_loginFB) as ProgressBar
-        pbLoginGoogle =
-            findViewById<View>(R.id.login_pb_btn_loginGoogle) as ProgressBar
-        pbLogin!!.visibility = View.GONE
-        pbLoginFB!!.visibility = View.GONE
-        pbLoginGoogle!!.visibility = View.GONE
+        binding.loginPbBtnLogin.visibility = View.GONE
+        binding.loginPbBtnLoginFB.visibility = View.GONE
+        binding.loginPbBtnLoginGoogle.visibility = View.GONE
     }
 
     private fun initListener() {
 
         //PLAY AS GUEST
-        tvPlayAsGuest!!.setOnClickListener { launchPlayAsGuestActivity() }
+        binding.loginTvPlayasguest.setOnClickListener { launchPlayAsGuestActivity() }
 
         //SIGN IN
-        tvSignin!!.setOnClickListener { launchSignInActivity() }
+        binding.loginTvSignin.setOnClickListener { launchSignInActivity() }
 
         //LOGIN
-        btnLogin!!.setOnClickListener { //GET USERNAME/PASSWORD
-            val email = etEmail!!.text.toString()
-            val password = etPassword!!.text.toString()
+        binding.loginBtnLogin.setOnClickListener { //GET USERNAME/PASSWORD
+            val email = binding.loginEtEmail.text.toString()
+            val password = binding.loginEtPassword.text.toString()
             if (isValidPassword(password) && isValidEmail(
                     email
                 )
             ) {
                 hideKeyboard()
-                pbLogin!!.visibility = View.VISIBLE
+                binding.loginPbBtnLogin.visibility = View.VISIBLE
                 loginUser(email, password)
             } else {
                 makeToast("Invalid Email/Password")
             }
         }
-        btnLoginFB!!.setOnClickListener {
-            pbLoginFB!!.visibility = View.VISIBLE
+
+        binding.loginBtnLoginFB.setOnClickListener {
+            binding.loginPbBtnLoginFB.visibility = View.VISIBLE
             loginUserFB()
         }
-        btnLoginGoogle!!.setOnClickListener {
-            pbLoginGoogle!!.visibility = View.VISIBLE
+
+        binding.loginBtnLoginGoogle.setOnClickListener {
+            binding.loginPbBtnLoginGoogle.visibility = View.VISIBLE
             loginUserGoogle()
         }
     }
@@ -182,15 +174,14 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
                 ) { task ->
                     if (task.isSuccessful) {
                         val user = mAuth!!.currentUser
-                        //makeToast(user.getDisplayName() + " connected !");
-                        pbLogin!!.visibility = View.GONE
+                        binding.loginPbBtnLogin.visibility = View.GONE
                         Utils.AUTHENTIFICATION_TYPE =
                             Utils.AUTHENTIFICATION_ACCOUNT
                         launchMenuActivity(user)
                     } else {
                         //Error when connecting
                         makeToast("Invalid Email/Password")
-                        pbLogin!!.visibility = View.GONE
+                        binding.loginPbBtnLogin.visibility = View.GONE
                     }
                 }
         } catch (e: Exception) {
@@ -231,7 +222,7 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
 
             override fun onCancel() {
                 Log.e(TAG, "facebook:onCancel")
-                pbLoginFB!!.visibility = View.INVISIBLE
+                binding.loginPbBtnLoginFB.visibility = View.INVISIBLE
             }
 
             override fun onError(error: FacebookException) {
@@ -293,7 +284,8 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
                     val user = mAuth!!.currentUser
                     makeToast("Welcome " + user!!.displayName)
                     isConnectedWithGoogle = true
-                    pbLoginGoogle!!.visibility = View.GONE
+
+                    binding.loginPbBtnLoginGoogle.visibility = View.GONE
                     Utils.AUTHENTIFICATION_TYPE =
                         Utils.AUTHENTIFICATION_GOOGLE
                     launchMenuActivity(user)
@@ -317,9 +309,8 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
     }
 
     private fun hideKeyboard() {
-        val inputManager =
-            getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputManager?.hideSoftInputFromWindow(
+        val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputManager.hideSoftInputFromWindow(
             currentFocus!!.windowToken,
             InputMethodManager.HIDE_NOT_ALWAYS
         )
