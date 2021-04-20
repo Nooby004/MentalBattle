@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import com.example.mlallemant.mentalbattle.R
+import com.example.mlallemant.mentalbattle.utils.RankComputer
 import com.example.mlallemant.mentalbattle.utils.Utils
 import com.google.firebase.storage.FirebaseStorage
 import de.hdodenhof.circleimageview.CircleImageView
@@ -92,10 +93,10 @@ class FriendAdapter(
 
             //LEVEL / RANK
             if (friendModel.xp != null) {
-                val level = getLevelByXp(friendModel.xp!!.toInt())
+                val level = RankComputer().getLevelByXp(friendModel.xp!!.toInt())
                 val text = "LVL $level"
                 viewHolder.level!!.text = text
-                viewHolder.rank!!.text = getRankByLevel(level)
+                viewHolder.rank!!.text = RankComputer().getRankByLevel(level, context)
             }
 
 
@@ -114,19 +115,4 @@ class FriendAdapter(
         }
         return convertedView
     }
-
-    private fun getRankByLevel(level: Int): String {
-        return when (level) {
-            in 1..5 -> context.getString(R.string.rank_brainless)
-            in 6..10 -> context.getString(R.string.rank_little_head)
-            in 11..20 -> context.getString(R.string.rank_genius)
-            in 21..35 -> context.getString(R.string.rank_brain_master)
-            in 36..60 -> context.getString(R.string.rank_super_calculator)
-            in 61..100 -> context.getString(R.string.rank_god)
-            in 100..POSITIVE_INFINITY.toInt() -> context.getString(R.string.rank_chuck_norris)
-            else -> context.getString(R.string.rank_chuck_norris)
-        }
-    }
-
-    private fun getLevelByXp(xp: Int) = (sqrt((100 * (2 * xp + 25) + 50).toDouble()) / 100).roundToInt()
 }

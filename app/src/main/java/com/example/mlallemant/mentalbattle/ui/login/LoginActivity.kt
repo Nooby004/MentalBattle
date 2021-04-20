@@ -8,10 +8,10 @@ import android.util.Log
 import android.util.Patterns
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.mlallemant.mentalbattle.R
 import com.example.mlallemant.mentalbattle.databinding.LoginActivityBinding
+import com.example.mlallemant.mentalbattle.ui.extention.toast
 import com.example.mlallemant.mentalbattle.ui.menu.MenuActivity
 import com.example.mlallemant.mentalbattle.utils.DatabaseManager
 import com.example.mlallemant.mentalbattle.utils.Utils
@@ -43,7 +43,7 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
     private var loginButtonFB: LoginButton? = null
     private var mGoogleApiClient: GoogleApiClient? = null
     private var isConnectedWithGoogle = false
-    private var db: DatabaseManager? = null
+    private lateinit var db: DatabaseManager
 
     private var _binding: LoginActivityBinding? = null
     private val binding get() = _binding!!
@@ -59,8 +59,8 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
         val currentUser = mAuth?.currentUser
         if (currentUser != null) {
             setContentView(R.layout.loading_activity)
-            db?.getCurrentUserDataById(currentUser.uid)
-            db?.setOnDataUserUpdateListener { player ->
+            db.getCurrentUserDataById(currentUser.uid)
+            db.setOnDataUserUpdateListener { player ->
                 if (player == null) {
                     Utils.AUTHENTIFICATION_TYPE =
                         Utils.AUTHENTIFICATION_GUEST
@@ -105,7 +105,7 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
                 val account = result.signInAccount
                 fireBaseAuthWithGoogle(account)
             } else {
-                makeToast("Sign in with Google failed")
+                toast(getString(R.string.sign_with_google_failed))
             }
         }
         if (requestCode == 1) {
@@ -122,7 +122,7 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
         // An unresolvable error has occurred and Google APIs (including Sign-In) will not
         // be available.
         Log.d(TAG, "onConnectionFailed:$connectionResult")
-        makeToast("Google Play Services error.")
+        toast(getString(R.string.google_play_services_error))
     }
 
     private fun initUI() {
@@ -143,15 +143,12 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
         binding.loginBtnLogin.setOnClickListener { //GET USERNAME/PASSWORD
             val email = binding.loginEtEmail.text.toString()
             val password = binding.loginEtPassword.text.toString()
-            if (isValidPassword(password) && isValidEmail(
-                    email
-                )
-            ) {
+            if (isValidPassword(password) && isValidEmail(email)) {
                 hideKeyboard()
                 binding.loginPbBtnLogin.visibility = View.VISIBLE
                 loginUser(email, password)
             } else {
-                makeToast("Invalid Email/Password")
+                toast(getString(R.string.invalid_email_or_pswd))
             }
         }
 
@@ -180,7 +177,7 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
                         launchMenuActivity(user)
                     } else {
                         //Error when connecting
-                        makeToast("Invalid Email/Password")
+                        toast(getString(R.string.invalid_email_or_pswd))
                         binding.loginPbBtnLogin.visibility = View.GONE
                     }
                 }
@@ -190,7 +187,7 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
     }
 
     private fun loginUserFB() {
-        loginButtonFB!!.performClick()
+        loginButtonFB?.performClick()
     }
 
     private fun loginUserGoogle() {
@@ -213,8 +210,8 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
     private fun initLoginButtonFB() {
         mCallbackManager = CallbackManager.Factory.create()
         loginButtonFB = LoginButton(this)
-        loginButtonFB!!.setReadPermissions("email", "public_profile")
-        loginButtonFB!!.registerCallback(mCallbackManager, object : FacebookCallback<LoginResult> {
+        loginButtonFB?.setReadPermissions("email", "public_profile")
+        loginButtonFB?.registerCallback(mCallbackManager, object : FacebookCallback<LoginResult> {
             override fun onSuccess(loginResult: LoginResult) {
                 Log.e(TAG, "facebook:onSuccess:$loginResult")
                 handleFacebookAccessToken(loginResult.accessToken)
@@ -234,55 +231,39 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
     private fun handleFacebookAccessToken(token: AccessToken) {
         Log.d(TAG, "handleFacebookAccessToken:$token")
         val credential = FacebookAuthProvider.getCredential(token.token)
-        mAuth!!.signInWithCredential(credential)
-            .addOnCompleteListener(
-                this
-            ) { task ->
-                if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d(
-                        TAG,
-                        "signInWithCredential:success"
-                    )
-                    val user = mAuth!!.currentUser
+        mAuth?.signInWithCredential(credential)?.addOnCompleteListener(this) { task ->
+            if (task.isSuccessful) {
+                // Sign in success, update UI with the signed-in user's information
+                Log.d(TAG, "signInWithCredential:success")
+                mAuth?.currentUser?.let {
                     //Download picture
                     var facebookUserId = ""
-                    for (profile in user!!.providerData) {
+                    for (profile in it.providerData) {
                         // check if the provider id matches "facebook.com"
                         if (FacebookAuthProvider.PROVIDER_ID == profile.providerId) {
                             facebookUserId = profile.uid
                         }
                     }
-                    val photoUrl =
-                        "https://graph.facebook.com/$facebookUserId/picture?height=200"
+                    val photoUrl = "https://graph.facebook.com/$facebookUserId/picture?height=200"
                     //DownloadImage().execute(photoUrl)
-                } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w(
-                        TAG,
-                        "signInWithCredential:failure",
-                        task.exception
-                    )
-                    makeToast("Authentication failed")
                 }
+            } else {
+                // If sign in fails, display a message to the user.
+                Log.w(TAG, "signInWithCredential:failure", task.exception)
+                toast(getString(R.string.auth_failed))
+            }
             }
     }
 
     private fun fireBaseAuthWithGoogle(acct: GoogleSignInAccount?) {
         Log.d(TAG, "fireBaseAuthWithGoogle:" + acct!!.id)
         val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
-        mAuth!!.signInWithCredential(credential)
-            .addOnCompleteListener(
-                this
-            ) { task ->
+        mAuth?.signInWithCredential(credential)?.addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
-                    Log.d(
-                        TAG,
-                        "signInWithCredential:success"
-                    )
-                    val user = mAuth!!.currentUser
-                    makeToast("Welcome " + user!!.displayName)
+                    Log.d(TAG, "signInWithCredential:success")
+                    val user = mAuth?.currentUser
+                    toast(getString(R.string.welcome) + user?.displayName)
                     isConnectedWithGoogle = true
 
                     binding.loginPbBtnLoginGoogle.visibility = View.GONE
@@ -296,16 +277,9 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
                         "signInWithCredential:failure",
                         task.exception
                     )
-                    makeToast("Authentication failed.")
+                    toast(getString(R.string.auth_failed))
                 }
             }
-    }
-
-    private fun makeToast(text: String) {
-        Toast.makeText(
-            applicationContext, text,
-            Toast.LENGTH_LONG
-        ).show()
     }
 
     private fun hideKeyboard() {
@@ -317,13 +291,13 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
     }
 
     private fun signOut() {
-        mAuth!!.signOut()
+        mAuth?.signOut()
         LoginManager.getInstance().logOut()
         if (isConnectedWithGoogle) {
             Auth.GoogleSignInApi.signOut(mGoogleApiClient)
-                .setResultCallback { makeToast("Google sign out") }
+                .setResultCallback { toast(getString(R.string.google_sign_out)) }
             Auth.GoogleSignInApi.revokeAccess(mGoogleApiClient)
-                .setResultCallback { makeToast("Google sign out") }
+                .setResultCallback { toast(getString(R.string.google_sign_out)) }
         }
     }
 
@@ -377,7 +351,7 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
              result!!.compress(Bitmap.CompressFormat.JPEG, 100, baos)
              val data = baos.toByteArray()
              val uploadTask = imagesRef.putBytes(data)
-             uploadTask.addOnFailureListener { makeToast("Error while uploading picture profile") }
+             uploadTask.addOnFailureListener { toast("Error while uploading picture profile") }
                  .addOnSuccessListener {
                      launchMenuActivity(user)
                      db!!.getCurrentUserDataById(user.uid)

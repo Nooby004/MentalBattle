@@ -12,11 +12,9 @@ import com.example.mlallemant.mentalbattle.ui.game.fragment.PlayerFindFragment.O
 import com.example.mlallemant.mentalbattle.ui.game.fragment.WinFragment
 import com.example.mlallemant.mentalbattle.ui.game.fragment.WinFragment.OnNextGame
 import com.example.mlallemant.mentalbattle.ui.menu.MenuActivity
-import com.example.mlallemant.mentalbattle.utils.DatabaseManager
-import com.example.mlallemant.mentalbattle.utils.Game
-import com.example.mlallemant.mentalbattle.utils.Player
-import com.example.mlallemant.mentalbattle.utils.Utils
+import com.example.mlallemant.mentalbattle.utils.*
 import java.util.*
+import kotlin.collections.RandomAccess
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
@@ -192,7 +190,7 @@ class GameActivity : AppCompatActivity(), OnCountdownFinish, OnGameFinish, OnNex
                 currentPlayer!!.nb_win + 1,
                 currentPlayer!!.nb_lose
             )
-            base = winnerScore * 5 + rand * getLevelByXp(currentPlayer!!.xp)
+            base = winnerScore * 5 + rand * RankComputer().getLevelByXp(currentPlayer!!.xp)
             gainXP = (base + 0.3 * base).roundToInt()
         } else {
             db.setNbWinLoseByPlayer(
@@ -200,7 +198,7 @@ class GameActivity : AppCompatActivity(), OnCountdownFinish, OnGameFinish, OnNex
                 currentPlayer!!.nb_win,
                 currentPlayer!!.nb_lose + 1
             )
-            base = looserScore * 5 + rand * getLevelByXp(currentPlayer!!.xp)
+            base = looserScore * 5 + rand * RankComputer().getLevelByXp(currentPlayer!!.xp)
             gainXP = (base - 0.2 * base).roundToInt()
         }
         if (winnerScore == 999) {
@@ -211,6 +209,4 @@ class GameActivity : AppCompatActivity(), OnCountdownFinish, OnGameFinish, OnNex
         db.setCurrentPlayerXp(currentPlayer, xpToSet)
         //SET SCORE CURRENT PLAYER
     }
-
-    private fun getLevelByXp(XP: Int) = (sqrt((100 * (2 * XP + 25) + 50).toDouble()) / 100).roundToInt()
 }
