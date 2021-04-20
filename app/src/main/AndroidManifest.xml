@@ -16,7 +16,7 @@
             android:value="@string/facebook_app_id"/>
 
 
-        <activity android:name=".UI.MainActivity"
+        <activity android:name=".ui.SplashActivity"
             android:theme="@style/myTheme"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -24,40 +24,40 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".UI.Game.GameActivity"
+        <activity android:name=".ui.game.GameActivity"
             android:launchMode="singleTop"
             android:theme="@style/myTheme"
             android:screenOrientation="portrait"
             android:configChanges="orientation|keyboardHidden"
             android:windowSoftInputMode="stateHidden">
         </activity>
-        <activity android:name=".UI.Login.LoginActivity"
+        <activity android:name=".ui.login.LoginActivity"
             android:launchMode="singleTop"
             android:theme="@style/myTheme"
             android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".UI.Login.SigninActivity"
+        <activity android:name=".ui.login.SigninActivity"
             android:launchMode="singleTop"
             android:theme="@style/myTheme"
             android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".UI.Login.PlayAsGuest"
+        <activity android:name=".ui.login.PlayAsGuest"
             android:launchMode="singleTop"
             android:theme="@style/myTheme"
             android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".UI.Menu.MenuActivity"
+        <activity android:name=".ui.menu.MenuActivity"
             android:launchMode="singleTop"
             android:theme="@style/myTheme"
             android:windowSoftInputMode="stateHidden|adjustResize"
             android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".UI.Session.SessionActivity"
+        <activity android:name=".ui.session.SessionActivity"
             android:launchMode="singleTop"
             android:theme="@style/myTheme"
             android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".UI.Training.TrainingActivity"
+        <activity android:name=".ui.training.TrainingActivity"
             android:launchMode="singleTop"
             android:theme="@style/myTheme"
             android:screenOrientation="portrait">

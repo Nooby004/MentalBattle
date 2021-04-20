@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <TextView
@@ -9,7 +10,7 @@
         android:gravity="center"
         android:textSize="30sp"
         android:paddingTop="30sp"
-        android:text="@string/app_name_space"/>
+        android:text="@string/app_name_space" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -44,8 +45,9 @@
                 android:id="@+id/guest_btn_play"
                 android:layout_width="match_parent"
                 android:layout_height="35sp"
+                android:textColor="@color/whiteColor"
                 android:background="@drawable/buttonshape_orange"
-                android:text="PLAY AS GUEST"/>
+                android:text="PLAY AS GUEST" />
 
             <ProgressBar
                 android:id="@+id/guest_pb_btn_play"
@@ -64,7 +66,7 @@
             android:layout_gravity="start"
             android:text="CANCEL"
             android:background="?attr/selectableItemBackground"
-            android:textColor="@color/whiteColor"/>
+            android:textColor="@color/whiteColor" />
 
 
         <RelativeLayout
@@ -77,12 +79,11 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:gravity="center"
-                android:text="Searching player..."/>
+                android:text="Searching player..." />
 
         </RelativeLayout>
 
     </LinearLayout>
-
 
 
 </LinearLayout>

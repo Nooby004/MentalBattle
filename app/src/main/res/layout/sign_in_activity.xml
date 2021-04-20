@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
 
@@ -10,7 +11,7 @@
         android:gravity="center"
         android:textSize="30sp"
         android:paddingTop="30sp"
-        android:text="@string/app_name_space"/>
+        android:text="@string/app_name_space" />
 
 
     <LinearLayout
@@ -24,23 +25,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/signin_profile_user"
-            android:layout_width="140sp"
-            android:layout_height="140sp"
-            android:src="@drawable/user_image"
-            app:civ_border_width="4dp"
-            app:civ_border_color="@color/whiteColor"
-            />
+            <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/signin_profile_user"
+                android:layout_width="140sp"
+                android:layout_height="140sp"
+                android:src="@drawable/user_image"
+                app:civ_border_width="4dp"
+                app:civ_border_color="@color/whiteColor" />
 
-         <ImageView
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content"
-             android:src="@drawable/ic_camera"
-             android:paddingBottom="10sp"
-             android:layout_alignBottom="@id/signin_profile_user"
-             android:layout_centerHorizontal="true"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_camera"
+                android:paddingBottom="10sp"
+                android:layout_alignBottom="@id/signin_profile_user"
+                android:layout_centerHorizontal="true" />
 
         </RelativeLayout>
 
@@ -96,8 +95,9 @@
                 android:id="@+id/signin_btn_signin"
                 android:layout_width="match_parent"
                 android:layout_height="35sp"
+                android:textColor="@color/whiteColor"
                 android:background="@drawable/buttonshape_orange"
-                android:text="SIGN IN"/>
+                android:text="SIGN IN" />
 
             <ProgressBar
                 android:id="@+id/signin_pb_btn_signin"
@@ -105,8 +105,7 @@
                 android:layout_height="35sp"
                 android:elevation="2dp"
                 android:layout_alignParentEnd="true"
-                android:visibility="visible"/>
-
+                android:visibility="visible" />
 
 
         </RelativeLayout>
@@ -119,7 +118,7 @@
             android:layout_gravity="start"
             android:text="CANCEL"
             android:background="?attr/selectableItemBackground"
-            android:textColor="@color/whiteColor"/>
+            android:textColor="@color/whiteColor" />
 
 
     </LinearLayout>

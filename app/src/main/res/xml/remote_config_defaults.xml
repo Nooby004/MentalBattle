@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<defaultMap>
+    <entry>
+        <key>test_value</key>
+        <value>Hello</value>
+    </entry>
+    <entry>
+        <key>signin_with_google</key>
+        <value>true</value>
+    </entry>
+    <entry>
+        <key>signin_with_facebook</key>
+        <value>false</value>
+    </entry>
+</defaultMap>
