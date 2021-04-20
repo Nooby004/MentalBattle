@@ -122,7 +122,7 @@ class PlayFragment : Fragment() {
                             if (game?.player1?.id == currentPlayerID) {
                                 db.setScorePlayer1ByIdGame(scoreCurrentPlayer, game?.id)
                             } else {
-                                db.setScorePlayer2ByIdGame(scoreOtherPlayer, game?.id)
+                                db.setScorePlayer2ByIdGame(scoreCurrentPlayer, game?.id)
                             }
                         }
                     }
