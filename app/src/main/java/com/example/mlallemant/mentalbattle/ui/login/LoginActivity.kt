@@ -71,7 +71,6 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
                 launchMenuActivity(currentUser)
             }
         } else {
-            setContentView(R.layout.login_activity)
             initUI()
             initListener()
             initLoginButtonFB()
