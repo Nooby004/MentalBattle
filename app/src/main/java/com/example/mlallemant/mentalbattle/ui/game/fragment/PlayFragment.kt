@@ -94,9 +94,21 @@ class PlayFragment : Fragment() {
                 playTvCalculation.text = it[counter].calculText
                 playEtResult.addTextChangedListener(object : TextWatcher {
 
-                    override fun beforeTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
+                    override fun beforeTextChanged(
+                        charSequence: CharSequence,
+                        i: Int,
+                        i1: Int,
+                        i2: Int
+                    ) {
+                    }
 
-                    override fun onTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
+                    override fun onTextChanged(
+                        charSequence: CharSequence,
+                        i: Int,
+                        i1: Int,
+                        i2: Int
+                    ) {
+                    }
 
                     override fun afterTextChanged(editable: Editable) {
 
@@ -110,7 +122,7 @@ class PlayFragment : Fragment() {
                             if (game?.player1?.id == currentPlayerID) {
                                 db.setScorePlayer1ByIdGame(scoreCurrentPlayer, game?.id)
                             } else {
-                                db.setScorePlayer2ByIdGame(scoreCurrentPlayer, game?.id)
+                                db.setScorePlayer2ByIdGame(scoreOtherPlayer, game?.id)
                             }
                         }
                     }
