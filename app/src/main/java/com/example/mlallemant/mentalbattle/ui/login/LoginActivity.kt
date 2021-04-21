@@ -58,7 +58,7 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
         db = DatabaseManager.getInstance()
         val currentUser = mAuth?.currentUser
         if (currentUser != null) {
-            setContentView(R.layout.loading_activity)
+            binding.loadingLayout.root.visibility = View.VISIBLE
             db.getCurrentUserDataById(currentUser.uid)
             db.setOnDataUserUpdateListener { player ->
                 if (player == null) {
@@ -71,6 +71,7 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
                 launchMenuActivity(currentUser)
             }
         } else {
+            binding.loadingLayout.root.visibility = View.GONE
             initUI()
             initListener()
             initLoginButtonFB()
@@ -251,34 +252,34 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
                 Log.w(TAG, "signInWithCredential:failure", task.exception)
                 toast(getString(R.string.auth_failed))
             }
-            }
+        }
     }
 
     private fun fireBaseAuthWithGoogle(acct: GoogleSignInAccount?) {
         Log.d(TAG, "fireBaseAuthWithGoogle:" + acct!!.id)
         val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
         mAuth?.signInWithCredential(credential)?.addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d(TAG, "signInWithCredential:success")
-                    val user = mAuth?.currentUser
-                    toast(getString(R.string.welcome) + user?.displayName)
-                    isConnectedWithGoogle = true
+            if (task.isSuccessful) {
+                // Sign in success, update UI with the signed-in user's information
+                Log.d(TAG, "signInWithCredential:success")
+                val user = mAuth?.currentUser
+                toast(getString(R.string.welcome) + user?.displayName)
+                isConnectedWithGoogle = true
 
-                    binding.loginPbBtnLoginGoogle.visibility = View.GONE
-                    Utils.AUTHENTIFICATION_TYPE =
-                        Utils.AUTHENTIFICATION_GOOGLE
-                    launchMenuActivity(user)
-                } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w(
-                        TAG,
-                        "signInWithCredential:failure",
-                        task.exception
-                    )
-                    toast(getString(R.string.auth_failed))
-                }
+                binding.loginPbBtnLoginGoogle.visibility = View.GONE
+                Utils.AUTHENTIFICATION_TYPE =
+                    Utils.AUTHENTIFICATION_GOOGLE
+                launchMenuActivity(user)
+            } else {
+                // If sign in fails, display a message to the user.
+                Log.w(
+                    TAG,
+                    "signInWithCredential:failure",
+                    task.exception
+                )
+                toast(getString(R.string.auth_failed))
             }
+        }
     }
 
     private fun hideKeyboard() {
