@@ -16,6 +16,7 @@ import com.example.mlallemant.mentalbattle.ui.login.LoginActivity
 import com.example.mlallemant.mentalbattle.ui.menu.fragment.SelectorFragment
 import com.example.mlallemant.mentalbattle.utils.*
 import com.example.mlallemant.mentalbattle.utils.CustomDialog.OnClickBtnListener
+import com.example.mlallemant.mentalbattle.utils.Utils.ONE_MEGABYTE
 import com.facebook.login.LoginManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
@@ -264,7 +265,7 @@ class MenuActivity : AppCompatActivity() {
                 db.declineToPlayWith(currentPlayer, friend.player)
             } else if (friend.playReq == Utils.PLAY_CANCEL) {
                 if (cdRequestReceived != null) {
-                    if (cdRequestReceived?.isShowing == true) {
+                    if (cdRequestReceived?.isShowing() == true) {
                         cdRequestReceived?.dismiss()
                     }
                 }
@@ -311,7 +312,6 @@ class MenuActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val ONE_MEGABYTE = (1024 * 1024).toLong()
         const val BUNDLE_EXTRA_CREATOR = "creator"
         const val BUNDLE_EXTRA_NAME = "name"
         const val BUNDLE_EXTRA_PASSWORD = "password"

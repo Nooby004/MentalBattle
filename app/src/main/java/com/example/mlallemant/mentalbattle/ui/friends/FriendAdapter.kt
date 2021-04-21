@@ -10,12 +10,10 @@ import android.widget.TextView
 import com.example.mlallemant.mentalbattle.R
 import com.example.mlallemant.mentalbattle.utils.RankComputer
 import com.example.mlallemant.mentalbattle.utils.Utils
+import com.example.mlallemant.mentalbattle.utils.Utils.ONE_MEGABYTE
 import com.google.firebase.storage.FirebaseStorage
 import de.hdodenhof.circleimageview.CircleImageView
-import java.lang.Float.POSITIVE_INFINITY
 import java.util.*
-import kotlin.math.roundToInt
-import kotlin.math.sqrt
 
 /**
  * Created by m.lallemant on 30/10/2017.
@@ -25,7 +23,7 @@ class FriendAdapter(
     mContext: Context
     ) : ArrayAdapter<FriendModel?>(
         mContext, R.layout.friend_row_item_template, dataSet
-    ), View.OnClickListener {
+    ) {
 
     private class ViewHolder {
         var username: TextView? = null
@@ -33,14 +31,6 @@ class FriendAdapter(
         var rank: TextView? = null
         var profilePicture: CircleImageView? = null
         var connect: CircleImageView? = null
-    }
-
-    override fun onClick(v: View) {
-        val position = v.tag as Int
-        val `object`: Any? = getItem(position)
-        val friendModel = `object` as FriendModel?
-
-        //makeToast("click on " + friendModel.player.getName());
     }
 
     private var lastPosition = -1
@@ -106,7 +96,6 @@ class FriendAdapter(
                 val storageRef = storage.reference
                 val text = "profilePictures/" + friendModel.player!!.id + ".png"
                 val imagesRef = storageRef.child(text)
-                val ONE_MEGABYTE = (1024 * 1024).toLong()
                 imagesRef.getBytes(ONE_MEGABYTE).addOnSuccessListener { bytes ->
                     val bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                     viewHolder.profilePicture!!.setImageBitmap(bm)

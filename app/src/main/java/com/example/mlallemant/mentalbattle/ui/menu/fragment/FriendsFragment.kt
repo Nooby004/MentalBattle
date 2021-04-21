@@ -73,7 +73,7 @@ class FriendsFragment : Fragment() {
                         val friend = fl[i]
                         if (friend.playReq == Utils.PLAY_CANCEL) {
                             cdAskToPlay?.let {
-                                if (it.isShowing) {
+                                if (it.isShowing() == true) {
                                     it.dismiss()
                                     db.resetToPlayWith(currentPlayer, friend.player)
                                 }
@@ -86,7 +86,7 @@ class FriendsFragment : Fragment() {
         binding.selectFriendsListView.onItemLongClickListener = OnItemLongClickListener { _, _, i, _ ->
             val friend = adapter?.getItem(i)
             val cdConfirmDelete = CustomDialog(
-                activity, friend?.player?.id,
+                requireContext(), friend?.player?.id,
                 getString(R.string.delete_friend_dialog_message),
                 getString(R.string.btn_yes), R.color.greenColor,
                 getString(R.string.btn_no), R.color.redColor
@@ -109,7 +109,7 @@ class FriendsFragment : Fragment() {
             if (friend?.friendAcq == Utils.ACK_REQUEST_RECEIVED) {
                 // if not ack, open dialog in order to accept him
                 val cdAcceptFriend = CustomDialog(
-                    activity, friend?.player?.id,
+                    requireContext(), friend.player?.id,
                     "Do you want to accept this friend ?",
                     "YES", R.color.greenColor,
                     "NO", R.color.redColor
@@ -117,12 +117,12 @@ class FriendsFragment : Fragment() {
                 cdAcceptFriend.create()
                 cdAcceptFriend.setOnClickBtnListener(object : OnClickBtnListener {
                     override fun onClickBtn1() {
-                        db.ackFriend(currentPlayer, friend?.player)
+                        db.ackFriend(currentPlayer, friend.player)
                         cdAcceptFriend.dismiss()
                     }
 
                     override fun onClickBtn2() {
-                        db.deleteFriend(currentPlayer, friend?.player)
+                        db.deleteFriend(currentPlayer, friend.player)
                         cdAcceptFriend.dismiss()
                     }
                 })
@@ -138,7 +138,7 @@ class FriendsFragment : Fragment() {
                     db.insertAvailableGame(currentGame)
                     db.getAvailableGameById(idGame)
                     cdAskToPlay = CustomDialog(
-                        activity, friend.player?.id,
+                        requireContext(), friend.player?.id,
                         "Waiting " + friend.player?.name + " ...",
                         "CANCEL", R.color.redColor,
                         null, 0
