@@ -528,7 +528,7 @@ public class DatabaseManager {
     }
 
     private void addAndUpdateAvailableGame(final Game game) {
-        Boolean isInList = false;
+        boolean isInList = false;
 
         for (int i = 0; i < availableGameList.size(); i++) {
             if (availableGameList.get(i).getId().equals(game.getId())) {

@@ -14,9 +14,7 @@ import com.example.mlallemant.mentalbattle.ui.game.fragment.WinFragment.OnNextGa
 import com.example.mlallemant.mentalbattle.ui.menu.MenuActivity
 import com.example.mlallemant.mentalbattle.utils.*
 import java.util.*
-import kotlin.collections.RandomAccess
 import kotlin.math.roundToInt
-import kotlin.math.sqrt
 
 /**
  * Created by m.lallemant on 16/10/2017.
@@ -53,9 +51,11 @@ class GameActivity : AppCompatActivity(), OnCountdownFinish, OnGameFinish, OnNex
         setContentView(binding.root)
 
         val currentPlayerId: String? = intent.extras?.getString(BUNDLE_EXTRA_CURRENT_PLAYER_ID)
+
         db = DatabaseManager.getInstance()
         game = db.currentGame
-        db.currentGame?.let {
+
+        game?.let {
             if (it.player1?.id == currentPlayerId) {
                 currentPlayer = it.player1
                 otherPlayer = it.player2
@@ -73,13 +73,14 @@ class GameActivity : AppCompatActivity(), OnCountdownFinish, OnGameFinish, OnNex
             otherPlayer?.let { putString(BUNDLE_EXTRA_OTHER_PLAYER, it.name) }
         }
         lf.arguments = args
+
         supportFragmentManager.beginTransaction().add(R.id.fl_game, lf).commit()
 
         db.setOnRageQuitListener {
             if (!gameIsFinished) {
                 displayWinScreen(
-                    currentPlayer?.name?:"",
-                    otherPlayer?.name?:"",
+                    currentPlayer?.name ?: "",
+                    otherPlayer?.name ?: "",
                     999,
                     0,
                     getString(R.string.result_game_ragequit)
@@ -144,10 +145,16 @@ class GameActivity : AppCompatActivity(), OnCountdownFinish, OnGameFinish, OnNex
         }
     }
 
-    override fun displayWinScreen(winnerName: String?, looserName: String?, winnerScore: Int, looserScore: Int, resultGame: String?) {
+    override fun displayWinScreen(
+        winnerName: String?,
+        looserName: String?,
+        winnerScore: Int,
+        looserScore: Int,
+        resultGame: String?
+    ) {
         gameIsFinished = true
         if (Utils.AUTHENTIFICATION_TYPE != Utils.AUTHENTIFICATION_GUEST) {
-            calculXpGain(winnerName?:"", winnerScore, looserScore)
+            calculXpGain(winnerName ?: "", winnerScore, looserScore)
         }
         //create win fragment
         val winFragment = WinFragment()

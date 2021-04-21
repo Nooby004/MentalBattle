@@ -10,6 +10,8 @@ import com.example.mlallemant.mentalbattle.R
 import com.example.mlallemant.mentalbattle.databinding.MenuActivityBinding
 import com.example.mlallemant.mentalbattle.ui.friends.FriendModel
 import com.example.mlallemant.mentalbattle.ui.game.GameActivity
+import com.example.mlallemant.mentalbattle.ui.game.GameActivity.Companion.BUNDLE_EXTRA_CURRENT_PLAYER_ID
+import com.example.mlallemant.mentalbattle.ui.game.GameActivity.Companion.BUNDLE_EXTRA_GAME_ID
 import com.example.mlallemant.mentalbattle.ui.login.LoginActivity
 import com.example.mlallemant.mentalbattle.ui.menu.fragment.SelectorFragment
 import com.example.mlallemant.mentalbattle.utils.*
@@ -69,9 +71,17 @@ class MenuActivity : AppCompatActivity() {
                         currentPlayer = player_
                         launchSelectorFragment()
                         db.initFriendList()
-                        val splitName = currentPlayer?.let { it.name.split(" ".toRegex()).toTypedArray()[0] }
+                        val splitName =
+                            currentPlayer?.let { it.name.split(" ".toRegex()).toTypedArray()[0] }
 
-                        val player = Player(currentPlayer?.id, splitName, 0, currentPlayer?.nb_win, currentPlayer?.nb_lose, currentPlayer?.xp)
+                        val player = Player(
+                            currentPlayer?.id,
+                            splitName,
+                            0,
+                            currentPlayer?.nb_win,
+                            currentPlayer?.nb_lose,
+                            currentPlayer?.xp
+                        )
                         loadProfilePicture(player)
                         db.insertPlayerInLobby(player)
                         loadProfilePicture(player)
@@ -89,7 +99,7 @@ class MenuActivity : AppCompatActivity() {
         } else {
             binding.loadingLayout.root.visibility = View.GONE
             db = DatabaseManager.getInstance()
-            currentPlayer = intent.getParcelableExtra("currentPlayer")
+            currentPlayer = intent.getParcelableExtra(BUNDLE_EXTRA_CURRENT_PLAYER)
             if (currentPlayer != null) {
                 launchSelectorFragment()
                 db.insertPlayerInLobby(currentPlayer)
@@ -266,8 +276,8 @@ class MenuActivity : AppCompatActivity() {
 
     private fun launchGameActivity(game: Game?) {
         val intent = Intent(this@MenuActivity, GameActivity::class.java)
-        intent.putExtra("idGame", game?.id)
-        intent.putExtra("currentPlayerId", currentPlayer?.id)
+        intent.putExtra(BUNDLE_EXTRA_GAME_ID, game?.id)
+        intent.putExtra(BUNDLE_EXTRA_CURRENT_PLAYER_ID, currentPlayer?.id)
         startActivity(intent)
         finish()
     }

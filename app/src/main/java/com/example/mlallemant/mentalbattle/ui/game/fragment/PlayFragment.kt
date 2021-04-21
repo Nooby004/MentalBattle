@@ -51,6 +51,7 @@ class PlayFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         arguments?.let {
             currentPlayerName = it.getString(BUNDLE_EXTRA_CURRENT_PLAYER)
             otherPlayerName = it.getString(BUNDLE_EXTRA_OTHER_PLAYER)

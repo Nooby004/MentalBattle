@@ -10,6 +10,8 @@ import androidx.fragment.app.Fragment
 import com.example.mlallemant.mentalbattle.R
 import com.example.mlallemant.mentalbattle.databinding.MenuPlayFragmentBinding
 import com.example.mlallemant.mentalbattle.ui.game.GameActivity
+import com.example.mlallemant.mentalbattle.ui.game.GameActivity.Companion.BUNDLE_EXTRA_CURRENT_PLAYER_ID
+import com.example.mlallemant.mentalbattle.ui.game.GameActivity.Companion.BUNDLE_EXTRA_GAME_ID
 import com.example.mlallemant.mentalbattle.ui.menu.MenuActivity
 import com.example.mlallemant.mentalbattle.utils.DatabaseManager
 import com.example.mlallemant.mentalbattle.utils.Game
@@ -31,7 +33,11 @@ class PlayFragment : Fragment() {
     private var searchGameTask: SearchGameTask? = null
     private lateinit var db: DatabaseManager
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = MenuPlayFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -64,7 +70,12 @@ class PlayFragment : Fragment() {
         isSearchingGame = false
         with(binding) {
             selectPlayTvInfo.text = getString(R.string.click_to_play)
-            selectPlayIvPlay.setImageDrawable(ContextCompat.getDrawable(activity!!, R.drawable.ic_select_play))
+            selectPlayIvPlay.setImageDrawable(
+                ContextCompat.getDrawable(
+                    activity!!,
+                    R.drawable.ic_select_play
+                )
+            )
             selectPlayPgPlay.visibility = View.INVISIBLE
         }
     }
@@ -86,7 +97,8 @@ class PlayFragment : Fragment() {
 
     private fun returnSelectorFragment() {
         val selectorFragment = SelectorFragment()
-        fragmentManager?.beginTransaction()?.replace(R.id.menu_fl_select, selectorFragment)?.commit()
+        fragmentManager?.beginTransaction()?.replace(R.id.menu_fl_select, selectorFragment)
+            ?.commit()
     }
 
     private fun launchSearchingGameTask() {
@@ -108,8 +120,8 @@ class PlayFragment : Fragment() {
 
     private fun launchGameActivity(game: Game) {
         val intent = Intent(activity, GameActivity::class.java)
-        intent.putExtra("idGame", game.id)
-        intent.putExtra("currentPlayerId", currentPlayer!!.id)
+        intent.putExtra(BUNDLE_EXTRA_GAME_ID, game.id)
+        intent.putExtra(BUNDLE_EXTRA_CURRENT_PLAYER_ID, currentPlayer!!.id)
         startActivity(intent)
         activity?.finish()
     }
