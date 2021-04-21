@@ -2,6 +2,8 @@ package com.example.mlallemant.mentalbattle.ui.login
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
@@ -14,6 +16,7 @@ import com.example.mlallemant.mentalbattle.databinding.LoginActivityBinding
 import com.example.mlallemant.mentalbattle.ui.extention.toast
 import com.example.mlallemant.mentalbattle.ui.menu.MenuActivity
 import com.example.mlallemant.mentalbattle.utils.DatabaseManager
+import com.example.mlallemant.mentalbattle.utils.Player
 import com.example.mlallemant.mentalbattle.utils.Utils
 import com.facebook.AccessToken
 import com.facebook.CallbackManager
@@ -22,16 +25,22 @@ import com.facebook.FacebookException
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import com.facebook.login.widget.LoginButton
-import com.google.android.gms.auth.api.Auth
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.storage.FirebaseStorage
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import java.io.ByteArrayOutputStream
+import java.net.URL
 
 /**
  * Created by m.lallemant on 25/10/2017.
@@ -41,7 +50,7 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
     private var mAuth: FirebaseAuth? = null
     private var mCallbackManager: CallbackManager? = null
     private var loginButtonFB: LoginButton? = null
-    private var mGoogleApiClient: GoogleApiClient? = null
+    private var googleSignInClient: GoogleSignInClient? = null
     private var isConnectedWithGoogle = false
     private lateinit var db: DatabaseManager
 
@@ -89,22 +98,20 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
         _binding = null
     }
 
-    override fun onActivityResult(
-        requestCode: Int,
-        resultCode: Int,
-        data: Intent?
-    ) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         // Pass the activity result back to the Facebook SDK
         mCallbackManager!!.onActivityResult(requestCode, resultCode, data)
         if (requestCode == RC_SIGN_IN) {
-            val result = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
-            if (result!!.isSuccess) {
-                // Google Sign In was successful, authenticate with FireBase
-                val account = result.signInAccount
-                fireBaseAuthWithGoogle(account)
-            } else {
+            val result = GoogleSignIn.getSignedInAccountFromIntent(data)
+            try {
+                // Google Sign In was successful, authenticate with Firebase
+                val account = result.getResult(ApiException::class.java)!!
+                Log.d(TAG, "firebaseAuthWithGoogle:" + account.id)
+                firebaseAuthWithGoogle(account.idToken!!)
+            } catch (e: ApiException) {
+                // Google Sign In failed, update UI appropriately
                 toast(getString(R.string.sign_with_google_failed))
             }
         }
@@ -191,24 +198,23 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
     }
 
     private fun loginUserGoogle() {
-        val signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient)
+        val signInIntent = googleSignInClient?.signInIntent
         startActivityForResult(signInIntent, RC_SIGN_IN)
     }
 
     private fun initLoginGoogle() {
-        val gso =
-            GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build()
-        mGoogleApiClient = GoogleApiClient.Builder(this)
-            .enableAutoManage(this, this)
-            .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+        // Configure Google Sign In
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
             .build()
+
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
     }
 
     private fun initLoginButtonFB() {
         mCallbackManager = CallbackManager.Factory.create()
+
         loginButtonFB = LoginButton(this)
         loginButtonFB?.setReadPermissions("email", "public_profile")
         loginButtonFB?.registerCallback(mCallbackManager, object : FacebookCallback<LoginResult> {
@@ -245,7 +251,7 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
                         }
                     }
                     val photoUrl = "https://graph.facebook.com/$facebookUserId/picture?height=200"
-                    //DownloadImage().execute(photoUrl)
+                    downloadImage(photoUrl)
                 }
             } else {
                 // If sign in fails, display a message to the user.
@@ -255,31 +261,29 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
         }
     }
 
-    private fun fireBaseAuthWithGoogle(acct: GoogleSignInAccount?) {
-        Log.d(TAG, "fireBaseAuthWithGoogle:" + acct!!.id)
-        val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
-        mAuth?.signInWithCredential(credential)?.addOnCompleteListener(this) { task ->
-            if (task.isSuccessful) {
-                // Sign in success, update UI with the signed-in user's information
-                Log.d(TAG, "signInWithCredential:success")
-                val user = mAuth?.currentUser
-                toast(getString(R.string.welcome) + user?.displayName)
-                isConnectedWithGoogle = true
+    private fun firebaseAuthWithGoogle(idToken: String?) {
+        Log.d(TAG, "token : $idToken")
 
-                binding.loginPbBtnLoginGoogle.visibility = View.GONE
-                Utils.AUTHENTIFICATION_TYPE =
-                    Utils.AUTHENTIFICATION_GOOGLE
-                launchMenuActivity(user)
-            } else {
-                // If sign in fails, display a message to the user.
-                Log.w(
-                    TAG,
-                    "signInWithCredential:failure",
-                    task.exception
-                )
-                toast(getString(R.string.auth_failed))
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+
+        mAuth?.signInWithCredential(credential)
+            ?.addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d(TAG, "signInWithCredential:success")
+                    val user = mAuth?.currentUser
+                    toast(getString(R.string.welcome) + user?.displayName)
+                    isConnectedWithGoogle = true
+
+                    binding.loginPbBtnLoginGoogle.visibility = View.GONE
+                    Utils.AUTHENTIFICATION_TYPE = Utils.AUTHENTIFICATION_GOOGLE
+                    launchMenuActivity(user)
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w(TAG, "signInWithCredential:failure", task.exception)
+                    toast(getString(R.string.auth_failed))
+                }
             }
-        }
     }
 
     private fun hideKeyboard() {
@@ -293,12 +297,6 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
     private fun signOut() {
         mAuth?.signOut()
         LoginManager.getInstance().logOut()
-        if (isConnectedWithGoogle) {
-            Auth.GoogleSignInApi.signOut(mGoogleApiClient)
-                .setResultCallback { toast(getString(R.string.google_sign_out)) }
-            Auth.GoogleSignInApi.revokeAccess(mGoogleApiClient)
-                .setResultCallback { toast(getString(R.string.google_sign_out)) }
-        }
     }
 
     private fun launchMenuActivity(user: FirebaseUser?) {
@@ -319,63 +317,67 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
         startActivityForResult(intent, 1)
     }
 
+    private fun downloadImage(url: String) {
+        Observable.fromCallable {
+            var bitmap: Bitmap? = null
+            try {
+                // Download Image from URL
+                val input = URL(url).openStream()
+                // Decode Bitmap
+                bitmap = BitmapFactory.decodeStream(input)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
 
-    // TODO use rxJava
-    /* private inner class DownloadImage :
-         AsyncTask<String?, Void?, Bitmap?>() {
-         override fun onPreExecute() {
-             super.onPreExecute()
-         }
+            val user = mAuth!!.currentUser
+            val storage = FirebaseStorage.getInstance()
+            val storageRef = storage.reference
+            val text = "profilePictures/" + user!!.uid + ".png"
+            val imagesRef = storageRef.child(text)
+            val baos = ByteArrayOutputStream()
+            bitmap!!.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+            val data = baos.toByteArray()
+            val uploadTask = imagesRef.putBytes(data)
+            uploadTask.addOnFailureListener { toast("Error while uploading picture profile") }
+                .addOnSuccessListener {
 
-         protected override fun doInBackground(vararg URL: String): Bitmap? {
-             val imageURL = URL[0]
-             var bitmap: Bitmap? = null
-             try {
-                 // Download Image from URL
-                 val input = URL(imageURL).openStream()
-                 // Decode Bitmap
-                 bitmap = BitmapFactory.decodeStream(input)
-             } catch (e: Exception) {
-                 e.printStackTrace()
-             }
-             return bitmap
-         }
+                    db.getCurrentUserDataById(user.uid)
+                    db.setOnDataUserUpdateListener { player ->
+                        if (player == null) {
+                            db.insertRegisteredPlayer(
+                                Player(
+                                    mAuth!!.uid,
+                                    user.displayName,
+                                    0,
+                                    0,
+                                    0,
+                                    0
+                                )
+                            )
+                        }
+                        onUploadSuccess()
+                    }
+                }
+            // RxJava does not accept null return value. Null will be treated as a failure.
+            // So just make it return true.
+            true
+        } // Execute in IO thread, i.e. background thread.
+            .subscribeOn(Schedulers.io()) // report or post the result to main thread.
+            .subscribe()
+    }
 
-         override fun onPostExecute(result: Bitmap?) {
-             val user = mAuth!!.currentUser
-             val storage = FirebaseStorage.getInstance()
-             val storageRef = storage.reference
-             val text = "profilePictures/" + user!!.uid + ".png"
-             val imagesRef = storageRef.child(text)
-             val baos = ByteArrayOutputStream()
-             result!!.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-             val data = baos.toByteArray()
-             val uploadTask = imagesRef.putBytes(data)
-             uploadTask.addOnFailureListener { toast("Error while uploading picture profile") }
-                 .addOnSuccessListener {
-                     launchMenuActivity(user)
-                     db!!.getCurrentUserDataById(user.uid)
-                     db!!.setOnDataUserUpdateListener { player ->
-                         if (player == null) {
-                             db!!.insertRegisteredPlayer(
-                                 Player(
-                                     mAuth!!.uid,
-                                     user.displayName,
-                                     0,
-                                     0,
-                                     0,
-                                     0
-                                 )
-                             )
-                         }
-                         pbLoginFB!!.visibility = View.GONE
-                         Utils.AUTHENTIFICATION_TYPE =
-                             Utils.AUTHENTIFICATION_FB
-                         launchMenuActivity(user)
-                     }
-                 }
-         }
-     }*/
+    private fun onUploadSuccess() {
+        Observable.fromCallable {
+            val user = mAuth!!.currentUser
+            binding.loginPbBtnLoginFB.visibility = View.GONE
+            Utils.AUTHENTIFICATION_TYPE =
+                Utils.AUTHENTIFICATION_FB
+            launchMenuActivity(user)
+
+        }.subscribeOn(AndroidSchedulers.mainThread())
+            .subscribe()
+
+    }
 
     companion object {
         private const val TAG = "LoginActivity"

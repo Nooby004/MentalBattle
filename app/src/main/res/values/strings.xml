@@ -10,7 +10,7 @@
 
     <string name="facebook_app_id">1859643281016820</string>
     <string name="fb_login_protocol_scheme">fb1859643281016820</string>
-<!--    <string name="default_web_client_id2"></string>-->
+    <!--    <string name="default_web_client_id2"></string>-->
 
     <string name="rank_brainless">Brainless</string>
     <string name="rank_little_head">Little Head</string>
