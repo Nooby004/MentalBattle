@@ -63,7 +63,7 @@ class FriendAdapter(
 
             //USERNAME
             if (friendModel.player != null) {
-                val splitName = friendModel.player!!.name.split(" ").toTypedArray()[0]
+                val splitName = friendModel.player?.name?.split(" ")?.toTypedArray()?.get(0)
                 viewHolder.username!!.text = splitName
             }
 

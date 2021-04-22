@@ -66,4 +66,8 @@
     <string name="searching">Searching game ...</string>
     <string name="game_found">Game found !</string>
     <string name="serach_game_timeout">No game available please retry later.</string>
+    <string name="round_score">Round score</string>
+    <string name="total_score">Total score</string>
+    <string name="final_ranking">Final Ranking</string>
+    <string name="next_round">Next Round</string>
 </resources>

@@ -93,6 +93,9 @@ class CreateJoinFragment : Fragment() {
                         currentPlayer?.id,
                         currentPlayer?.name,
                         currentPlayer?.score,
+                        null,
+                        null,
+                        null,
                         Utils.SESSION_RDY_YES,
                         Utils.SESSION_CREATOR
                     )
@@ -115,9 +118,12 @@ class CreateJoinFragment : Fragment() {
             db.setOnSessionExistListener { isExist ->
                 if (isExist) {
                     val playerForSession = Player(
-                        currentPlayer!!.id,
-                        currentPlayer!!.name,
-                        currentPlayer!!.score,
+                        currentPlayer?.id,
+                        currentPlayer?.name,
+                        currentPlayer?.score,
+                        null,
+                        null,
+                        null,
                         Utils.SESSION_RDY_KO,
                         Utils.SESSION_NEW_YES
                     )

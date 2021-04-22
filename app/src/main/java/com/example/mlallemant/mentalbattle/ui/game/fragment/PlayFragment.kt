@@ -16,6 +16,11 @@ import com.example.mlallemant.mentalbattle.ui.game.GameActivity.Companion.BUNDLE
 import com.example.mlallemant.mentalbattle.utils.Calculation
 import com.example.mlallemant.mentalbattle.utils.DatabaseManager
 import com.example.mlallemant.mentalbattle.utils.Game
+import com.example.mlallemant.mentalbattle.utils.GameUtils.Companion.checkLengthText
+import com.example.mlallemant.mentalbattle.utils.GameUtils.Companion.removeLastChar
+import com.example.mlallemant.mentalbattle.utils.GameUtils.Companion.updateButtonBackspaceResult
+import com.example.mlallemant.mentalbattle.utils.GameUtils.Companion.updateButtonMinusResult
+import com.example.mlallemant.mentalbattle.utils.GameUtils.Companion.updateEditTextResult
 import com.example.mlallemant.mentalbattle.utils.Utils
 
 /**
@@ -203,37 +208,20 @@ class PlayFragment : Fragment() {
 
     private fun initListenerButton() {
         with(binding) {
-            playBtn0.setOnClickListener { updateResult(0) }
-            playBtn1.setOnClickListener { updateResult(1) }
-            playBtn2.setOnClickListener { updateResult(2) }
-            playBtn3.setOnClickListener { updateResult(3) }
-            playBtn4.setOnClickListener { updateResult(4) }
-            playBtn5.setOnClickListener { updateResult(5) }
-            playBtn6.setOnClickListener { updateResult(6) }
-            playBtn7.setOnClickListener { updateResult(7) }
-            playBtn8.setOnClickListener { updateResult(8) }
-            playBtn9.setOnClickListener { updateResult(9) }
-            playBtnMinus.setOnClickListener {
-                if (!playEtResult.text.toString().contains("-")) {
-                    val text = "-" + playEtResult.text.toString()
-                    if (checkLengthText(text)) playEtResult.setText(text)
-                }
-            }
-            playBtnBackspace.setOnClickListener {
-                if (playEtResult.text.toString().isNotEmpty()) {
-                    val text = removeLastChar(playEtResult.text.toString())
-                    if (checkLengthText(text)) playEtResult.setText(text)
-                }
-            }
+            playBtn0.setOnClickListener { updateEditTextResult(0, playEtResult) }
+            playBtn1.setOnClickListener { updateEditTextResult(1, playEtResult) }
+            playBtn2.setOnClickListener { updateEditTextResult(2, playEtResult) }
+            playBtn3.setOnClickListener { updateEditTextResult(3, playEtResult) }
+            playBtn4.setOnClickListener { updateEditTextResult(4, playEtResult) }
+            playBtn5.setOnClickListener { updateEditTextResult(5, playEtResult) }
+            playBtn6.setOnClickListener { updateEditTextResult(6, playEtResult) }
+            playBtn7.setOnClickListener { updateEditTextResult(7, playEtResult) }
+            playBtn8.setOnClickListener { updateEditTextResult(8, playEtResult) }
+            playBtn9.setOnClickListener { updateEditTextResult(9, playEtResult) }
+            playBtnMinus.setOnClickListener { updateButtonMinusResult(playEtResult) }
+            playBtnBackspace.setOnClickListener { updateButtonBackspaceResult(playEtResult) }
         }
 
-    }
-
-    private fun updateResult(addedValue: Int) {
-        with(binding.playEtResult) {
-            val text = text.toString() + addedValue
-            if (checkLengthText(text)) setText(text)
-        }
     }
 
     private fun initPlayersNames() {
@@ -243,15 +231,5 @@ class PlayFragment : Fragment() {
         otherPlayerName?.let {
             binding.playTvPlayer2Name.text = it.split(" ".toRegex()).toTypedArray()[0]
         }
-    }
-
-    private fun checkLengthText(text: String): Boolean {
-        var success = false
-        if (text.length <= Utils.MAX_LENGTH_RESULT) success = true
-        return success
-    }
-
-    private fun removeLastChar(str: String): String {
-        return str.substring(0, str.length - 1)
     }
 }

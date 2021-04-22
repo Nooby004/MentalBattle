@@ -192,28 +192,25 @@ class GameActivity : AppCompatActivity(), OnCountdownFinish, OnGameFinish, OnNex
         val rand = r.nextInt(4 - 1) + 1
         val base: Int
         if (currentPlayerWin) {
-            db.setNbWinLoseByPlayer(
-                currentPlayer,
-                currentPlayer!!.nb_win + 1,
-                currentPlayer!!.nb_lose
-            )
-            base = winnerScore * 5 + rand * RankComputer().getLevelByXp(currentPlayer!!.xp)
-            gainXP = (base + 0.3 * base).roundToInt()
+            currentPlayer?.let {
+                db.setNbWinLoseByPlayer(it, it.nb_win?:0 + 1, it.nb_lose?:0)
+                base = winnerScore * 5 + rand * RankComputer().getLevelByXp(currentPlayer?.xp?:0)
+                gainXP = (base + 0.3 * base).roundToInt()
+            }
         } else {
-            db.setNbWinLoseByPlayer(
-                currentPlayer,
-                currentPlayer!!.nb_win,
-                currentPlayer!!.nb_lose + 1
-            )
-            base = looserScore * 5 + rand * RankComputer().getLevelByXp(currentPlayer!!.xp)
-            gainXP = (base - 0.2 * base).roundToInt()
+            currentPlayer?.let {
+                db.setNbWinLoseByPlayer(currentPlayer, it.nb_win?:0, currentPlayer?.nb_lose?:0 + 1)
+                base = looserScore * 5 + rand * RankComputer().getLevelByXp(currentPlayer?.xp?:0)
+                gainXP = (base - 0.2 * base).roundToInt()
+            }
         }
         if (winnerScore == 999) {
             gainXP = 0
-            db.setNbWinLoseByPlayer(otherPlayer, otherPlayer!!.nb_win, otherPlayer!!.nb_lose + 1)
+            db.setNbWinLoseByPlayer(otherPlayer, otherPlayer?.nb_win?:0, otherPlayer?.nb_lose?:0 + 1)
+
+            val xpToSet = currentPlayer?.xp?:0 + gainXP
+            db.setCurrentPlayerXp(currentPlayer, xpToSet)
         }
-        val xpToSet = currentPlayer!!.xp + gainXP
-        db.setCurrentPlayerXp(currentPlayer, xpToSet)
         //SET SCORE CURRENT PLAYER
     }
 }

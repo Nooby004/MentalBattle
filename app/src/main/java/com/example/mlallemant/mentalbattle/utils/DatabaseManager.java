@@ -193,7 +193,7 @@ public class DatabaseManager {
                     final String nb_lose = (String) dataSnapshot.child("nbLose").getValue();
                     final String xp = (String) dataSnapshot.child("xp").getValue();
 
-                    final Player currentPlayer = new Player(id, name, 0, Integer.parseInt(nb_win), Integer.parseInt(nb_lose), Integer.parseInt(xp));
+                    final Player currentPlayer = new Player(id, name, 0, Integer.parseInt(nb_win), Integer.parseInt(nb_lose), Integer.parseInt(xp), null, null);
 
                     onDataUserUpdateListener.updateDataUserUI(currentPlayer);
                 } else {
@@ -275,7 +275,7 @@ public class DatabaseManager {
                         final String nbLose = (String) result.child("nbLose").getValue();
 
                         if (id != null && name != null && isConnected != null && friendAcq != null && playReq != null && xp != null && nbWin != null && nbLose != null) {
-                            final FriendModel friendModel = new FriendModel(new Player(id, name, 0, Integer.parseInt(nbWin), Integer.parseInt(nbLose), Integer.parseInt(xp)), isConnected, friendAcq, playReq, xp, null);
+                            final FriendModel friendModel = new FriendModel(new Player(id, name, 0, Integer.parseInt(nbWin), Integer.parseInt(nbLose), Integer.parseInt(xp), null, null), isConnected, friendAcq, playReq, xp, null);
                             if (checkFriendIsOkToAdd(friendModel)) {
                                 friendList.add(friendModel);
                             }
@@ -413,7 +413,7 @@ public class DatabaseManager {
                             final String nb_lose = (String) result.child("nbLose").getValue();
                             final String xp = (String) result.child("xp").getValue();
 
-                            final Player player = new Player(id, username, 0, Integer.parseInt(nb_win), Integer.parseInt(nb_lose), Integer.parseInt(xp));
+                            final Player player = new Player(id, username, 0, Integer.parseInt(nb_win), Integer.parseInt(nb_lose), Integer.parseInt(xp), null, null);
                             if (checkFriendFoundIsOk(player)) {
                                 players.add(player);
                             }

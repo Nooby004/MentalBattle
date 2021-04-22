@@ -33,11 +33,7 @@ class TransitionFragment : Fragment() {
     private var db: DatabaseManager? = null
 
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = TransitionFragmentBinding.inflate(inflater, container, false)
         val bundle = arguments
         session = bundle!!.getParcelable("session")
@@ -59,18 +55,18 @@ class TransitionFragment : Fragment() {
         val adapter = RankingPlayerAdapter(playerModel, activity!!)
         binding.sessionTransitionLvRanking.adapter = adapter
         adapter.clear()
-        session!!.playerList.sortWith(Comparator { lhs, rhs -> rhs.score.compareTo(lhs.score) })
+        session?.playerList?.sortWith { lhs, rhs -> rhs.score?.compareTo(lhs?.score?:0)?:0 }
         val players = session!!.playerList
         adapter.addAll(players)
         if (currentRoundSessionNumber >= MAX_ROUND) {
-            binding.sessionTransitionTvRoundNumber.text = "Final Ranking"
+            binding.sessionTransitionTvRoundNumber.text = getString(R.string.final_ranking)
             binding.sessionTransitionBtnNextRound.isEnabled = true
             text = "Return menu"
             binding.sessionTransitionBtnNextRound.text = text
         } else {
             if (isCreator) {
                 binding.sessionTransitionBtnNextRound.isEnabled = true
-                binding.sessionTransitionBtnNextRound.text = "Next Round"
+                binding.sessionTransitionBtnNextRound.text = getString(R.string.next_round)
             } else {
                 binding.sessionTransitionBtnNextRound.isEnabled = false
                 text = "Waiting creator for next round..."
