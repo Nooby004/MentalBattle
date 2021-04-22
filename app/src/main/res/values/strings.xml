@@ -65,4 +65,5 @@
     <string name="click_onPlay_to_search">Click on Play to search game !</string>
     <string name="searching">Searching game ...</string>
     <string name="game_found">Game found !</string>
+    <string name="serach_game_timeout">No game available please retry later.</string>
 </resources>
