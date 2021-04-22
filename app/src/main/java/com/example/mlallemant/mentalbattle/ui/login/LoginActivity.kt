@@ -11,8 +11,12 @@ import android.util.Patterns
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
+import com.example.mlallemant.mentalbattle.MentalBattleApplication
+import com.example.mlallemant.mentalbattle.MentalBattleApplication.Companion.REMOTE_CONFIG_SIGNIN_WITH_FACEBOOK
+import com.example.mlallemant.mentalbattle.MentalBattleApplication.Companion.REMOTE_CONFIG_SIGNIN_WITH_GOOGLE
 import com.example.mlallemant.mentalbattle.R
 import com.example.mlallemant.mentalbattle.databinding.LoginActivityBinding
+import com.example.mlallemant.mentalbattle.ui.extention.changeVisibility
 import com.example.mlallemant.mentalbattle.ui.extention.toast
 import com.example.mlallemant.mentalbattle.ui.menu.MenuActivity
 import com.example.mlallemant.mentalbattle.utils.DatabaseManager
@@ -33,8 +37,8 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.storage.FirebaseStorage
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -67,7 +71,7 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
         db = DatabaseManager.getInstance()
         val currentUser = mAuth?.currentUser
         if (currentUser != null) {
-            binding.loadingLayout.root.visibility = View.VISIBLE
+            binding.loadingLayout.root.changeVisibility(true)
             db.getCurrentUserDataById(currentUser.uid)
             db.setOnDataUserUpdateListener { player ->
                 if (player == null) {
@@ -77,10 +81,10 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
                     Utils.AUTHENTIFICATION_TYPE =
                         Utils.AUTHENTIFICATION_ACCOUNT
                 }
-                launchMenuActivity(currentUser)
+                launchMenuActivity()
             }
         } else {
-            binding.loadingLayout.root.visibility = View.GONE
+            binding.loadingLayout.root.changeVisibility(false)
             initUI()
             initListener()
             initLoginButtonFB()
@@ -133,9 +137,14 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
     }
 
     private fun initUI() {
-        binding.loginPbBtnLogin.visibility = View.GONE
-        binding.loginPbBtnLoginFB.visibility = View.GONE
-        binding.loginPbBtnLoginGoogle.visibility = View.GONE
+        val remoteConfig = FirebaseRemoteConfig.getInstance()
+        with(binding) {
+            loginPbBtnLogin.changeVisibility(false)
+            loginPbBtnLoginFB.changeVisibility(false)
+            loginPbBtnLoginGoogle.changeVisibility(false)
+            loginBtnLoginFB.changeVisibility(remoteConfig.getBoolean(REMOTE_CONFIG_SIGNIN_WITH_FACEBOOK))
+            loginBtnLoginGoogle.changeVisibility(remoteConfig.getBoolean(REMOTE_CONFIG_SIGNIN_WITH_GOOGLE))
+        }
     }
 
     private fun initListener() {
@@ -152,7 +161,7 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
             val password = binding.loginEtPassword.text.toString()
             if (isValidPassword(password) && isValidEmail(email)) {
                 hideKeyboard()
-                binding.loginPbBtnLogin.visibility = View.VISIBLE
+                binding.loginPbBtnLogin.changeVisibility(true)
                 loginUser(email, password)
             } else {
                 toast(getString(R.string.invalid_email_or_pswd))
@@ -160,12 +169,12 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
         }
 
         binding.loginBtnLoginFB.setOnClickListener {
-            binding.loginPbBtnLoginFB.visibility = View.VISIBLE
+            binding.loginPbBtnLoginFB.changeVisibility(true)
             loginUserFB()
         }
 
         binding.loginBtnLoginGoogle.setOnClickListener {
-            binding.loginPbBtnLoginGoogle.visibility = View.VISIBLE
+            binding.loginPbBtnLoginGoogle.changeVisibility(true)
             loginUserGoogle()
         }
     }
@@ -177,15 +186,15 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
                     this
                 ) { task ->
                     if (task.isSuccessful) {
-                        val user = mAuth!!.currentUser
-                        binding.loginPbBtnLogin.visibility = View.GONE
+                        mAuth!!.currentUser
+                        binding.loginPbBtnLogin.changeVisibility(false)
                         Utils.AUTHENTIFICATION_TYPE =
                             Utils.AUTHENTIFICATION_ACCOUNT
-                        launchMenuActivity(user)
+                        launchMenuActivity()
                     } else {
                         //Error when connecting
                         toast(getString(R.string.invalid_email_or_pswd))
-                        binding.loginPbBtnLogin.visibility = View.GONE
+                        binding.loginPbBtnLogin.changeVisibility(false)
                     }
                 }
         } catch (e: Exception) {
@@ -275,9 +284,9 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
                     toast(getString(R.string.welcome) + user?.displayName)
                     isConnectedWithGoogle = true
 
-                    binding.loginPbBtnLoginGoogle.visibility = View.GONE
+                    binding.loginPbBtnLoginGoogle.changeVisibility(false)
                     Utils.AUTHENTIFICATION_TYPE = Utils.AUTHENTIFICATION_GOOGLE
-                    launchMenuActivity(user)
+                    launchMenuActivity()
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "signInWithCredential:failure", task.exception)
@@ -299,7 +308,7 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
         LoginManager.getInstance().logOut()
     }
 
-    private fun launchMenuActivity(user: FirebaseUser?) {
+    private fun launchMenuActivity() {
         val intent = Intent(this@LoginActivity, MenuActivity::class.java)
         startActivity(intent)
         overridePendingTransition(0, 0)
@@ -368,11 +377,10 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
 
     private fun onUploadSuccess() {
         Observable.fromCallable {
-            val user = mAuth!!.currentUser
-            binding.loginPbBtnLoginFB.visibility = View.GONE
+            binding.loginPbBtnLoginFB.changeVisibility(false)
             Utils.AUTHENTIFICATION_TYPE =
                 Utils.AUTHENTIFICATION_FB
-            launchMenuActivity(user)
+            launchMenuActivity()
 
         }.subscribeOn(AndroidSchedulers.mainThread())
             .subscribe()
