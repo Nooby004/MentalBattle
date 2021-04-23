@@ -28,6 +28,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
+
 /**
  * Created by m.lallemant on 10/11/2017.
  */
@@ -144,9 +145,11 @@ class PlayFragment : Fragment() {
 
     private fun searchGameTask() {
         compositeDisposable.add(
-            Single.defer { Single.just(searchGame()) }.observeOn(AndroidSchedulers.mainThread())
+            Single.defer { Single.just(searchGame()) }
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .timeout(Utils.SEARCH_TIME.toLong(), TimeUnit.MILLISECONDS)
+                .doOnError { error -> processError(error) }
                 .subscribe(
                     { game -> updateUI(game) },
                     { error -> processError(error) }
@@ -154,8 +157,12 @@ class PlayFragment : Fragment() {
         )
     }
 
-    private fun searchGame(): Game {
-        var returnGame: Game
+    private fun searchGame(): Game? {
+        var returnGame: Game? = null
+        val startTime = System.currentTimeMillis()
+        val waitTime = Utils.SEARCH_TIME.toLong()
+        val endTime = startTime + waitTime
+
         val availableGame = db.findAvailableGame()
         if (availableGame == null) {
             // if no game available, we create one
@@ -164,7 +171,17 @@ class PlayFragment : Fragment() {
             val id = UUID.randomUUID().toString()
             val game = Game(id, currentPlayer, tmpPlayer, generateCalculationList())
             db.insertAvailableGame(game)
-            returnGame = db.getAvailableGame(game)
+
+            while (System.currentTimeMillis() < endTime) {
+                val tmpGame = db.getAvailableGame(game)
+                if (tmpGame?.player1 != null && tmpGame.player2 != null) {
+                    if (tmpGame.player1!!.id != "" && tmpGame.player2!!.id != "") {
+                        returnGame = tmpGame
+                        break
+                    }
+                }
+                returnGame = tmpGame
+            }
         } else {
             // else we insert player1 in game available
             Log.e(TAG, "Game available")
@@ -188,13 +205,14 @@ class PlayFragment : Fragment() {
     }
 
     private fun processError(error: Throwable) {
+        Log.e(TAG, "processError")
         if (error is TimeoutException) {
             db.deleteAvailableGame(currentGame)
         } else {
             toast(getString(R.string.serach_game_timeout))
-            cancelSearch()
-            Log.e(javaClass.simpleName, error.message, error)
         }
+        cancelSearch()
+        Log.e(TAG, error.message, error)
     }
 
     companion object {

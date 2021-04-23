@@ -639,7 +639,9 @@ public class DatabaseManager {
         Game game = null;
 
         for (int i = 0; i < availableGameList.size(); i++) {
-            if (availableGameList.get(i).getPlayer1().getId().equals("") || availableGameList.get(i).getPlayer2().getId().equals("")) {
+            Player player1 = availableGameList.get(i).getPlayer1();
+            Player player2 = availableGameList.get(i).getPlayer2();
+            if (player1.getId() != null && (player1.getId().equals("") || player2.getId().equals(""))) {
                 game = availableGameList.get(i);
             }
         }
