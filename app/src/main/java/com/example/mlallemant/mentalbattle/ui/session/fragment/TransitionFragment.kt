@@ -33,7 +33,11 @@ class TransitionFragment : Fragment() {
     private var db: DatabaseManager? = null
 
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = TransitionFragmentBinding.inflate(inflater, container, false)
         val bundle = arguments
         session = bundle!!.getParcelable("session")
@@ -55,9 +59,9 @@ class TransitionFragment : Fragment() {
         val adapter = RankingPlayerAdapter(playerModel, activity!!)
         binding.sessionTransitionLvRanking.adapter = adapter
         adapter.clear()
-        session?.playerList?.sortWith { lhs, rhs -> rhs.score?.compareTo(lhs?.score?:0)?:0 }
+        session?.playerList?.sortBy { it?.score }
         val players = session!!.playerList
-        adapter.addAll(players)
+        adapter.addAll(players!!)
         if (currentRoundSessionNumber >= MAX_ROUND) {
             binding.sessionTransitionTvRoundNumber.text = getString(R.string.final_ranking)
             binding.sessionTransitionBtnNextRound.isEnabled = true

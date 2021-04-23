@@ -47,7 +47,11 @@ class SessionLauncherFragment : Fragment() {
     private var adapter: PlayersAdapter? = null
     private var isEverybodyReady = false
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = MenuSessionFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -56,7 +60,7 @@ class SessionLauncherFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val menuActivity = activity as MenuActivity?
         currentPlayer = menuActivity?.currentPlayer
-        isCreator = arguments?.getBoolean(BUNDLE_EXTRA_CREATOR)?:false
+        isCreator = arguments?.getBoolean(BUNDLE_EXTRA_CREATOR) ?: false
         name = arguments?.getString(BUNDLE_EXTRA_NAME)
         password = arguments?.getString(BUNDLE_EXTRA_PASSWORD)
         session = Session(name, password, Utils.SESSION_STATE_WAITING)
@@ -106,15 +110,15 @@ class SessionLauncherFragment : Fragment() {
                     session = session_
                     val players = session_.playerList
                     adapter?.clear()
-                    adapter?.addAll(players)
-                    tvSessionNbPlayer.text = players.size.toString()
+                    players?.let { adapter?.addAll(it) }
+                    tvSessionNbPlayer.text = players?.size.toString()
                     var currentPlayerIsInList = false
                     var isEverybodyReadyTmp = true
-                    for (player in players) {
-                        if (player.id == currentPlayer?.id) {
+                    players?.forEach { player ->
+                        if (player?.id == currentPlayer?.id) {
                             currentPlayerIsInList = true
                         }
-                        if (player.ready != Utils.SESSION_RDY_YES) {
+                        if (player?.ready != Utils.SESSION_RDY_YES) {
                             isEverybodyReadyTmp = false
                         }
                     }
@@ -123,7 +127,7 @@ class SessionLauncherFragment : Fragment() {
                     }
                     isEverybodyReady = isEverybodyReadyTmp
                     if (isCreator) {
-                        btnSessionLaunchReady.background = when(isEverybodyReady) {
+                        btnSessionLaunchReady.background = when (isEverybodyReady) {
                             true -> ContextCompat.getDrawable(activity!!, R.drawable.shape_green)
                             else -> ContextCompat.getDrawable(activity!!, R.drawable.shape_orange)
 
@@ -180,7 +184,8 @@ class SessionLauncherFragment : Fragment() {
     }
 
     private fun returnSelectorFragment() {
-        fragmentManager?.beginTransaction()?.replace(R.id.menu_fl_select, SelectorFragment())?.commit()
+        fragmentManager?.beginTransaction()?.replace(R.id.menu_fl_select, SelectorFragment())
+            ?.commit()
     }
 
     private fun quitSession() {
@@ -205,8 +210,11 @@ class SessionLauncherFragment : Fragment() {
         AlertDialog.Builder(requireContext()).create().apply {
             setTitle(getString(R.string.alert_session_title))
             setMessage(message)
-            setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.alert_session_btn_ok)) {
-                    dialog, _ -> dialog.dismiss()
+            setButton(
+                AlertDialog.BUTTON_POSITIVE,
+                getString(R.string.alert_session_btn_ok)
+            ) { dialog, _ ->
+                dialog.dismiss()
             }
         }.show()
     }

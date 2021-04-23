@@ -42,8 +42,8 @@ class LoadingFragment : Fragment() {
         db!!.setOnSessionUpdateListener { session ->
             if (session != null) {
                 var isEverybodyReady = true
-                for (player in session.playerList) {
-                    if (player.ready == Utils.SESSION_RDY_NO) {
+                for (player in session.playerList!!) {
+                    if (player?.ready == Utils.SESSION_RDY_NO) {
                         isEverybodyReady = false
                         break
                     }

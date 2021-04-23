@@ -13,8 +13,6 @@ import com.example.mlallemant.mentalbattle.databinding.RoundFragmentBinding
 import com.example.mlallemant.mentalbattle.ui.menu.MenuActivity.Companion.BUNDLE_EXTRA_CURRENT_PLAYER
 import com.example.mlallemant.mentalbattle.ui.menu.MenuActivity.Companion.BUNDLE_EXTRA_SESSION
 import com.example.mlallemant.mentalbattle.utils.*
-import com.example.mlallemant.mentalbattle.utils.GameUtils.Companion.checkLengthText
-import com.example.mlallemant.mentalbattle.utils.GameUtils.Companion.removeLastChar
 import com.example.mlallemant.mentalbattle.utils.GameUtils.Companion.updateButtonBackspaceResult
 import com.example.mlallemant.mentalbattle.utils.GameUtils.Companion.updateButtonMinusResult
 import com.example.mlallemant.mentalbattle.utils.GameUtils.Companion.updateEditTextResult
@@ -39,7 +37,11 @@ class RoundFragment : Fragment() {
     private var totalScore = 0
 
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
 
         _binding = RoundFragmentBinding.inflate(inflater, container, false)
 
@@ -69,9 +71,9 @@ class RoundFragment : Fragment() {
     private fun initListener() {
         db.setOnSessionUpdateListener { session_ ->
             session = session_
-            for (player in session_.playerList) {
-                if (player.id == currentPlayer?.id) {
-                    totalScore = player.score?:0
+            for (player in session_.playerList!!) {
+                if (player?.id == currentPlayer?.id) {
+                    totalScore = player?.score ?: 0
                     binding.playTvPlayer2Score.text = totalScore.toString()
                 }
             }
@@ -86,7 +88,8 @@ class RoundFragment : Fragment() {
                 if (resultTextPlayer == session?.calculationList?.get(counter)?.result.toString()) {
                     //Player found the correct result
                     counter++
-                    binding.playTvCalculation.text = session?.calculationList?.get(counter)?.calculText
+                    binding.playTvCalculation.text =
+                        session?.calculationList?.get(counter)?.calculText
                     binding.playEtResult.setText("")
                     totalScore++
                     roundScore++
@@ -134,8 +137,8 @@ class RoundFragment : Fragment() {
     }
 
     private fun launchLoadingFragment() {
-        for (player in session!!.playerList) {
-            if (player.new_ == Utils.SESSION_CREATOR) {
+        for (player in session!!.playerList!!) {
+            if (player?.new_ == Utils.SESSION_CREATOR) {
                 if (player.id == currentPlayer!!.id) {
                     db.updateCalculationListInSession(session, generateCalculationList())
                 }
