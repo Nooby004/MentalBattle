@@ -34,7 +34,11 @@ class FriendsFragment : Fragment() {
     private var currentGame: Game? = null
     private var cdAskToPlay: CustomDialog? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = MenuFriendsFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -83,27 +87,28 @@ class FriendsFragment : Fragment() {
                 }
             }
         })
-        binding.selectFriendsListView.onItemLongClickListener = OnItemLongClickListener { _, _, i, _ ->
-            val friend = adapter?.getItem(i)
-            val cdConfirmDelete = CustomDialog(
-                requireContext(), friend?.player?.id,
-                getString(R.string.delete_friend_dialog_message),
-                getString(R.string.btn_yes), R.color.greenColor,
-                getString(R.string.btn_no), R.color.redColor
-            )
-            cdConfirmDelete.create()
-            cdConfirmDelete.setOnClickBtnListener(object : OnClickBtnListener {
-                override fun onClickBtn1() {
-                    db.deleteFriend(currentPlayer, friend?.player)
-                    cdConfirmDelete.dismiss()
-                }
+        binding.selectFriendsListView.onItemLongClickListener =
+            OnItemLongClickListener { _, _, i, _ ->
+                val friend = adapter?.getItem(i)
+                val cdConfirmDelete = CustomDialog(
+                    requireContext(), friend?.player?.id,
+                    getString(R.string.delete_friend_dialog_message),
+                    getString(R.string.btn_yes), R.color.greenColor,
+                    getString(R.string.btn_no), R.color.redColor
+                )
+                cdConfirmDelete.create()
+                cdConfirmDelete.setOnClickBtnListener(object : OnClickBtnListener {
+                    override fun onClickBtn1() {
+                        db.deleteFriend(currentPlayer, friend?.player)
+                        cdConfirmDelete.dismiss()
+                    }
 
-                override fun onClickBtn2() {
-                    cdConfirmDelete.dismiss()
-                }
-            })
-            false
-        }
+                    override fun onClickBtn2() {
+                        cdConfirmDelete.dismiss()
+                    }
+                })
+                false
+            }
         binding.selectFriendsListView.onItemClickListener = OnItemClickListener { _, _, i, _ ->
             val friend = adapter?.getItem(i)
             if (friend?.friendAcq == Utils.ACK_REQUEST_RECEIVED) {
@@ -165,11 +170,13 @@ class FriendsFragment : Fragment() {
 
     private fun returnSelectorFragment() {
         val selectorFragment = SelectorFragment()
-        fragmentManager?.beginTransaction()?.replace(R.id.menu_fl_select, selectorFragment)?.commit()
+        fragmentManager?.beginTransaction()?.replace(R.id.menu_fl_select, selectorFragment)
+            ?.commit()
     }
 
     private fun launchSearchFragment() {
         val searchFriendFragment = SearchFriendFragment()
-        fragmentManager?.beginTransaction()?.replace(R.id.menu_fl_select, searchFriendFragment)?.commit()
+        fragmentManager?.beginTransaction()?.replace(R.id.menu_fl_select, searchFriendFragment)
+            ?.commit()
     }
 }

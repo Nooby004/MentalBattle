@@ -39,7 +39,7 @@ class SigninActivity : AppCompatActivity() {
     private var storage: FirebaseStorage? = null
     private var db: DatabaseManager? = null
     private var isValidCreation = false
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)

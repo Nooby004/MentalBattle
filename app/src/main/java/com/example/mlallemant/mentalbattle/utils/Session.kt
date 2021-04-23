@@ -28,7 +28,6 @@ class Session(
         this.calculationList = calculationList
     }
 
-
     fun addPlayerToSession(player: Player?) {
         playerList!!.add(player)
     }

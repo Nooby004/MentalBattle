@@ -32,7 +32,11 @@ class SearchFriendFragment : Fragment() {
     private lateinit var db: DatabaseManager
     private var adapter: FriendSearchAdapter? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = MenuFriendsFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -87,8 +91,8 @@ class SearchFriendFragment : Fragment() {
             }
             selectFriendsListView.onItemClickListener = OnItemClickListener { _, _, i, _ ->
                 val friend = adapter?.getItem(i)
-                Log.e("SFF", friend?.player?.name?:"")
-                Log.e("SFF", friend?.player?.id?:"")
+                Log.e("SFF", friend?.player?.name ?: "")
+                Log.e("SFF", friend?.player?.id ?: "")
                 Log.e("SFF", friend?.player?.xp.toString())
                 Log.e("SFF", friend?.player?.nb_win.toString())
                 Log.e("SFF", friend?.player?.nb_lose.toString())

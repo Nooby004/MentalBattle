@@ -20,7 +20,11 @@ class SelectorFragment : Fragment() {
     private var _binding: MenuSelectorFragmentBinding? = null
     private val binding get() = _binding!!
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = MenuSelectorFragmentBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
@@ -65,7 +69,8 @@ class SelectorFragment : Fragment() {
             putBoolean(BUNDLE_EXTRA_CREATOR, true)
         }
         createJoinFragment.arguments = bundle
-        fragmentManager?.beginTransaction()?.replace(R.id.menu_fl_select, createJoinFragment)?.commit()
+        fragmentManager?.beginTransaction()?.replace(R.id.menu_fl_select, createJoinFragment)
+            ?.commit()
     }
 
     private fun launchJoinFragment() {
@@ -74,13 +79,15 @@ class SelectorFragment : Fragment() {
             putBoolean(BUNDLE_EXTRA_CREATOR, false)
         }
         createJoinFragment.arguments = bundle
-        fragmentManager?.beginTransaction()?.replace(R.id.menu_fl_select, createJoinFragment)?.commit()
+        fragmentManager?.beginTransaction()?.replace(R.id.menu_fl_select, createJoinFragment)
+            ?.commit()
     }
 
     private fun launchFriendsFragment() {
         if (Utils.AUTHENTIFICATION_TYPE != Utils.AUTHENTIFICATION_GUEST) {
             val friendsFragment = FriendsFragment()
-            fragmentManager?.beginTransaction()?.replace(R.id.menu_fl_select, friendsFragment)?.commit()
+            fragmentManager?.beginTransaction()?.replace(R.id.menu_fl_select, friendsFragment)
+                ?.commit()
         }
     }
 }

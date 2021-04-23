@@ -73,7 +73,9 @@ class MenuActivity : AppCompatActivity() {
                         launchSelectorFragment()
                         db.initFriendList()
                         val splitName =
-                            currentPlayer?.let { it.name?.split(" ".toRegex())?.toTypedArray()?.get(0) }
+                            currentPlayer?.let {
+                                it.name?.split(" ".toRegex())?.toTypedArray()?.get(0)
+                            }
 
                         val player = Player(
                             currentPlayer?.id,
@@ -172,7 +174,7 @@ class MenuActivity : AppCompatActivity() {
                     menuTvNbWinLoses.text = Html.fromHtml(text)
 
                     //LEVEL
-                    val level = RankComputer().getLevelByXp(it.xp?:0)
+                    val level = RankComputer().getLevelByXp(it.xp ?: 0)
                     text = "LEVEL $level"
                     menuTvCurrentLevel.text = text
 
@@ -189,7 +191,7 @@ class MenuActivity : AppCompatActivity() {
                     text = it.xp.toString() + "/" + range[1] + " XP"
                     menuTvCurrentXp.text = text
                     menuPbProgressXp.max = range[1] - range[0]
-                    val progress = it.xp?:0 * (range[1] - range[0]) / range[1]
+                    val progress = it.xp ?: 0 * (range[1] - range[0]) / range[1]
                     menuPbProgressXp.progress = progress
                 } else {
                     //SET NAME CURRENT PLAYER

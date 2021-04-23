@@ -31,7 +31,11 @@ class CreateJoinFragment : Fragment() {
     private lateinit var db: DatabaseManager
     private var isCreator = false
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = MenuCreateFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -40,7 +44,7 @@ class CreateJoinFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val menuActivity = activity as MenuActivity?
         currentPlayer = menuActivity?.currentPlayer
-        isCreator = arguments?.getBoolean(BUNDLE_EXTRA_CREATOR)?:false
+        isCreator = arguments?.getBoolean(BUNDLE_EXTRA_CREATOR) ?: false
         db = DatabaseManager.getInstance()
         db.deletePlayerInLobby(currentPlayer)
         initUI()
@@ -50,11 +54,11 @@ class CreateJoinFragment : Fragment() {
     private fun initUI() {
         with(binding) {
             pbCreateSession.visibility = View.INVISIBLE
-            btnCreateSession.text = when(isCreator) {
+            btnCreateSession.text = when (isCreator) {
                 true -> getString(R.string.create)
                 else -> getString(R.string.join)
             }
-            tvTitleSession.text = when(isCreator) {
+            tvTitleSession.text = when (isCreator) {
                 true -> getString(R.string.create_session)
                 else -> getString(R.string.join_session)
             }
@@ -141,7 +145,8 @@ class CreateJoinFragment : Fragment() {
 
     private fun returnSelectorFragment() {
         val selectorFragment = SelectorFragment()
-        fragmentManager?.beginTransaction()?.replace(R.id.menu_fl_select, selectorFragment)?.commit()
+        fragmentManager?.beginTransaction()?.replace(R.id.menu_fl_select, selectorFragment)
+            ?.commit()
     }
 
     private fun launchSessionLauncherFragment(isCreator: Boolean) {
@@ -152,6 +157,7 @@ class CreateJoinFragment : Fragment() {
             putString(BUNDLE_EXTRA_PASSWORD, binding.etCreateSessionPassword.text.toString())
         }
         sessionLauncherFragment.arguments = bundle
-        fragmentManager?.beginTransaction()?.replace(R.id.menu_fl_select, sessionLauncherFragment)?.commit()
+        fragmentManager?.beginTransaction()?.replace(R.id.menu_fl_select, sessionLauncherFragment)
+            ?.commit()
     }
 }

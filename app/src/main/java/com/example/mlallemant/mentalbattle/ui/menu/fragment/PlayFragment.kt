@@ -44,7 +44,11 @@ class PlayFragment : Fragment() {
 
     private val compositeDisposable = CompositeDisposable()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = MenuPlayFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -95,7 +99,8 @@ class PlayFragment : Fragment() {
 
     private fun returnSelectorFragment() {
         val selectorFragment = SelectorFragment()
-        fragmentManager?.beginTransaction()?.replace(R.id.menu_fl_select, selectorFragment)?.commit()
+        fragmentManager?.beginTransaction()?.replace(R.id.menu_fl_select, selectorFragment)
+            ?.commit()
     }
 
     private fun launchSearchingGameTask() {
@@ -149,7 +154,7 @@ class PlayFragment : Fragment() {
         )
     }
 
-    private fun searchGame() : Game {
+    private fun searchGame(): Game {
         var returnGame: Game
         val availableGame = db.findAvailableGame()
         if (availableGame == null) {

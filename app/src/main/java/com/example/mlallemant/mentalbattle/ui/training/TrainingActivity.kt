@@ -97,14 +97,14 @@ class TrainingActivity : AppCompatActivity() {
 
     private fun launchTraining() {
         compositeDisposable.add(
-        Observable.timer(100, TimeUnit.MILLISECONDS)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe{
-                generateNewCalcul()
-                timeBetweenEachCalcul -= 15
-                calculAndDisplaySpeed()
-            })
+            Observable.timer(100, TimeUnit.MILLISECONDS)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    generateNewCalcul()
+                    timeBetweenEachCalcul -= 15
+                    calculAndDisplaySpeed()
+                })
     }
 
     private fun calculAndDisplaySpeed() {

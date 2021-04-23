@@ -16,8 +16,6 @@ import com.example.mlallemant.mentalbattle.ui.game.GameActivity.Companion.BUNDLE
 import com.example.mlallemant.mentalbattle.utils.Calculation
 import com.example.mlallemant.mentalbattle.utils.DatabaseManager
 import com.example.mlallemant.mentalbattle.utils.Game
-import com.example.mlallemant.mentalbattle.utils.GameUtils.Companion.checkLengthText
-import com.example.mlallemant.mentalbattle.utils.GameUtils.Companion.removeLastChar
 import com.example.mlallemant.mentalbattle.utils.GameUtils.Companion.updateButtonBackspaceResult
 import com.example.mlallemant.mentalbattle.utils.GameUtils.Companion.updateButtonMinusResult
 import com.example.mlallemant.mentalbattle.utils.GameUtils.Companion.updateEditTextResult

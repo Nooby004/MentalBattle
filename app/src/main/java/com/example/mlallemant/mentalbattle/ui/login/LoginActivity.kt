@@ -11,7 +11,6 @@ import android.util.Patterns
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
-import com.example.mlallemant.mentalbattle.MentalBattleApplication
 import com.example.mlallemant.mentalbattle.MentalBattleApplication.Companion.REMOTE_CONFIG_SIGNIN_WITH_FACEBOOK
 import com.example.mlallemant.mentalbattle.MentalBattleApplication.Companion.REMOTE_CONFIG_SIGNIN_WITH_GOOGLE
 import com.example.mlallemant.mentalbattle.R
@@ -142,8 +141,16 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
             loginPbBtnLogin.changeVisibility(false)
             loginPbBtnLoginFB.changeVisibility(false)
             loginPbBtnLoginGoogle.changeVisibility(false)
-            loginBtnLoginFB.changeVisibility(remoteConfig.getBoolean(REMOTE_CONFIG_SIGNIN_WITH_FACEBOOK))
-            loginBtnLoginGoogle.changeVisibility(remoteConfig.getBoolean(REMOTE_CONFIG_SIGNIN_WITH_GOOGLE))
+            loginBtnLoginFB.changeVisibility(
+                remoteConfig.getBoolean(
+                    REMOTE_CONFIG_SIGNIN_WITH_FACEBOOK
+                )
+            )
+            loginBtnLoginGoogle.changeVisibility(
+                remoteConfig.getBoolean(
+                    REMOTE_CONFIG_SIGNIN_WITH_GOOGLE
+                )
+            )
         }
     }
 
