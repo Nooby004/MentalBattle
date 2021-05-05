@@ -18,6 +18,12 @@ import com.example.mlallemant.mentalbattle.databinding.LoginActivityBinding
 import com.example.mlallemant.mentalbattle.ui.extention.changeVisibility
 import com.example.mlallemant.mentalbattle.ui.extention.toast
 import com.example.mlallemant.mentalbattle.ui.menu.MenuActivity
+import com.example.mlallemant.mentalbattle.utils.Analytics
+import com.example.mlallemant.mentalbattle.utils.Analytics.Companion.EMAIL_LOGIN
+import com.example.mlallemant.mentalbattle.utils.Analytics.Companion.EVENT_LOGIN
+import com.example.mlallemant.mentalbattle.utils.Analytics.Companion.FB_LOGIN
+import com.example.mlallemant.mentalbattle.utils.Analytics.Companion.GOOGLE_LOGIN
+import com.example.mlallemant.mentalbattle.utils.Analytics.Companion.GUEST_LOGIN
 import com.example.mlallemant.mentalbattle.utils.DatabaseManager
 import com.example.mlallemant.mentalbattle.utils.Player
 import com.example.mlallemant.mentalbattle.utils.Utils
@@ -34,6 +40,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
@@ -60,6 +67,8 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
     private var _binding: LoginActivityBinding? = null
     private val binding get() = _binding!!
 
+    private val analytics = Analytics()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -74,11 +83,9 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
             db.getCurrentUserDataById(currentUser.uid)
             db.setOnDataUserUpdateListener { player ->
                 if (player == null) {
-                    Utils.AUTHENTIFICATION_TYPE =
-                        Utils.AUTHENTIFICATION_GUEST
+                    Utils.AUTHENTIFICATION_TYPE = Utils.AUTHENTIFICATION_GUEST
                 } else {
-                    Utils.AUTHENTIFICATION_TYPE =
-                        Utils.AUTHENTIFICATION_ACCOUNT
+                    Utils.AUTHENTIFICATION_TYPE = Utils.AUTHENTIFICATION_ACCOUNT
                 }
                 launchMenuActivity()
             }
@@ -105,7 +112,7 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
         super.onActivityResult(requestCode, resultCode, data)
 
         // Pass the activity result back to the Facebook SDK
-        mCallbackManager!!.onActivityResult(requestCode, resultCode, data)
+        mCallbackManager?.onActivityResult(requestCode, resultCode, data)
         if (requestCode == RC_SIGN_IN) {
             val result = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
@@ -157,7 +164,10 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
     private fun initListener() {
 
         //PLAY AS GUEST
-        binding.loginTvPlayasguest.setOnClickListener { launchPlayAsGuestActivity() }
+        binding.loginTvPlayasguest.setOnClickListener {
+            launchPlayAsGuestActivity()
+            analytics.logCustomEvent(applicationContext, EVENT_LOGIN, GUEST_LOGIN)
+        }
 
         //SIGN IN
         binding.loginTvSignin.setOnClickListener { launchSignInActivity() }
@@ -170,6 +180,7 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
                 hideKeyboard()
                 binding.loginPbBtnLogin.changeVisibility(true)
                 loginUser(email, password)
+                analytics.logCustomEvent(applicationContext, EVENT_LOGIN, EMAIL_LOGIN)
             } else {
                 toast(getString(R.string.invalid_email_or_pswd))
             }
@@ -178,11 +189,13 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
         binding.loginBtnLoginFB.setOnClickListener {
             binding.loginPbBtnLoginFB.changeVisibility(true)
             loginUserFB()
+            analytics.logCustomEvent(applicationContext, EVENT_LOGIN, FB_LOGIN)
         }
 
         binding.loginBtnLoginGoogle.setOnClickListener {
             binding.loginPbBtnLoginGoogle.changeVisibility(true)
             loginUserGoogle()
+            analytics.logCustomEvent(applicationContext, EVENT_LOGIN, GOOGLE_LOGIN)
         }
     }
 
